@@ -1,0 +1,17 @@
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\bin\Debug\net8.0\FurniturePro.Infrastructure.deps.json
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\bin\Debug\net8.0\FurniturePro.Infrastructure.runtimeconfig.json
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\bin\Debug\net8.0\FurniturePro.Infrastructure.dll
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\bin\Debug\net8.0\FurniturePro.Infrastructure.pdb
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\bin\Debug\net8.0\FurniturePro.Core.dll
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\bin\Debug\net8.0\FurniturePro.Core.pdb
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\obj\Debug\net8.0\FurniturePro.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\obj\Debug\net8.0\FurniturePro.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\obj\Debug\net8.0\FurniturePro.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\obj\Debug\net8.0\FurniturePro.Infrastructure.AssemblyInfo.cs
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\obj\Debug\net8.0\FurniturePro.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\obj\Debug\net8.0\Furnitur.C5998829.Up2Date
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\obj\Debug\net8.0\FurniturePro.Infrastructure.dll
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\obj\Debug\net8.0\refint\FurniturePro.Infrastructure.dll
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\obj\Debug\net8.0\FurniturePro.Infrastructure.pdb
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\obj\Debug\net8.0\FurniturePro.Infrastructure.genruntimeconfig.cache
+C:\Users\romar\source\repos\FurniturePro\FurniturePro.Infrastructure\obj\Debug\net8.0\ref\FurniturePro.Infrastructure.dll

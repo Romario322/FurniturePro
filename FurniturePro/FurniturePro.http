@@ -1,0 +1,6 @@
+@FurniturePro_HostAddress = http://localhost:5283
+
+GET {{FurniturePro_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
