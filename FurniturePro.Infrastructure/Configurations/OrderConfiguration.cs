@@ -21,5 +21,7 @@ internal class OrderConfiguration : IEntityTypeConfiguration<Order>
                .WithOne(e => e.Entity1)
                .HasForeignKey(e => e.Entity1Id)
                .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasIndex(et => et.UpdateDate);
     }
 }

@@ -11,5 +11,7 @@ internal class FurnitureCompositionConfiguration : IEntityTypeConfiguration<Furn
         builder.ToTable("furnitureCompositions");
 
         builder.HasKey(et => new { et.Entity1Id, et.Entity2Id });
+
+        builder.HasIndex(et => et.UpdateDate);
     }
 }

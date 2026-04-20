@@ -28,5 +28,7 @@ internal class PartConfiguration : IEntityTypeConfiguration<Part>
                .WithOne(e => e.Part)
                .HasForeignKey(e => e.PartId)
                .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasIndex(et => et.UpdateDate);
     }
 }

@@ -33,12 +33,14 @@ where TDbContext : DbContext
             CultureInfo.InvariantCulture,
             DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal
         );
+        date = date.AddTicks(9);
         return await _dbSet.AsNoTracking().Where(ent => ent.UpdateDate > date).ToListAsync(ct);
     }
 
     public virtual async Task<TConnectionEntity> CreateAsync(TConnectionEntity entity, CancellationToken ct = default)
     {
-        entity.UpdateDate = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
+        entity.UpdateDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, now.Millisecond, DateTimeKind.Utc);
         await _dbSet.AddAsync(entity, ct);
         await _context.SaveChangesAsync(ct);
 
@@ -56,7 +58,8 @@ where TDbContext : DbContext
 
     public virtual async Task UpdateAsync(TConnectionEntity entity, CancellationToken ct = default)
     {
-        entity.UpdateDate = DateTime.UtcNow;
+        var now = DateTime.UtcNow;
+        entity.UpdateDate = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, now.Millisecond, DateTimeKind.Utc);
         _dbSet.Update(entity);
         await _context.SaveChangesAsync(ct);
     }

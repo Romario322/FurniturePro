@@ -11,5 +11,7 @@ internal class OrderCompositionConfiguration : IEntityTypeConfiguration<OrderCom
         builder.ToTable("orderCompositions");
 
         builder.HasKey(et => new { et.Entity1Id, et.Entity2Id });
+
+        builder.HasIndex(et => et.UpdateDate);
     }
 }

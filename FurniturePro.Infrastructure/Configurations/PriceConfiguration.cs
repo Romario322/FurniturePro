@@ -11,5 +11,7 @@ internal class PriceConfiguration : IEntityTypeConfiguration<Price>
         builder.ToTable("prices");
 
         builder.HasKey(et => et.Id);
+
+        builder.HasIndex(et => et.UpdateDate);
     }
 }

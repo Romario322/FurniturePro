@@ -18,5 +18,7 @@ internal class CategoryConfiguration : IEntityTypeConfiguration<Category>
                .WithOne(e => e.Category)
                .HasForeignKey(e => e.CategoryId)
                .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasIndex(et => et.UpdateDate);
     }
 }

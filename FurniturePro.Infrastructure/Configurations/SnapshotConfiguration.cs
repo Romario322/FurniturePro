@@ -11,5 +11,7 @@ internal class SnapshotConfiguration : IEntityTypeConfiguration<Snapshot>
         builder.ToTable("snapshots");
 
         builder.HasKey(et => et.Id);
+
+        builder.HasIndex(et => et.UpdateDate);
     }
 }

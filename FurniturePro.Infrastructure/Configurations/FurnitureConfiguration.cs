@@ -23,5 +23,7 @@ internal class FurnitureConfiguration : IEntityTypeConfiguration<Furniture>
                .WithOne(e => e.Entity2)
                .HasForeignKey(e => e.Entity2Id)
                .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasIndex(et => et.UpdateDate);
     }
 }

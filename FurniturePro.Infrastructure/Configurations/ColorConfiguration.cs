@@ -18,5 +18,7 @@ internal class ColorConfiguration : IEntityTypeConfiguration<Color>
                .WithOne(e => e.Color)
                .HasForeignKey(e => e.ColorId)
                .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasIndex(et => et.UpdateDate);
     }
 }

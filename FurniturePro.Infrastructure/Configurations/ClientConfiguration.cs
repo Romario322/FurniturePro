@@ -18,5 +18,7 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
                .WithOne(e => e.Client)
                .HasForeignKey(e => e.ClientId)
                .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasIndex(et => et.UpdateDate);
     }
 }

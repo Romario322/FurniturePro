@@ -18,5 +18,7 @@ internal class MaterialConfiguration : IEntityTypeConfiguration<Material>
                .WithOne(e => e.Material)
                .HasForeignKey(e => e.MaterialId)
                .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasIndex(et => et.UpdateDate);
     }
 }

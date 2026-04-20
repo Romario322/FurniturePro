@@ -18,5 +18,7 @@ internal class OperationTypeConfiguration : IEntityTypeConfiguration<OperationTy
                .WithOne(e => e.OperationType)
                .HasForeignKey(e => e.OperationTypeId)
                .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasIndex(et => et.UpdateDate);
     }
 }

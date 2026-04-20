@@ -13,5 +13,7 @@ internal class DeletedIdConfiguration : IEntityTypeConfiguration<DeletedId>
         builder.HasIndex(c => new { c.TableName, c.EntityId }).IsUnique();
 
         builder.HasKey(et => et.Id);
+
+        builder.HasIndex(et => et.UpdateDate);
     }
 }
