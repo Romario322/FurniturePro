@@ -38,8 +38,8 @@
 }
 
 .modal-content-error {
-    border: 1px solid var(--danger-main) !important;
-    box-shadow: 0 10px 40px #84202926 !important; /* rgba(132, 32, 41, 0.15) */
+    border: 1px solid var(--danger-main) ;
+    box-shadow: 0 10px 40px #84202926 ; /* rgba(132, 32, 41, 0.15) */
 }
 
     .modal-content-error .modal-title-simple {

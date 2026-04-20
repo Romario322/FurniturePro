@@ -162,10 +162,10 @@
     }
 
 .btn-square {
-    width: 32px !important;
-    height: 32px !important;
-    padding: 0 !important;
-    display: inline-flex !important;
+    width: 32px ;
+    height: 32px ;
+    padding: 0 ;
+    display: inline-flex ;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;

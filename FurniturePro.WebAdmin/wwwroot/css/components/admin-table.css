@@ -51,7 +51,7 @@
     }
 
     .admin-table tbody tr:hover {
-        background-color: var(--accent-secondary)26 !important;
+        background-color: var(--accent-secondary) ;
         transition: background-color 0.2s ease;
     }
 
@@ -62,7 +62,7 @@
     }
 
     .admin-table tbody tr.selected-row {
-        background-color: var(--selected-row-bg) !important;
+        background-color: var(--selected-row-bg) ;
     }
 
         .admin-table tbody tr.selected-row > td:first-child::before {
@@ -77,8 +77,8 @@
         }
 
     .admin-table tbody tr.highlight-match {
-        background-color: var(--highlight-match-bg) !important;
-        color: var(--highlight-match-text) !important;
+        background-color: var(--highlight-match-bg) ;
+        color: var(--highlight-match-text) ;
     }
 
         .admin-table tbody tr.highlight-match > td {
@@ -86,11 +86,11 @@
         }
 
         .admin-table tbody tr.highlight-match.selected-row {
-            background-color: var(--super-selected-bg) !important;
+            background-color: var(--super-selected-bg) ;
         }
 
             .admin-table tbody tr.highlight-match.selected-row > td {
-                color: var(--super-selected-accent) !important;
+                color: var(--super-selected-accent) ;
             }
 
                 .admin-table tbody tr.highlight-match.selected-row > td:first-child::before {
@@ -103,7 +103,7 @@
     width: 1%;
     white-space: nowrap;
     text-align: right;
-    padding-right: 0.8rem !important;
+    padding-right: 0.8rem ;
 }
 
 .actions-group {
@@ -126,17 +126,17 @@
 }
 
 .admin-table tr.month-group-header {
-    background-color: var(--panel-bg) !important;
+    background-color: var(--panel-bg) ;
 }
 
     .admin-table tr.month-group-header td {
-        padding: 0.75rem 1.25rem !important;
+        padding: 0.75rem 1.25rem ;
         color: var(--app-text);
-        font-weight: 800 !important;
-        font-size: 0.75rem !important;
+        font-weight: 800 ;
+        font-size: 0.75rem ;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        border-bottom: 2px solid var(--warm-border) !important;
+        border-bottom: 2px solid var(--warm-border) ;
         border-top: 1px solid var(--warm-border-soft);
         position: relative;
     }
@@ -163,5 +163,5 @@
     }
 
 .admin-table tr.month-item-row td:first-child {
-    padding-left: 2.5rem !important;
+    padding-left: 2.5rem ;
 }
