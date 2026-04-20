@@ -1,0 +1,27 @@
+﻿.topbar {
+    height: 50px;
+    background-color: var(--panel-bg);
+    border-bottom: 1px solid var(--warm-border);
+    flex-shrink: 0;
+    box-shadow: 0 1px 4px var(--topbar-shadow);
+}
+
+.topbar-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--app-text);
+}
+
+.topbar-toggle-btn {
+    border-color: var(--warm-border);
+    color: var(--accent-primary);
+    background-color: var(--topbar-toggle-bg);
+    transition: all 0.2s;
+}
+
+    .topbar-toggle-btn:hover {
+        background-color: var(--btn-edit-bg);
+        border-color: var(--btn-edit-bg);
+        color: var(--white);
+        box-shadow: 0 2px 5px var(--topbar-toggle-hover-shadow);
+    }

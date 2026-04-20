@@ -1,0 +1,332 @@
+﻿@page
+@model FurniturePro.WebAdmin.Pages.Main.FurnitureModel
+@{
+    ViewData["Title"] = "Мебель";
+}
+
+<div class="admin-page-container">
+    <div class="admin-header">
+        <div class="admin-header-row">
+
+            <div class="header-block block-related">
+                <div class="block-title">Связанные страницы</div>
+                <div class="admin-related-links-grid">
+                    <a class="admin-link-badge" asp-page="/Main/Orders">Заказы</a>
+                    <a class="admin-link-badge" asp-page="/Main/Prices">Цены</a>
+                    <a class="admin-link-badge" asp-page="/Secondary/Parts">Детали</a>
+                    <a class="admin-link-badge" asp-page="/Secondary/Categories">Категории</a>
+                </div>
+            </div>
+
+            <div class="header-block block-search">
+                <div class="block-title">Поиск</div>
+                <div class="input-group input-group-sm admin-search-group">
+                    <input type="search" id="searchInput" class="form-control" placeholder="Поиск...">
+                    <button class="btn btn-outline-secondary btn-clear-search btn-square" type="button" id="clearSearchText" title="Очистить">×</button>
+                    <div class="btn-group search-mode-switcher" role="group">
+                        <input type="radio" class="btn-check" name="searchMode" id="searchModeFilter" value="filter" checked>
+                        <label class="btn btn-outline-secondary" for="searchModeFilter">Фильтр</label>
+                        <input type="radio" class="btn-check" name="searchMode" id="searchModeHighlight" value="highlight">
+                        <label class="btn btn-outline-secondary" for="searchModeHighlight">Выделение</label>
+                    </div>
+                    <button id="searchButton" type="button" class="btn btn-primary btn-search-trigger btn-square" title="Найти">🔍</button>
+                </div>
+            </div>
+
+            <div class="header-block block-filters" style="min-width: 250px;">
+                <div class="block-title">Фильтрация</div>
+                <div class="d-flex gap-2 w-100">
+                    <div class="w-50">
+                        <select id="activityFilter" class="form-select form-select-sm w-100">
+                            <option value="">Активность: все</option>
+                        </select>
+                    </div>
+                    <div class="w-50">
+                        <select id="categoryFilter" class="form-select form-select-sm w-100">
+                            <option value="">Категория: все</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-block block-actions">
+                <div class="block-title">Управление</div>
+                <div class="actions-column">
+                    <button id="createFurnitureButton" type="button" class="btn btn-sm btn-create-entity">
+                        + Создать мебель
+                    </button>
+                    <div class="admin-pagination d-flex align-items-center gap-2">
+                        <button id="prev" type="button" class="btn btn-outline-secondary btn-sm">◄</button>
+                        <span id="pageInfo"></span>
+                        <button id="next" type="button" class="btn btn-outline-secondary btn-sm">►</button>
+                    </div>
+                    <span id="furnitureCount" class="admin-count-badge">Записей: 0</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="admin-table-wrapper">
+        <div class="admin-table-scroll">
+            <table id="furnitureTable" class="table table-sm table-hover align-middle mb-0 admin-table">
+                <thead class="table-light">
+                    <tr>
+                        <th>Название</th>
+                        <th>Категория</th>
+                        <th>Себестоимость</th>
+                        <th>Наценка (%)</th>
+                        <th>Итог</th>
+                        <th>Активность</th>
+                        <th class="col-fit">Описание</th>
+                        <th class="col-fit">Состав</th>
+                        <th class="col-fit">Действия</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="createModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple">
+            <div class="modal-content-simple">
+                <h2 class="modal-title-simple">Создание мебели</h2>
+                <form id="createForm" method="post" class="modal-form-simple">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="createActivity" name="Activity" value="true" />
+
+                    <div class="form-section">
+                        <div class="form-section-title">Основная информация</div>
+
+                        <div class="mb-custom">
+                            <label for="createName" class="form-label">Название</label>
+                            <input type="text" id="createName" name="Name" class="form-control form-control-sm" placeholder="Например: Стол обеденный">
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label for="createCategory" class="form-label">Категория</label>
+                                <select id="createCategory" name="CategoryId" class="form-select form-select-sm">
+                                    <option value="">Выберите...</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="createMarkup" class="form-label">Наценка (%)</label>
+                                <input type="number" id="createMarkup" name="Markup" class="form-control form-control-sm" value="0" min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section mb-0">
+                        <div class="form-section-title">Дополнительно</div>
+                        <div>
+                            <label for="createDescription" class="form-label">Описание</label>
+                            <textarea id="createDescription" name="Description" rows="3" class="form-control form-control-sm" placeholder="Характеристики, особенности..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="createModal">Отмена</button>
+                        <button type="submit" class="btn btn-success btn-sm">Создать</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple">
+            <div class="modal-content-simple">
+                <h2 class="modal-title-simple">Изменение мебели</h2>
+                <form id="editForm" method="post" class="modal-form-simple">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="editId" name="Id">
+
+                    <div class="form-section">
+                        <div class="form-section-title">Основная информация</div>
+                        <div class="mb-custom">
+                            <label for="editName" class="form-label">Название</label>
+                            <input type="text" id="editName" name="Name" class="form-control form-control-sm">
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label for="editCategory" class="form-label">Категория</label>
+                                <select id="editCategory" name="CategoryId" class="form-select form-select-sm">
+                                    <option value="">Выберите...</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="editMarkup" class="form-label">Наценка (%)</label>
+                                <input type="number" id="editMarkup" name="Markup" class="form-control form-control-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section mb-0">
+                        <div class="form-section-title">Дополнительно</div>
+                        <div class="mb-custom">
+                            <label for="editDescription" class="form-label">Описание</label>
+                            <textarea id="editDescription" name="Description" rows="3" class="form-control form-control-sm"></textarea>
+                        </div>
+
+                        <div class="form-check-group">
+                            <input type="checkbox" id="editIsActive" name="Activity" class="form-check-input" value="true">
+                            <label for="editIsActive" class="form-check-label">Запись активна (отображается в списках)</label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="editModal">Отмена</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
+                    </div>
+                    <input type="hidden" name="Activity" value="false">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple modal-dialog-compact">
+            <div class="modal-content-simple modal-content-danger">
+                <form id="deleteForm" method="post" class="modal-form-simple text-center">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="deleteId" name="Id">
+                    <div class="mb-3 text-danger" style="font-size: 2.5rem; line-height: 1;">⚠️</div>
+                    <h2 class="modal-title-simple text-center text-danger mb-2">Удаление мебели</h2>
+                    <p class="mb-4 delete-modal-text small">Это действие необратимо. Вы уверены?</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="deleteModal">Нет, отмена</button>
+                        <button type="submit" id="confirmDeleteButton" class="btn btn-danger btn-sm px-4">Да, удалить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="descriptionModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple">
+            <div class="modal-content-simple">
+                <h2 class="modal-title-simple">Описание</h2>
+                <div id="descriptionContent" class="modal-description-body"></div>
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="descriptionModal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="compositionModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple">
+            <div class="modal-content-simple">
+                <h2 class="modal-title-simple">Состав мебели</h2>
+                <div id="compositionContent" class="modal-description-body" style="padding:0; border:none; background:transparent; box-shadow:none;">
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="compositionModal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="editCompositionModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple" style="max-width: 1200px;">
+            <div class="modal-content-simple">
+                <h2 class="modal-title-simple">Редактирование состава</h2>
+
+                <div class="composition-editor-container">
+
+                    <div class="composition-left-col">
+                        <div class="panel-header">
+                            <span class="panel-title">Текущий состав</span>
+                            <span id="headerTotalCount" class="badge badge-theme">0 шт.</span>
+                        </div>
+
+                        <div class="composition-table-wrapper">
+                            <div class="composition-table-scroll">
+                                <table class="table table-sm table-hover align-middle mb-0 admin-table" id="currentCompTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Деталь</th>
+                                            <th style="width: 70px; text-align: center;">Кол-во</th>
+                                            <th style="width: 100px; text-align: right;">Сумма</th>
+                                            <th class="col-fit"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+
+                            <div class="composition-footer-row">
+                                <div class="d-flex justify-content-between align-items-center w-100">
+                                    <span class="fw-bold text-uppercase small" style="color: var(--app-text); letter-spacing: 0.05em;">Итого:</span>
+                                    <span class="fw-bold fs-5" id="summaryTotalPrice" style="color: var(--app-text); text-shadow: 0 1px 0 rgba(255,255,255,0.5);">0,00 ₽</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="composition-right-col">
+                        <div class="panel-header">
+                            <span class="panel-title">Добавить деталь</span>
+                        </div>
+
+                        <div class="input-group input-group-sm mb-2" style="width: 100%;">
+                            <input type="search" id="partSearchInput" class="form-control" placeholder="Поиск...">
+
+                            <button class="btn btn-outline-secondary btn-clear-search btn-square" type="button" id="clearPartSearch" title="Очистить">×</button>
+
+                            <div class="btn-group search-mode-switcher" role="group">
+                                <input type="radio" class="btn-check" name="partSearchMode" id="pModeFilter" value="filter" checked>
+                                <label class="btn btn-outline-secondary" for="pModeFilter">Фильтр</label>
+
+                                <input type="radio" class="btn-check" name="partSearchMode" id="pModeHighlight" value="highlight">
+                                <label class="btn btn-outline-secondary" for="pModeHighlight">Выделение</label>
+                            </div>
+                        </div>
+
+                        <div class="composition-table-wrapper">
+                            <div class="composition-table-scroll">
+                                <table class="table table-sm table-hover align-middle mb-0 admin-table" id="availablePartsTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Название</th>
+                                            <th style="width: 80px; text-align: right;">Цена</th>
+                                            <th class="col-fit"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-3">
+                    <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="editCompositionModal">Отмена</button>
+                    <button type="button" id="saveCompositionBtn" class="btn btn-primary btn-sm">Сохранить изменения</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple modal-dialog-compact">
+            <div class="modal-content-simple modal-content-error">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="fs-4" style="color: var(--danger-main);">⛔</div>
+                    <h2 class="modal-title-simple mb-0" style="color: var(--danger-main);">Ошибки заполнения</h2>
+                </div>
+                <ul id="errorList" class="mb-4 error-list"></ul>
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="errorModal">Понятно</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/furniture.js" asp-append-version="true"></script>
+}

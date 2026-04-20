@@ -1,0 +1,167 @@
+﻿.admin-table-wrapper {
+    margin-top: 0.75rem;
+    background-color: var(--admin-table-bg);
+    border: 1px solid var(--warm-border);
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-soft);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.admin-table-scroll {
+    flex: 1;
+    overflow: auto;
+    width: 100%;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+    .admin-table thead th {
+        background-color: var(--table-header-bg);
+        color: var(--table-header-text);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        padding: 0.7rem 0.5rem;
+        border-bottom: 2px solid var(--warm-border);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .admin-table tbody td {
+        padding: 0.5rem;
+        color: var(--app-text);
+        vertical-align: middle;
+        font-size: 0.9rem;
+        border-bottom: 1px solid var(--warm-divider);
+    }
+
+    .admin-table tbody tr:nth-of-type(odd) {
+        background-color: var(--admin-white-alpha-25);
+    }
+
+    .admin-table tbody tr:hover {
+        background-color: var(--accent-secondary)26 !important;
+        transition: background-color 0.2s ease;
+    }
+
+    /* Highlight & Selection */
+    .admin-table tbody td:first-child {
+        position: relative;
+        overflow: visible;
+    }
+
+    .admin-table tbody tr.selected-row {
+        background-color: var(--selected-row-bg) !important;
+    }
+
+        .admin-table tbody tr.selected-row > td:first-child::before {
+            content: " ";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--action-create);
+            z-index: 5;
+        }
+
+    .admin-table tbody tr.highlight-match {
+        background-color: var(--highlight-match-bg) !important;
+        color: var(--highlight-match-text) !important;
+    }
+
+        .admin-table tbody tr.highlight-match > td {
+            border-bottom-color: var(--admin-highlight-border);
+        }
+
+        .admin-table tbody tr.highlight-match.selected-row {
+            background-color: var(--super-selected-bg) !important;
+        }
+
+            .admin-table tbody tr.highlight-match.selected-row > td {
+                color: var(--super-selected-accent) !important;
+            }
+
+                .admin-table tbody tr.highlight-match.selected-row > td:first-child::before {
+                    background-color: var(--super-selected-accent);
+                    width: 5px;
+                }
+
+/* Utils & Table Buttons */
+.col-fit {
+    width: 1%;
+    white-space: nowrap;
+    text-align: right;
+    padding-right: 0.8rem !important;
+}
+
+.actions-group {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.admin-table .btn-composition {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
+}
+
+.badge-theme {
+    background-color: var(--btn-comp-bg);
+    color: #f0f7f7;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    border-radius: 0.25rem;
+}
+
+.admin-table tr.month-group-header {
+    background-color: var(--panel-bg) !important;
+}
+
+    .admin-table tr.month-group-header td {
+        padding: 0.75rem 1.25rem !important;
+        color: var(--app-text);
+        font-weight: 800 !important;
+        font-size: 0.75rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        border-bottom: 2px solid var(--warm-border) !important;
+        border-top: 1px solid var(--warm-border-soft);
+        position: relative;
+    }
+
+        .admin-table tr.month-group-header td::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--accent-secondary);
+        }
+
+.month-group-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+    .month-group-title i {
+        font-style: normal;
+        font-size: 1rem;
+    }
+
+.admin-table tr.month-item-row td:first-child {
+    padding-left: 2.5rem !important;
+}

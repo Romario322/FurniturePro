@@ -1,0 +1,41 @@
+﻿/* --- 4. ACTIONS & COUNT --- */
+.block-actions {
+    flex: 0 0 350px;
+    z-index: 4;
+}
+
+.actions-column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.6rem;
+    width: 100%;
+    height: 100%;
+    justify-content: flex-start;
+}
+
+.btn-create-entity {
+    background-color: var(--action-create);
+    border-color: var(--action-create-dark);
+    color: #f4f7f2;
+    width: 220px;
+    text-align: center;
+}
+
+    .btn-create-entity:hover {
+        background-color: var(--action-create-dark);
+        border-color: var(--action-create-dark);
+        color: #ffffff;
+        box-shadow: 0 2px 5px var(--admin-shadow-light);
+    }
+
+.admin-count-badge {
+    font-size: 0.8rem;
+    padding: 0.1rem 0.6rem;
+    border-radius: 999px;
+    background-color: var(--admin-count-badge-bg);
+    color: var(--btn-cancel-color);
+    border: none;
+    margin-top: auto;
+    white-space: nowrap;
+}

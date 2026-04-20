@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FurniturePro - @ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/flatpickr/dist/flatpickr.min.css" />
+
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    @RenderSection("Styles", required: false)
+
+    <link rel="stylesheet" href="~/FurniturePro.WebAdmin.styles.css" asp-append-version="true" />
+</head>
+<body class="app-body">
+    @{
+        var currentPage = ViewContext.RouteData.Values["Page"]?.ToString() ?? "";
+    }
+
+    <nav id="sidebar" class="sidebar-wrapper collapse collapse-horizontal border-end">
+        <div class="sidebar-inner d-flex flex-column h-100">
+            <div class="sidebar-header d-flex align-items-center justify-content-between px-3 py-3">
+                <span class="fw-bold sidebar-logo-text">МебельПро</span>
+                <button class="btn btn-sm btn-outline-light d-md-none sidebar-toggle-btn"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#sidebar"
+                        aria-label="Закрыть меню">
+                    ✕
+                </button>
+            </div>
+
+            <nav class="nav nav-pills flex-column mb-auto sidebar-nav pt-2">
+                <a class="nav-link @(currentPage == "/Index" ? "active" : "")" asp-area="" asp-page="/Index">Главная страница</a>
+                <a class="nav-link @(currentPage == "/Main/Report" ? "active" : "")" asp-area="" asp-page="/Main/Report">Аналитика</a>
+                <a class="nav-link @(currentPage == "/Main/Furniture" ? "active" : "")" asp-area="" asp-page="/Main/Furniture">Мебель</a>
+                <a class="nav-link @(currentPage == "/Main/Clients" ? "active" : "")" asp-area="" asp-page="/Main/Clients">Клиенты</a>
+                <a class="nav-link @(currentPage == "/Main/Orders" ? "active" : "")" asp-area="" asp-page="/Main/Orders">Заказы</a>
+                <a class="nav-link @(currentPage == "/Main/Prices" ? "active" : "")" asp-area="" asp-page="/Main/Prices">Цены</a>
+                <a class="nav-link @(currentPage == "/Secondary/Parts" ? "active" : "")" asp-area="" asp-page="/Secondary/Parts">Детали</a>
+                <a class="nav-link @(currentPage == "/Secondary/Materials" ? "active" : "")" asp-area="" asp-page="/Secondary/Materials">Материалы</a>
+                <a class="nav-link @(currentPage == "/Secondary/Colors" ? "active" : "")" asp-area="" asp-page="/Secondary/Colors">Цвета</a>
+                <a class="nav-link @(currentPage == "/Secondary/Categories" ? "active" : "")" asp-area="" asp-page="/Secondary/Categories">Категории</a>
+                <a class="nav-link @(currentPage == "/Secondary/Help" ? "active" : "")" asp-area="" asp-page="/Secondary/Help">Справка</a>
+            </nav>
+
+            <div class="mt-auto sidebar-footer small px-3 py-2">
+                Админ панель · МебельПро
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-wrapper">
+        <header class="topbar d-flex align-items-center px-3 gap-3">
+            <button class="btn btn-outline-secondary btn-sm topbar-toggle-btn"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#sidebar"
+                    aria-label="Переключить меню">
+                ☰
+            </button>
+            <h1 class="h6 mb-0 topbar-title flex-grow-1">@ViewData["Title"]</h1>
+        </header>
+
+        <div class="content-wrapper">
+            @RenderBody()
+        </div>
+    </main>
+
+    <div id="globalLoader" class="loader-backdrop">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/apexcharts/dist/apexcharts.js"></script>
+    <script src="~/lib/flatpickr/dist/flatpickr.js"></script>
+    <script src="~/lib/flatpickr/dist/l10n/ru.js"></script>
+    <script src="~/lib/pdfmake/dist/pdfmake.min.js"></script>
+    <script src="~/lib/pdfmake/dist/vfs_fonts.js"></script>
+    <script src="~/js/cache.js" asp-append-version="true"></script>
+    <script src="~/js/api.js" asp-append-version="true"></script>
+    <script src="~/js/common.js" asp-append-version="true"></script>
+
+    <script>
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'F1') {
+                e.preventDefault();
+                window.location.href = '@Url.Page("/Secondary/Help")';
+            }
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,107 @@
+﻿.contact-card-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.contact-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 0.5rem;
+    justify-content: center;
+}
+
+.contact-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--app-text);
+    line-height: 1.2;
+    text-align: center;
+}
+
+.contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.contact-row {
+    display: flex;
+    align-items: center;
+    background-color: var(--form-section-bg);
+    border: 1px solid var(--warm-border-soft);
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+    .contact-row:hover {
+        background-color: var(--admin-panel-bg-medium);
+        border-color: var(--warm-border);
+    }
+
+.contact-icon-box {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: var(--btn-desc-bg);
+    background-color: var(--card-icon-bg);
+    border-radius: 0.4rem;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.contact-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.contact-value {
+    font-size: 0.95rem;
+    color: var(--app-text);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: all;
+}
+
+.contact-empty {
+    color: var(--text-muted);
+    font-style: italic;
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+.btn-copy-action {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1rem;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: all 0.2s;
+    border-radius: 4px;
+    padding: 0.4rem;
+}
+
+    .btn-copy-action:hover {
+        opacity: 1;
+        background-color: var(--btn-copy-hover-bg);
+        color: var(--accent-secondary);
+    }

@@ -1,0 +1,39 @@
+﻿.apexcharts-tooltip {
+    background: var(--panel-bg) !important;
+    border: 1px solid var(--warm-border) !important;
+    box-shadow: var(--shadow-soft) !important;
+    color: var(--app-text) !important;
+    border-radius: 0.5rem !important;
+}
+
+.apexcharts-tooltip-title {
+    background: var(--tooltip-header-bg) !important;
+    border-bottom: 1px solid var(--warm-divider) !important;
+    font-family: inherit !important;
+}
+
+.apexcharts-tooltip-text {
+    color: var(--app-text) !important;
+}
+
+.apexcharts-tooltip-series-group {
+    padding: 0 10px !important;
+}
+
+.apexcharts-tooltip-marker {
+    margin-right: 8px !important;
+}
+
+.apexcharts-tooltip.apexcharts-theme-light::before, .apexcharts-tooltip.apexcharts-theme-light::after {
+    display: none;
+}
+
+.chart-title {
+    color: var(--app-text);
+    opacity: 0.9;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-shadow: none !important;
+    -webkit-text-stroke: 0 !important;
+    filter: none !important;
+}

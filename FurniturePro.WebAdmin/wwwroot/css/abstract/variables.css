@@ -1,0 +1,134 @@
+﻿:root {
+    /* Base colors */
+    --white: #ffffff;
+    /* Global & Base */
+    --app-bg: #f3e2c6;
+    --panel-bg: #e4c9a6;
+    --menu-bg: #240000;
+    --menu-active-bg: #bc6d4f;
+    --input-bg: #edd9b7;
+    --input-bg-focus: #f4e3c2;
+    /* Highlight & SELECTION */
+    --highlight-match-bg: #9d331f;
+    --highlight-match-text: #ffe7d5;
+    --super-selected-bg: #5c180b;
+    --super-selected-accent: #ffae00;
+    --selected-row-bg: #2f4a4a1f;
+    /* TEXT & BORDERS */
+    --app-text: #2b1a10;
+    --text-muted: #8a6540;
+    --text-placeholder: #785234b3;
+    --menu-text: #f7e1c4;
+    --warm-border: #b4885b;
+    --warm-border-soft: #cfb183;
+    --warm-divider: #7d5e3c66;
+    /* ACCENTS & ACTIONS*/
+    --accent-primary: #4a5d23;
+    --accent-secondary: #e27b32;
+    --action-create: #1f5a35;
+    --action-create-dark: #154024;
+    --danger-main: #500805;
+    --danger-dark: #340304;
+    /* COMPONENTS */
+    --checkbox-checked-bg: #1f5a35;
+    --checkbox-checked-border: #154024;
+    --table-header-bg: #6b3e2e;
+    --table-header-text: #f7f0e6;
+    /* BUTTONS */
+    --btn-search-bg: #07575b;
+    --btn-search-bg-hover: #043a3d;
+    --btn-search-text: #f4f9fb;
+    --btn-edit-bg: #e27b32;
+    --btn-edit-bg-hover: #c76522;
+    --btn-delete-bg: #500805;
+    --btn-delete-bg-hover: #340304;
+    --btn-desc-bg: #8c6a48;
+    --btn-desc-bg-hover: #6e5033;
+    --btn-comp-bg: #2c5d63;
+    --btn-comp-bg-hover: #1e4246;
+    --btn-cancel-color: #523634;
+    --btn-cancel-border: #b4885b;
+    --btn-cancel-bg-hover: #523634;
+    --btn-cancel-text-hover: #f3e2c6;
+    /* SHADOWS */
+    --shadow-soft: 0 4px 20px -2px #2b1a101f, 0 1px 6px -1px #2b1a100d;
+    --shadow-deep: 0 20px 50px -10px #1e0f0a66, 0 10px 20px -5px #1e0f0a33;
+    --shadow-input-focus: 0 0 0 4px #e27b3240;
+    /* SCROLLBARS */
+    --scroll-track: #fdf4e3;
+    --scroll-thumb: #6b3e2e;
+    --scroll-thumb-hover: #523023;
+    /* STATUS & BADGES */
+    --status-new-bg: #07575b;
+    --status-new-text: #f0f7f7;
+    --status-process-bg: #2f4a4a;
+    --status-process-text: #f0f7f7;
+    --status-warning-bg: #e27b32;
+    --status-warning-text: #2b1a10;
+    --status-success-bg: #1f5a35;
+    --status-success-text: #f4f7f2;
+    --status-danger-bg: #500805;
+    --status-danger-text: #fbe6d0;
+    --status-default-bg: #8c6a48;
+    --status-default-text: #f7e6da;
+    /* Sidebar */
+    --sidebar-shadow: #0000004d;
+    --sidebar-shadow-mobile: #0000004d;
+    --sidebar-divider: #ffecd233;
+    --sidebar-gradient-start: #3b0000;
+    --sidebar-gradient-end: #5c1b0d;
+    --sidebar-logo-text: #ffe9c8;
+    --sidebar-logo-text-shadow: #00000080;
+    --sidebar-nav-hover-bg: #bc6d4f40;
+    --sidebar-nav-active-shadow: #00000059;
+    --sidebar-footer-text: #c9a66b;
+    /* Topbar */
+    --topbar-shadow: #0000000d;
+    --topbar-toggle-bg: #f7ead1;
+    --topbar-toggle-hover-shadow: #00000033;
+    /* Loader */
+    --loader-backdrop-bg: #12080499;
+    --loader-spinner-border-base: #f3e2c64d;
+    --loader-spinner-glow: #e27b3266;
+    /* ADMIN PANEL & CONTROLS */
+    --admin-table-bg: #faecd6;
+    --admin-panel-bg-soft: #f3e2c633;
+    --admin-panel-bg-light: #f3e2c64d;
+    --admin-panel-bg-medium: #f3e2c6b3;
+    --admin-panel-bg-hard: #f3e2c666;
+    --admin-link-hover-bg: #bc6d4f59;
+    --admin-link-hover-bg-soft: #bc6d4f1a;
+    --admin-count-badge-bg: #52363426;
+    --admin-shadow-light: #0000001a;
+    --admin-shadow-medium: #00000026;
+    --admin-shadow-soft: #0000000d;
+    --admin-danger-hover-bg: #5008050d;
+    --admin-white-alpha-25: #ffffff40;
+    --admin-white-alpha-30: #ffffff4d;
+    --admin-white-alpha-40: #ffffff66;
+    --admin-highlight-border: #ffe7d559;
+    --admin-warm-border-soft: #b4885b33;
+    --admin-inset-shadow: #2b1a100d;
+    --admin-dashboard-bottom-bg: #faecd64d;
+    --admin-card-icon-bg: #ffffff4d;
+    --admin-nav-tile-hover-shadow: #0000000d;
+    /* FORMS & MODALS */
+    --modal-backdrop-dark: #050201eb;
+    --form-section-bg: #f3e2c666;
+    --bg-subtle: #00000005;
+    --shadow-inset-light: #00000008;
+    --card-icon-bg: #ffffff80;
+    --select-option-border: #b4885b1a;
+    /* ERRORS & ALERTS */
+    --error-bg-light: #dc354514;
+    --error-border-light: #dc354533;
+    --error-bg-hover: #dc35451f;
+    --alert-teal-bg: #2c5d631a;
+    --alert-orange-bg: #e27b321a;
+    /* CHARTS & DATEPICKER */
+    --tooltip-header-bg: #bc6d4f26;
+    --datepicker-hover-bg: #e27b3226;
+    /* CONTACTS & MISC */
+    --btn-copy-hover-bg: #0000000d;
+}
+}

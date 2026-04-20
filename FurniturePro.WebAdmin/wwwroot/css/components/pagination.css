@@ -1,0 +1,20 @@
+﻿/* --- 5. PAGINATION --- */
+.admin-pagination .btn {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
+    color: var(--btn-cancel-color);
+    border-color: var(--btn-cancel-border);
+    background-color: transparent;
+}
+
+    .admin-pagination .btn:hover {
+        background-color: var(--btn-cancel-bg-hover);
+        color: var(--btn-cancel-text-hover);
+    }
+
+    .admin-pagination .btn:disabled {
+        color: var(--btn-cancel-color);
+        border-color: var(--warm-border);
+        background-color: var(--admin-panel-bg-light);
+        opacity: 0.5;
+    }

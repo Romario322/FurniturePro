@@ -1,0 +1,154 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Главная страница";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pages/dashboard.css" />
+}
+
+<div class="admin-page-container">
+    <div class="admin-header">
+        <div class="admin-header-row align-items-center px-4 py-3">
+            <div class="d-flex flex-column justify-content-center">
+                <h2 class="m-0 fw-bold" style="color: var(--app-text); letter-spacing: -0.02em;">Главная страница</h2>
+                <div style="color: var(--accent-primary); font-weight: 500; margin-top: 4px;">
+                    Система администрирования МебельПро
+                </div>
+            </div>
+
+            <div class="ms-auto text-end">
+                <div id="liveClock" class="fs-3 fw-bold" style="color: var(--app-text); line-height: 1;">00:00:00</div>
+                <div id="liveDate" style="color: var(--accent-primary); font-weight: 600; font-size: 0.9rem; margin-top: 4px;">Загрузка даты...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-table-wrapper dashboard-wrapper">
+
+        <div class="dashboard-top-section">
+
+            <div class="dashboard-col-left">
+                <div class="section-title">📦 Склад и Производство</div>
+                <div class="row g-3">
+                    <div class="col-12 col-xl-6">
+                        <a asp-page="/Main/Furniture" class="dashboard-card">
+                            <div class="card-icon">🛋️</div>
+                            <div class="card-content">
+                                <div class="card-label">Мебель</div>
+                                <div id="countFurniture" class="card-value">0</div>
+                            </div>
+                            <div class="card-arrow">➜</div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-xl-6">
+                        <a asp-page="/Secondary/Parts" class="dashboard-card">
+                            <div class="card-icon">⚙️</div>
+                            <div class="card-content">
+                                <div class="card-label">Детали</div>
+                                <div id="countParts" class="card-value">0</div>
+                            </div>
+                            <div class="card-arrow">➜</div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-xl-6">
+                        <a asp-page="/Secondary/Materials" class="dashboard-card">
+                            <div class="card-icon">🪵</div>
+                            <div class="card-content">
+                                <div class="card-label">Материалы</div>
+                                <div id="countMaterials" class="card-value">0</div>
+                            </div>
+                            <div class="card-arrow">➜</div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-xl-6">
+                        <a asp-page="/Secondary/Colors" class="dashboard-card">
+                            <div class="card-icon">🎨</div>
+                            <div class="card-content">
+                                <div class="card-label">Цвета</div>
+                                <div id="countColors" class="card-value">0</div>
+                            </div>
+                            <div class="card-arrow">➜</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-col-right">
+                <div class="section-title">💼 Коммерция</div>
+                <div class="row g-3">
+                    <div class="col-12 col-xl-6">
+                        <a asp-page="/Main/Orders" class="dashboard-card">
+                            <div class="card-icon">📦</div>
+                            <div class="card-content">
+                                <div class="card-label">Заказы</div>
+                                <div id="countOrders" class="card-value">0</div>
+                            </div>
+                            <div class="card-arrow">➜</div>
+                        </a>
+                    </div>
+
+                    <div class="col-12 col-xl-6">
+                        <a asp-page="/Main/Clients" class="dashboard-card">
+                            <div class="card-icon">👥</div>
+                            <div class="card-content">
+                                <div class="card-label">Клиенты</div>
+                                <div id="countClients" class="card-value">0</div>
+                            </div>
+                            <div class="card-arrow">➜</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-bottom-section">
+
+            <div class="d-flex justify-content-between align-items-end mb-3">
+                <div class="section-title mb-0 translate-middle-y" style="white-space: nowrap;">
+                    ⚡ Быстрый переход
+                </div>
+
+                <a asp-page="Secondary/Help" class="btn-help-main shadow-sm" title="Открыть руководство пользователя">
+                    <span class="fs-5 me-2">❓</span>
+                    <span>Справка</span>
+                    <span class="key-badge">F1</span>
+                </a>
+            </div>
+
+            <div class="quick-nav-grid">
+                <a asp-page="/Secondary/Categories" class="nav-tile">
+                    <div class="nav-icon" style="color: var(--btn-comp-bg);">📄</div>
+                    <div class="nav-text-group">
+                        <div class="nav-title">Категории</div>
+                        <div class="nav-subtitle">Категории мебели</div>
+                    </div>
+                </a>
+                <a asp-page="/Secondary/Prices" class="nav-tile">
+                    <div class="nav-icon" style="color: var(--btn-comp-bg);">📈</div>
+                    <div class="nav-text-group">
+                        <div class="nav-title">Цены</div>
+                        <div class="nav-subtitle">Цены деталей</div>
+                    </div>
+                </a>
+
+                <a asp-page="/Main/Report" class="nav-tile">
+                    <div class="nav-icon" style="color: var(--btn-comp-bg);">📊</div>
+                    <div class="nav-text-group">
+                        <div class="nav-title">Аналитика</div>
+                        <div class="nav-subtitle">Финансы и статистика</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/index.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,168 @@
+﻿@page
+@model FurniturePro.WebAdmin.Pages.Secondary.CategoriesModel
+@{
+    ViewData["Title"] = "Категории";
+}
+
+<div class="admin-page-container">
+    <div class="admin-header">
+        <div class="admin-header-row">
+            <div class="header-block block-related">
+                <div class="block-title">Связанные страницы</div>
+                <div class="admin-related-links-grid">
+                    <a class="admin-link-badge" asp-page="/Main/Furniture">Мебель</a>
+                </div>
+            </div>
+
+            <div class="header-block block-search">
+                <div class="block-title">Поиск</div>
+                <div class="input-group input-group-sm admin-search-group">
+                    <input type="search" id="searchInput" class="form-control" placeholder="Поиск...">
+                    <button class="btn btn-outline-secondary btn-clear-search btn-square" type="button" id="clearSearchText" title="Очистить">×</button>
+                    <div class="btn-group search-mode-switcher" role="group">
+                        <input type="radio" class="btn-check" name="searchMode" id="searchModeFilter" value="filter" checked>
+                        <label class="btn btn-outline-secondary" for="searchModeFilter">Фильтр</label>
+                        <input type="radio" class="btn-check" name="searchMode" id="searchModeHighlight" value="highlight">
+                        <label class="btn btn-outline-secondary" for="searchModeHighlight">Выделение</label>
+                    </div>
+                    <button id="searchButton" type="button" class="btn btn-primary btn-search-trigger btn-square" title="Найти">🔍</button>
+                </div>
+            </div>
+
+            <div class="header-block block-filters" style="min-width: 280px; opacity: 0.5; pointer-events: none;">
+            </div>
+
+            <div class="header-block block-actions">
+                <div class="block-title">Управление</div>
+                <div class="actions-column">
+                    <button id="createCategoryButton" type="button" class="btn btn-sm btn-create-entity">
+                        + Создать категорию
+                    </button>
+                    <div class="admin-pagination d-flex align-items-center gap-2">
+                        <button id="prev" type="button" class="btn btn-outline-secondary btn-sm btn-square" title="Предыдущая страница">◄</button>
+                        <span id="pageInfo"></span>
+                        <button id="next" type="button" class="btn btn-outline-secondary btn-sm btn-square" title="Следующая страница">►</button>
+                    </div>
+                    <span id="categoriesCount" class="admin-count-badge">Категорий: 0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-table-wrapper">
+        <div class="admin-table-scroll">
+            <table id="categoriesTable" class="table table-sm table-hover align-middle mb-0 admin-table">
+                <thead class="table-light">
+                    <tr>
+                        <th>Название</th>
+                        <th class="col-fit">Описание</th>
+                        <th class="col-fit">Действия</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="createModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple modal-dialog-compact">
+            <div class="modal-content-simple">
+                <h2 class="modal-title-simple">Создание категории</h2>
+                <form id="createForm" method="post" class="modal-form-simple">
+                    @Html.AntiForgeryToken()
+                    <div class="form-section">
+                        <div class="form-section-title">Основная информация</div>
+                        <div class="mb-2">
+                            <label for="createName" class="form-label">Название</label>
+                            <input type="text" id="createName" name="Name" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <label for="createDescription" class="form-label">Описание</label>
+                        <textarea id="createDescription" name="Description" rows="4" class="form-control form-control-sm" maxlength="500"></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="createModal">Отмена</button>
+                        <button type="submit" class="btn btn-success btn-sm">Создать</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple modal-dialog-compact">
+            <div class="modal-content-simple">
+                <h2 class="modal-title-simple">Изменение категории</h2>
+                <form id="editForm" method="post" class="modal-form-simple">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="editId" name="Id">
+                    <div class="form-section">
+                        <div class="form-section-title">Основная информация</div>
+                        <div class="mb-2">
+                            <label for="editName" class="form-label">Название</label>
+                            <input type="text" id="editName" name="Name" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <label for="editDescription" class="form-label">Описание</label>
+                        <textarea id="editDescription" name="Description" rows="4" class="form-control form-control-sm" maxlength="500"></textarea>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="editModal">Отмена</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple modal-dialog-compact">
+            <div class="modal-content-simple modal-content-danger">
+                <form id="deleteForm" method="post" class="modal-form-simple text-center">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="deleteId" name="Id">
+                    <div class="mb-3 text-danger" style="font-size: 2.5rem; line-height: 1;">⚠️</div>
+                    <h2 class="modal-title-simple text-center text-danger mb-2">Удаление категории</h2>
+                    <p class="mb-4 delete-modal-text small">Это действие необратимо. Вы уверены?</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="deleteModal">Нет, отмена</button>
+                        <button type="submit" class="btn btn-danger btn-sm px-4">Да, удалить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="descriptionModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple">
+            <div class="modal-content-simple">
+                <h2 class="modal-title-simple">Описание</h2>
+                <div id="descriptionContent" class="modal-description-body"></div>
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="descriptionModal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple modal-dialog-compact">
+            <div class="modal-content-simple modal-content-error">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="fs-4" style="color: var(--danger-main);">⛔</div>
+                    <h2 class="modal-title-simple mb-0" style="color: var(--danger-main);">Ошибки заполнения</h2>
+                </div>
+                <ul id="errorList" class="mb-4 error-list"></ul>
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="errorModal">Понятно</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/categories.js" asp-append-version="true"></script>
+}

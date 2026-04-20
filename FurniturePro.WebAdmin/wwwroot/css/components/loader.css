@@ -1,0 +1,33 @@
+﻿.loader-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background-color: var(--loader-backdrop-bg);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+    .loader-backdrop.visible {
+        display: flex;
+        opacity: 1;
+    }
+
+.loader-spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid var(--loader-spinner-border-base);
+    border-top-color: var(--accent-secondary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    box-shadow: 0 0 15px var(--loader-spinner-glow);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

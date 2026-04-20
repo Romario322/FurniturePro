@@ -1,0 +1,224 @@
+﻿@page
+@model FurniturePro.WebAdmin.Pages.Secondary.HelpModel
+@{
+    ViewData["Title"] = "Справка";
+}
+
+<div class="admin-page-container">
+    <div class="admin-header mb-3 flex-shrink-0">
+        <div class="admin-header-row align-items-center px-4" style="min-height: 60px;">
+            <h4 class="mb-0 fw-bold text-uppercase" style="color: var(--app-text); letter-spacing: 0.05em;">
+                📖 Руководство пользователя
+            </h4>
+        </div>
+    </div>
+
+    <div class="content-wrapper p-0 d-flex flex-grow-1 overflow-hidden">
+        <div class="container-fluid h-100">
+            <div class="row h-100">
+
+                <div class="col-md-3 col-lg-2 d-none d-md-block h-100 ps-0">
+                    <nav id="helpNavbar" class="h-100 overflow-auto py-3 pe-2" style="border-right: 1px dashed var(--warm-divider);">
+                        <ul class="nav flex-column gap-2">
+                            <li class="nav-item">
+                                <a class="nav-link help-nav-link active" href="#section-intro">👋 Введение</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link help-nav-link" href="#section-interface">🖥 Интерфейс</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link help-nav-link" href="#section-orders">📦 Заказы</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link help-nav-link" href="#section-catalog">🗄 Склад и Каталог</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link help-nav-link" href="#section-reports">📊 Отчеты</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <div class="col-md-9 col-lg-10 h-100 overflow-auto py-3 px-4" id="helpContentScroll">
+
+                    <section id="section-intro" class="help-section mb-5">
+                        <h3 class="help-section-title">Добро пожаловать в FurniturePro</h3>
+                        <p>Это автоматизированная система управления мебельным производством. Здесь вы можете вести учет клиентов, управлять заказами, рассчитывать стоимость изделий и анализировать финансовые показатели.</p>
+                        <div class="alert custom-alert-info">
+                            <strong>💡 Совет:</strong> Нажмите <strong>F1</strong> на любой странице, чтобы быстро вернуться в это руководство.
+                        </div>
+                    </section>
+
+                    <section id="section-interface" class="help-section mb-5">
+                        <h3 class="help-section-title">Элементы интерфейса</h3>
+                        <p>В системе используются унифицированные иконки и кнопки действий:</p>
+
+                        <div class="row g-3">
+                            <div class="col-md-6 col-xl-4">
+                                <div class="help-card">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <button class="btn btn-sm btn-primary btn-square">✎</button>
+                                        <strong>Редактирование</strong>
+                                    </div>
+                                    <p class="small mb-0">Изменение основных параметров записи (названия, скидки, клиента).</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="help-card">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <button class="btn btn-sm btn-danger btn-square">🗑</button>
+                                        <strong>Удаление</strong>
+                                    </div>
+                                    <p class="small mb-0">Удаление записи.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="help-card">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <button class="btn btn-sm btn-contacts btn-square">📄</button>
+                                        <strong>Инфо / Контакты</strong>
+                                    </div>
+                                    <p class="small mb-0">Просмотр контактов клиента или полного описания детали/мебели.</p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-xl-4">
+                                <div class="help-card">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <button class="btn btn-sm btn-composition btn-square">📦</button>
+                                        <strong>Просмотр состава</strong>
+                                    </div>
+                                    <p class="small mb-0">Показывает список позиций в заказе или деталей в мебели (только чтение).</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="help-card" style="border-color: var(--warm-border);">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <button class="btn btn-sm btn-outline-secondary btn-square">⚙</button>
+                                        <strong>Изменение состава</strong>
+                                    </div>
+                                    <p class="small mb-0">Добавление или удаление мебели в заказе. Здесь происходит расчет стоимости.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="help-card">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <button class="btn btn-sm btn-change-status btn-square">⇄</button>
+                                        <strong>Смена статуса</strong>
+                                    </div>
+                                    <p class="small mb-0">Перевод заказа на следующий этап (например, в "Оплачен").</p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-xl-4">
+                                <div class="help-card">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <button class="btn btn-sm btn-history btn-square">🕒</button>
+                                        <strong>История статусов</strong>
+                                    </div>
+                                    <p class="small mb-0">
+                                        Показывает хронологию изменения статусов.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="help-card">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <button class="btn btn-icon-mini btn-square me-2">📈</button>
+                                        <strong>Цены деталей</strong>
+                                    </div>
+                                    <p class="small mb-0">
+                                        Показывает график динамики цен деталей.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-xl-4">
+                                <div class="help-card">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <button class="btn btn-sm btn-success btn-square" style="font-weight:bold;">+</button>
+                                        <strong>Добавление цены</strong>
+                                    </div>
+                                    <p class="small mb-0">
+                                        Добавление новой цены детали.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="section-orders" class="help-section mb-5">
+                        <h3 class="help-section-title">Работа с заказами</h3>
+
+                        <h5 class="mt-4 mb-2 text-primary-dark">Создание заказа</h5>
+                        <ol class="help-list">
+                            <li>Перейдите в раздел <strong>Заказы</strong>.</li>
+                            <li>Нажмите кнопку <span class="badge bg-success">+ Создать заказ</span>.</li>
+                            <li>Выберите клиента и дату. Заказ получит статус <strong>«Новый»</strong>.</li>
+                            <li>
+                                Нажмите кнопку <strong>⚙ (Настройка)</strong> в строке заказа.
+                                В открывшемся окне добавьте мебель из каталога. Сумма пересчитается автоматически.
+                            </li>
+                        </ol>
+
+                        <h5 class="mt-4 mb-2 text-primary-dark">Жизненный цикл</h5>
+                        <p>Для продвижения заказа используйте кнопку <strong>⇄</strong>. Цепочка статусов:</p>
+                        <div class="status-flow-viz">
+                            <span class="badge" style="background:var(--status-new-bg)">Новый</span> →
+                            <span class="badge" style="background:var(--status-process-bg)">В обработке</span> →
+                            <span class="badge" style="background:var(--status-warning-bg)">Ожидает оплаты</span> →
+                            <span class="badge" style="background:var(--status-success-bg)">Оплачен</span> → ...
+                        </div>
+                    </section>
+
+                    <section id="section-catalog" class="help-section mb-5">
+                        <h3 class="help-section-title">Склад и Каталог</h3>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded" style="background: rgba(243, 226, 198, 0.2);">
+                                    <h6 class="fw-bold">🔩 Детали (Parts)</h6>
+                                    <p class="small mb-2">Базовые элементы. Управление ценами:</p>
+                                    <ul class="small mb-0 ps-3" style="list-style-type: disc;">
+                                        <li>Нажмите <strong>+</strong>, чтобы установить новую цену.</li>
+                                        <li>Нажмите <strong>📈</strong>, чтобы увидеть историю изменений.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 border rounded" style="background: rgba(243, 226, 198, 0.2);">
+                                    <h6 class="fw-bold">🪑 Мебель (Furniture)</h6>
+                                    <p class="small mb-2">Состоит из набора деталей. Настроить состав можно через кнопку <strong>⚙</strong>.</p>
+                                    <div class="small fst-italic">Пример: Шкаф, Стол обеденный.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert custom-alert-warning mt-3">
+                            <strong>⚡ Автоматический расчет:</strong>
+                            При установке новой цены на деталь (кнопка <strong>+</strong>), себестоимость всей мебели, где используется эта деталь, обновится автоматически.
+                        </div>
+                    </section>
+
+                    <section id="section-reports" class="help-section mb-5">
+                        <h3 class="help-section-title">Аналитика</h3>
+                        <p>Раздел отчетов позволяет:</p>
+                        <ul>
+                            <li>Выбрать период анализа (календарь поддерживает выбор диапазона).</li>
+                            <li>Следить за <strong>KPI</strong> (Выручка, Прибыль).</li>
+                            <li>Скачать PDF-версию отчета кнопкой <button class="btn btn-sm btn-contacts btn-square">📥</button>.</li>
+                        </ul>
+                    </section>
+
+                    <div class="py-5 text-center small" style="opacity: 0.7;">
+                        &copy; 2025 FurniturePro System. Версия 1.0
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/pages/help.js" asp-append-version="true"></script>
+}

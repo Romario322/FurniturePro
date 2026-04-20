@@ -1,0 +1,97 @@
+﻿.help-nav-link {
+    color: var(--app-text);
+    opacity: 0.8;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+
+    .help-nav-link:hover {
+        background-color: var(--admin-link-hover-bg-soft);
+        color: var(--app-text);
+        opacity: 1;
+        transform: translateX(5px);
+    }
+
+    .help-nav-link.active {
+        background-color: var(--panel-bg);
+        color: var(--accent-secondary);
+        border-left-color: var(--accent-secondary);
+        box-shadow: var(--shadow-soft);
+        opacity: 1;
+        font-weight: 700;
+    }
+
+.help-section-title {
+    color: var(--accent-primary);
+    font-weight: 700;
+    border-bottom: 2px solid var(--warm-divider);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.text-primary-dark {
+    color: var(--btn-comp-bg);
+}
+
+.help-card {
+    background-color: var(--admin-panel-bg-light);
+    border: 1px solid var(--warm-border-soft);
+    border-radius: 0.6rem;
+    padding: 1rem;
+    height: 100%;
+}
+
+    .help-card p.small {
+        color: var(--app-text);
+        opacity: 0.9;
+    }
+
+.help-list {
+    counter-reset: my-counter;
+    list-style: none;
+    padding-left: 0;
+}
+
+    .help-list li {
+        position: relative;
+        padding-left: 2rem;
+        margin-bottom: 0.5rem;
+        color: var(--app-text);
+    }
+
+        .help-list li::before {
+            counter-increment: my-counter;
+            content: counter(my-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1.5rem;
+            height: 1.5rem;
+            background-color: var(--btn-desc-bg);
+            color: var(--white);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 1.5rem;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+.help-list-bullet li {
+    margin-bottom: 0.5rem;
+    color: var(--app-text);
+}
+
+.status-flow-viz {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--input-bg);
+    border-radius: 0.5rem;
+    border: 1px dashed var(--warm-border);
+}
