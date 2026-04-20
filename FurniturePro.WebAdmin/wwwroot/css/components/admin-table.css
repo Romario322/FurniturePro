@@ -51,7 +51,7 @@
     }
 
     .admin-table tbody tr:hover {
-        background-color: var(--accent-secondary) ;
+        background-color: var(--admin-link-hover-bg-soft);
         transition: background-color 0.2s ease;
     }
 
