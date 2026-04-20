@@ -533,7 +533,7 @@ async function exportToPdf() {
     try {
         toggleLoader(true);
 
-        if (lastCalculatedData.cost == 0 || !lastCalculatedData.cost) {
+        if (!lastCalculatedData.kpi || lastCalculatedData.kpi.cost === undefined) {
             throw new Error("Данные отсутствуют!");
         }
 
@@ -671,7 +671,7 @@ async function exportToPdf() {
             }
         };
 
-        pdfMake.createPdf(docDefinition).download(`Detailed_Report_${new Date().toISOString().slice(0, 10)}.pdf`);
+        pdfMake.createPdf(docDefinition).download(`Детальный Отчет ${new Date().toISOString().slice(0, 10)}.pdf`);
 
     } catch (e) {
         console.error("PDF Error:", e);
