@@ -129,6 +129,65 @@
         color: var(--status-default-text);
     }
 
+/* --- Кнопка "Контакты клиента" --- */
+.btn-contacts {
+    background-color: var(--input-bg);
+    border-color: var(--warm-border);
+    color: var(--app-text);
+}
+
+    .btn-contacts:hover,
+    .btn-contacts:focus,
+    .btn-contacts:active {
+        background-color: var(--btn-desc-bg);
+        border-color: var(--btn-desc-bg);
+        color: var(--white);
+        box-shadow: 0 2px 5px var(--admin-shadow-medium);
+    }
+
+/* --- Кнопка "Изменить статус" --- */
+.btn-change-status {
+    background-color: var(--menu-active-bg);
+    border-color: var(--menu-active-bg);
+    color: var(--white);
+}
+
+    .btn-change-status:hover,
+    .btn-change-status:focus,
+    .btn-change-status:active {
+        background-color: var(--highlight-match-bg);
+        border-color: var(--highlight-match-bg);
+        color: var(--highlight-match-text);
+        box-shadow: 0 2px 5px var(--admin-shadow-medium);
+    }
+
+    /* Обязательное состояние disabled для смены статуса 
+   (когда статус конечный и менять его нельзя) */
+    .btn-change-status:disabled,
+    .btn-change-status:disabled:hover {
+        background-color: var(--admin-panel-bg-hard);
+        border-color: var(--warm-divider);
+        color: var(--text-placeholder);
+        opacity: 0.6;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+/* --- Кнопка копирования --- */
+.btn-copy-action {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--text-muted); /* Иконка будет приглушенного цвета */
+}
+
+    .btn-copy-action:hover,
+    .btn-copy-action:focus {
+        background-color: var(--btn-copy-hover-bg); /* Идеальное легкое затемнение */
+        border-color: transparent;
+        color: var(--app-text); /* Иконка станет темнее при наведении */
+        box-shadow: none; /* Убираем лишние тени для такой мелкой кнопки */
+    }
+
 .btn-help-main {
     background-color: var(--input-bg);
     border: 1px solid var(--warm-border);
