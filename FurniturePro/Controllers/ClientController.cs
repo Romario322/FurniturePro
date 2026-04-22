@@ -1,7 +1,7 @@
 ﻿using Asp.Versioning;
 using FurniturePro.Core.Models.DTO.Clients;
 using Microsoft.AspNetCore.Mvc;
-using UchetCartridge.Core.Services.Interfaces;
+using FurniturePro.Core.Services.Interfaces;
 
 namespace FurniturePro.Controllers;
 

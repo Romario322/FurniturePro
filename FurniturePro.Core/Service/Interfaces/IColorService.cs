@@ -1,6 +1,6 @@
 ﻿using FurniturePro.Core.Models.DTO.Colors;
 
-namespace UchetCartridge.Core.Services.Interfaces;
+namespace FurniturePro.Core.Services.Interfaces;
 
 public interface IColorService
 {

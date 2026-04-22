@@ -1,6 +1,6 @@
 ﻿using FurniturePro.Core.Models.DTO.DeletedIds;
 
-namespace UchetCartridge.Core.Services.Interfaces;
+namespace FurniturePro.Core.Services.Interfaces;
 
 public interface IDeletedIdService
 {

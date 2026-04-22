@@ -1,6 +1,6 @@
 ﻿using FurniturePro.Core.Models.DTO.OrderCompositions;
 
-namespace UchetCartridge.Core.Services.Interfaces;
+namespace FurniturePro.Core.Services.Interfaces;
 
 public interface IOrderCompositionService
 {

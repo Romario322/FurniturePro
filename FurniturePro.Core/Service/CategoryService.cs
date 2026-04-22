@@ -2,9 +2,9 @@
 using FurniturePro.Core.Entities.Dictionaries;
 using FurniturePro.Core.Models.DTO.Categories;
 using FurniturePro.Core.Repositories;
-using UchetCartridge.Core.Services.Interfaces;
+using FurniturePro.Core.Services.Interfaces;
 
-namespace UchetCartridge.Core.Services;
+namespace FurniturePro.Core.Services;
 
 public class CategoryService : ICategoryService
 {

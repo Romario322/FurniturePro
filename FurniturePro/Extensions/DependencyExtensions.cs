@@ -2,8 +2,8 @@
 
 using FurniturePro.Core.Repositories;
 using FurniturePro.Infrastructure.Repositiories;
-using UchetCartridge.Core.Services;
-using UchetCartridge.Core.Services.Interfaces;
+using FurniturePro.Core.Services;
+using FurniturePro.Core.Services.Interfaces;
 
 namespace FurniturePro.Extensions;
 

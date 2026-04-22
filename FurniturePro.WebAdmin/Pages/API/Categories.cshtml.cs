@@ -2,16 +2,19 @@ using FurniturePro.Core.Models.DTO.Categories;
 using FurniturePro.Core.Models.DTO.DeletedIds;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using FurniturePro.Core.Services.Interfaces;
 
 namespace FurniturePro.WebAdmin.Pages.API
 {
     public class CategoriesModel : PageModel
     {
-        private readonly HttpClient _httpClient;
+        private readonly ICategoryService _categoryService;
+        private readonly IDeletedIdService _deletedIdService;
 
-        public CategoriesModel(IHttpClientFactory httpClientFactory)
+        public CategoriesModel(ICategoryService categoryService, IDeletedIdService deletedIdService)
         {
-            _httpClient = httpClientFactory.CreateClient("ApiClient");
+            _categoryService = categoryService;
+            _deletedIdService = deletedIdService;
         }
 
         public async Task<JsonResult> OnGetAsync(string dateTime, CancellationToken ct)
@@ -21,28 +24,13 @@ namespace FurniturePro.WebAdmin.Pages.API
 
             try
             {
-                var itemsUrl = $"api/categories/after {dateTime}";
-                var deletedUrl = $"api/deletedIds/after {dateTime} categories";
-
-                var itemsTask = _httpClient.GetAsync(itemsUrl, ct);
-                var deletedTask = _httpClient.GetAsync(deletedUrl, ct);
+                var itemsTask = _categoryService.GetAfterDateAsync(dateTime, ct);
+                var deletedTask = _deletedIdService.GetAfterDateAsync(dateTime, "categories", ct);
 
                 await Task.WhenAll(itemsTask, deletedTask);
 
-                var itemsResponse = await itemsTask;
-                var deletedResponse = await deletedTask;
-
-                if (itemsResponse.IsSuccessStatusCode)
-                {
-                    items = await itemsResponse.Content
-                        .ReadFromJsonAsync<List<CategoryDTO>>(cancellationToken: ct) ?? new();
-                }
-
-                if (deletedResponse.IsSuccessStatusCode)
-                {
-                    deletedItems = await deletedResponse.Content
-                        .ReadFromJsonAsync<List<DeletedIdDTO>>(cancellationToken: ct) ?? new();
-                }
+                items = await itemsTask;
+                deletedItems = await deletedTask;
             }
             catch (Exception ex)
             {

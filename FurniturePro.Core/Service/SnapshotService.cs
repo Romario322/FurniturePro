@@ -2,9 +2,9 @@
 using FurniturePro.Core.Entities;
 using FurniturePro.Core.Models.DTO.Snapshots;
 using FurniturePro.Core.Repositories;
-using UchetCartridge.Core.Services.Interfaces;
+using FurniturePro.Core.Services.Interfaces;
 
-namespace UchetCartridge.Core.Services;
+namespace FurniturePro.Core.Services;
 
 public class SnapshotService : ISnapshotService
 {

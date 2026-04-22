@@ -17,6 +17,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FurniturePro.Infrastructure
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FurniturePro.WebAdmin", "FurniturePro.WebAdmin\FurniturePro.WebAdmin.csproj", "{0B59B65B-F1C7-4187-BD32-51CDEB8449C6}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0BC9B33F-E1DF-48CD-A1EF-2AEA1C72E939} = {0BC9B33F-E1DF-48CD-A1EF-2AEA1C72E939}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
