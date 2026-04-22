@@ -35,7 +35,7 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddProblemDetails(Extensions.ProblemDetailsExtensions.ConfigureProblemDetails);
-        services.AddRazorPages();
+        
         services.AddCors(options => options.AddPolicy("AllowRazorPages", policy => policy.WithOrigins("http://localhost:5283")
                       .AllowAnyHeader()
                       .AllowAnyMethod()));// В файле Program.cs

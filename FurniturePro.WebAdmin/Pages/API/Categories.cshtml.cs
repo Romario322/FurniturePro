@@ -24,13 +24,8 @@ namespace FurniturePro.WebAdmin.Pages.API
 
             try
             {
-                var itemsTask = _categoryService.GetAfterDateAsync(dateTime, ct);
-                var deletedTask = _deletedIdService.GetAfterDateAsync(dateTime, "categories", ct);
-
-                await Task.WhenAll(itemsTask, deletedTask);
-
-                items = await itemsTask;
-                deletedItems = await deletedTask;
+                items = await _categoryService.GetAfterDateAsync(dateTime, ct);
+                deletedItems = await _deletedIdService.GetAfterDateAsync(dateTime, "categories", ct);
             }
             catch (Exception ex)
             {

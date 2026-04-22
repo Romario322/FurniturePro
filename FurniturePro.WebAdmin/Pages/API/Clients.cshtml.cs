@@ -1,5 +1,7 @@
+using FurniturePro.Core.Models.DTO.Categories;
 using FurniturePro.Core.Models.DTO.Clients;
 using FurniturePro.Core.Models.DTO.DeletedIds;
+using FurniturePro.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -7,11 +9,13 @@ namespace FurniturePro.WebAdmin.Pages.API
 {
     public class ClientsModel : PageModel
     {
-        private readonly HttpClient _httpClient;
+        private readonly IClientService _clientService;
+        private readonly IDeletedIdService _deletedIdService;
 
-        public ClientsModel(IHttpClientFactory httpClientFactory)
+        public ClientsModel(IClientService clientService, IDeletedIdService deletedIdService)
         {
-            _httpClient = httpClientFactory.CreateClient("ApiClient");
+            _clientService = clientService;
+            _deletedIdService = deletedIdService;
         }
 
         public async Task<JsonResult> OnGetAsync(string dateTime, CancellationToken ct)
@@ -21,28 +25,8 @@ namespace FurniturePro.WebAdmin.Pages.API
 
             try
             {
-                var itemsUrl = $"api/clients/after {dateTime}";
-                var deletedUrl = $"api/deletedIds/after {dateTime} clients";
-
-                var itemsTask = _httpClient.GetAsync(itemsUrl, ct);
-                var deletedTask = _httpClient.GetAsync(deletedUrl, ct);
-
-                await Task.WhenAll(itemsTask, deletedTask);
-
-                var itemsResponse = await itemsTask;
-                var deletedResponse = await deletedTask;
-
-                if (itemsResponse.IsSuccessStatusCode)
-                {
-                    items = await itemsResponse.Content
-                        .ReadFromJsonAsync<List<ClientDTO>>(cancellationToken: ct) ?? new();
-                }
-
-                if (deletedResponse.IsSuccessStatusCode)
-                {
-                    deletedItems = await deletedResponse.Content
-                        .ReadFromJsonAsync<List<DeletedIdDTO>>(cancellationToken: ct) ?? new();
-                }
+                items = await _clientService.GetAfterDateAsync(dateTime, ct);
+                deletedItems = await _deletedIdService.GetAfterDateAsync(dateTime, "clients", ct);
             }
             catch (Exception ex)
             {
