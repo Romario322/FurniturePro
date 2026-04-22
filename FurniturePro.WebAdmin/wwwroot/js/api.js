@@ -2,6 +2,7 @@
     let date = await getLastSyncedAt(tableName);
     date = date ? normalizeIsoFraction(date) : '1000-01-01T00:00:00.000000';
     const params = `/API/${tableName}?dateTime=${date}`;
+    console.log(date);
     const resp = await fetch(params);
     const data = await resp.json();
 
