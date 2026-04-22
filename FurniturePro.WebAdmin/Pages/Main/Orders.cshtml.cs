@@ -1,21 +1,32 @@
-// Orders.cshtml.cs
 using FurniturePro.Core.Models.DTO.DeletedIds;
 using FurniturePro.Core.Models.DTO.OrderCompositions;
-using FurniturePro.Core.Models.DTO.Orders; // Предполагаем наличие DTO
+using FurniturePro.Core.Models.DTO.Orders;
 using FurniturePro.Core.Models.DTO.StatusChanges;
+using FurniturePro.Core.Services.Interfaces; // Добавляем using для сервисов
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Text.Json;
+using System.Text.Json; // Этот using можно удалить, так как он больше не нужен для парсинга
 
 namespace FurniturePro.WebAdmin.Pages.Main
 {
     public class OrdersModel : PageModel
     {
-        private readonly HttpClient _httpClient;
+        private readonly IOrderService _orderService;
+        private readonly IOrderCompositionService _orderCompositionService;
+        private readonly IStatusChangeService _statusChangeService;
+        private readonly IDeletedIdService _deletedIdService;
 
-        public OrdersModel(IHttpClientFactory httpClientFactory)
+        // Внедряем 4 необходимых сервиса вместо IHttpClientFactory
+        public OrdersModel(
+            IOrderService orderService,
+            IOrderCompositionService orderCompositionService,
+            IStatusChangeService statusChangeService,
+            IDeletedIdService deletedIdService)
         {
-            _httpClient = httpClientFactory.CreateClient("ApiClient");
+            _orderService = orderService;
+            _orderCompositionService = orderCompositionService;
+            _statusChangeService = statusChangeService;
+            _deletedIdService = deletedIdService;
         }
 
         public void OnGet()
@@ -25,42 +36,17 @@ namespace FurniturePro.WebAdmin.Pages.Main
         // --- CRUD ЗАКАЗОВ ---
 
         public async Task<JsonResult> OnPostCreateOrderAsync(
-    [FromForm] CreateOrderDTO orderDto,
-    [FromForm] DateTime date,
-    [FromForm] int statusId,
-    CancellationToken ct)
+            [FromForm] CreateOrderDTO orderDto,
+            [FromForm] DateTime date,
+            [FromForm] int statusId,
+            CancellationToken ct)
         {
             try
             {
-                // 1. Отправляем запрос на создание заказа
-                var orderResponse = await _httpClient.PostAsJsonAsync("/api/orders", orderDto, ct);
+                // 1. Создаем заказ. Метод CreateAsync напрямую возвращает созданный ID!
+                int newOrderId = await _orderService.CreateAsync(orderDto, ct);
 
-                if (!orderResponse.IsSuccessStatusCode)
-                {
-                    return new JsonResult(new { success = false, message = "Ошибка API при создании заказа" });
-                }
-
-                // 2. Получаем ответ
-                var jsonResponse = await orderResponse.Content.ReadFromJsonAsync<JsonElement>(cancellationToken: ct);
-                int newOrderId = 0;
-
-                // ИСПРАВЛЕНИЕ: Проверяем тип ответа (Число или Объект)
-                if (jsonResponse.ValueKind == JsonValueKind.Number)
-                {
-                    // Сценарий А: API вернул просто ID (например: 123)
-                    newOrderId = jsonResponse.GetInt32();
-                }
-                else if (jsonResponse.ValueKind == JsonValueKind.Object)
-                {
-                    // Сценарий Б: API вернул объект заказа (например: {"id": 123, ...})
-                    if (jsonResponse.TryGetProperty("id", out var idProp) ||
-                        jsonResponse.TryGetProperty("Id", out idProp))
-                    {
-                        newOrderId = idProp.GetInt32();
-                    }
-                }
-
-                // 3. Если ID получен, создаем начальный статус
+                // 2. Если ID получен (а он будет получен, иначе выбросится Exception), создаем начальный статус
                 if (newOrderId > 0 && statusId > 0)
                 {
                     var statusDto = new StatusChangeDTO
@@ -71,7 +57,7 @@ namespace FurniturePro.WebAdmin.Pages.Main
                         UpdateDate = DateTime.UtcNow
                     };
 
-                    await _httpClient.PostAsJsonAsync("/api/statusChanges", statusDto, ct);
+                    await _statusChangeService.CreateAsync(statusDto, ct);
                 }
 
                 return new JsonResult(new { success = true });
@@ -86,13 +72,8 @@ namespace FurniturePro.WebAdmin.Pages.Main
         {
             try
             {
-                // Редактирование заказа (в данном случае только скидки, но DTO может содержать и другое)
-                var response = await _httpClient.PutAsJsonAsync($"/api/orders/{id}", dto, ct);
-                if (response.IsSuccessStatusCode)
-                {
-                    return new JsonResult(new { success = true });
-                }
-                return new JsonResult(new { success = false, message = "Ошибка при обновлении заказа" });
+                await _orderService.UpdateAsync(id, dto, ct);
+                return new JsonResult(new { success = true });
             }
             catch (Exception ex)
             {
@@ -104,16 +85,14 @@ namespace FurniturePro.WebAdmin.Pages.Main
         {
             try
             {
-                var response = await _httpClient.DeleteAsync($"/api/orders/{id}", ct);
-                if (response.IsSuccessStatusCode)
-                {
-                    // Логируем удаление (опционально, как в Мебели)
-                    var delId = new CreateDeletedIdDTO() { EntityId = id, TableName = "orders" };
-                    await _httpClient.PostAsJsonAsync($"/api/deletedIds", delId, ct);
+                // 1. Удаляем заказ
+                await _orderService.DeleteAsync(id, ct);
 
-                    return new JsonResult(new { success = true });
-                }
-                return new JsonResult(new { success = false, message = "Ошибка при удалении заказа" });
+                // 2. Логируем удаление
+                var delId = new CreateDeletedIdDTO() { EntityId = id, TableName = "orders" };
+                await _deletedIdService.CreateAsync(delId, ct);
+
+                return new JsonResult(new { success = true });
             }
             catch (Exception ex)
             {
@@ -121,54 +100,62 @@ namespace FurniturePro.WebAdmin.Pages.Main
             }
         }
 
-        // --- STATUS & COMPOSITION (Существующий код) ---
+        // --- STATUS & COMPOSITION ---
 
         public async Task<JsonResult> OnPostCreateStatusChangeAsync([FromForm] StatusChangeDTO dto, CancellationToken ct)
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("/api/statusChanges", dto, ct);
-                if (response.IsSuccessStatusCode) return new JsonResult(new { success = true });
-                return new JsonResult(new { success = false, message = "Ошибка при создании статуса" });
+                await _statusChangeService.CreateAsync(dto, ct);
+                return new JsonResult(new { success = true });
             }
-            catch (Exception ex) { return new JsonResult(new { success = false, message = ex.Message }); }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = ex.Message });
+            }
         }
 
         public async Task<JsonResult> OnPostCreateCompositionRangeAsync([FromBody] List<OrderCompositionDTO> dtos, CancellationToken ct)
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("/api/orderCompositions/range", dtos, ct);
-                if (response.IsSuccessStatusCode) return new JsonResult(new { success = true });
-                return new JsonResult(new { success = false, message = "Ошибка API (Create)" });
+                await _orderCompositionService.CreateRangeAsync(dtos, ct);
+                return new JsonResult(new { success = true });
             }
-            catch (Exception ex) { return new JsonResult(new { success = false, message = ex.Message }); }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = ex.Message });
+            }
         }
 
         public async Task<JsonResult> OnPostUpdateCompositionRangeAsync([FromBody] List<OrderCompositionDTO> dtos, CancellationToken ct)
         {
             try
             {
-                var response = await _httpClient.PutAsJsonAsync("/api/orderCompositions/range", dtos, ct);
-                if (response.IsSuccessStatusCode) return new JsonResult(new { success = true });
-                return new JsonResult(new { success = false, message = "Ошибка API (Update)" });
+                await _orderCompositionService.UpdateRangeAsync(dtos, ct);
+                return new JsonResult(new { success = true });
             }
-            catch (Exception ex) { return new JsonResult(new { success = false, message = ex.Message }); }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = ex.Message });
+            }
         }
 
         public async Task<JsonResult> OnPostDeleteCompositionRangeAsync([FromBody] List<SimpleKey> ids, CancellationToken ct)
         {
             try
             {
-                var apiPayload = ids.Select(x => new { Item1 = x.IdOrder, Item2 = x.IdFurniture }).ToList();
-                var request = new HttpRequestMessage(HttpMethod.Delete, "/api/orderCompositions/range");
-                request.Content = JsonContent.Create(apiPayload);
-                var response = await _httpClient.SendAsync(request, ct);
+                // Преобразуем список ключей в формат кортежей (Id1, Id2), который требует сервис
+                var servicePayload = ids.Select(x => (x.IdOrder, x.IdFurniture)).ToList();
 
-                if (response.IsSuccessStatusCode) return new JsonResult(new { success = true });
-                return new JsonResult(new { success = false, message = "Ошибка API (Delete)" });
+                await _orderCompositionService.DeleteRangeAsync(servicePayload, ct);
+
+                return new JsonResult(new { success = true });
             }
-            catch (Exception ex) { return new JsonResult(new { success = false, message = ex.Message }); }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = ex.Message });
+            }
         }
 
         public class SimpleKey

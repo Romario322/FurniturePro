@@ -1,5 +1,6 @@
 using FurniturePro.Core.Models.DTO.Colors; // Предполагается наличие этих DTO
 using FurniturePro.Core.Models.DTO.DeletedIds;
+using FurniturePro.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -7,11 +8,13 @@ namespace FurniturePro.WebAdmin.Pages.Secondary
 {
     public class ColorsModel : PageModel
     {
-        private readonly HttpClient _httpClient;
+        private readonly IColorService _colorService;
+        private readonly IDeletedIdService _deletedIdService;
 
-        public ColorsModel(IHttpClientFactory httpClientFactory)
+        public ColorsModel(IColorService colorService, IDeletedIdService deletedIdService)
         {
-            _httpClient = httpClientFactory.CreateClient("ApiClient");
+            _colorService = colorService;
+            _deletedIdService = deletedIdService;
         }
 
         public void OnGet()
@@ -22,12 +25,10 @@ namespace FurniturePro.WebAdmin.Pages.Secondary
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("/api/colors", dto, ct);
-                if (response.IsSuccessStatusCode)
-                {
-                    return new JsonResult(new { success = true });
-                }
-                return new JsonResult(new { success = false, message = "Ошибка при создании" });
+                // Вызываем метод создания напрямую из сервиса
+                await _colorService.CreateAsync(dto, ct); // Имя метода может отличаться (например, AddAsync)
+
+                return new JsonResult(new { success = true });
             }
             catch (Exception ex)
             {
@@ -39,12 +40,10 @@ namespace FurniturePro.WebAdmin.Pages.Secondary
         {
             try
             {
-                var response = await _httpClient.PutAsJsonAsync($"/api/colors/{id}", dto, ct);
-                if (response.IsSuccessStatusCode)
-                {
-                    return new JsonResult(new { success = true });
-                }
-                return new JsonResult(new { success = false, message = "Ошибка при изменении" });
+                // Вызываем метод обновления напрямую из сервиса
+                await _colorService.UpdateAsync(id, dto, ct); // Имя метода может отличаться
+
+                return new JsonResult(new { success = true });
             }
             catch (Exception ex)
             {
@@ -56,15 +55,14 @@ namespace FurniturePro.WebAdmin.Pages.Secondary
         {
             try
             {
-                var response = await _httpClient.DeleteAsync($"/api/colors/{id}", ct);
-                if (response.IsSuccessStatusCode)
-                {
-                    var delId = new CreateDeletedIdDTO() { EntityId = id, TableName = "colors" };
-                    await _httpClient.PostAsJsonAsync($"/api/deletedIds", delId, ct);
+                // Вызываем метод удаления
+                await _colorService.DeleteAsync(id, ct);
 
-                    return new JsonResult(new { success = true });
-                }
-                return new JsonResult(new { success = false, message = "Ошибка при удалении" });
+                // Логируем удаление через сервис deletedId
+                var delId = new CreateDeletedIdDTO() { EntityId = id, TableName = "colors" };
+                await _deletedIdService.CreateAsync(delId, ct); // Имя метода может отличаться
+
+                return new JsonResult(new { success = true });
             }
             catch (Exception ex)
             {

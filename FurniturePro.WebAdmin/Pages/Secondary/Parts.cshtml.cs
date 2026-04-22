@@ -1,6 +1,7 @@
 using FurniturePro.Core.Models.DTO.DeletedIds;
 using FurniturePro.Core.Models.DTO.Parts;
 using FurniturePro.Core.Models.DTO.Prices;
+using FurniturePro.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Globalization;
@@ -9,45 +10,44 @@ namespace FurniturePro.WebAdmin.Pages.Secondary
 {
     public class PartsModel : PageModel
     {
-        private readonly HttpClient _httpClient;
+        private readonly IPartService _partService;
+        private readonly IDeletedIdService _deletedIdService;
+        private readonly IPriceService _priceService;
 
-        public PartsModel(IHttpClientFactory httpClientFactory)
+        public PartsModel(IPartService partService, IDeletedIdService deletedIdService, IPriceService priceService)
         {
-            _httpClient = httpClientFactory.CreateClient("ApiClient");
+            _partService = partService;
+            _deletedIdService = deletedIdService;
+            _priceService = priceService;
         }
+
         public void OnGet()
         {
         }
 
-        public async Task<JsonResult> OnPostCreatePartAsync([FromForm] CreatePartDTO dto, [FromForm] string weight, CancellationToken ct)
+        public async Task<JsonResult> OnPostCreatePartAsync([FromForm] CreatePartDTO dto, CancellationToken ct)
         {
             try
             {
-                dto.Weight = decimal.Parse(weight, CultureInfo.InvariantCulture);
-                var response = await _httpClient.PostAsJsonAsync("/api/parts", dto, ct);
-                if (response.IsSuccessStatusCode)
-                {
-                    return new JsonResult(new { success = true });
-                }
-                return new JsonResult(new { success = false, message = "Ошибка при создании" });
+                // Вызываем метод создания напрямую из сервиса
+                await _partService.CreateAsync(dto, ct); // Имя метода может отличаться (например, AddAsync)
+
+                return new JsonResult(new { success = true });
             }
             catch (Exception ex)
             {
                 return new JsonResult(new { success = false, message = $"Ошибка: {ex.Message}" });
             }
         }
-
         public async Task<JsonResult> OnPostCreatePriceAsync([FromForm] CreatePriceDTO dto, [FromForm] string value, CancellationToken ct)
         {
             try
             {
                 dto.Value = decimal.Parse(value, CultureInfo.InvariantCulture);
-                var response = await _httpClient.PostAsJsonAsync("/api/prices", dto, ct);
-                if (response.IsSuccessStatusCode)
-                {
-                    return new JsonResult(new { success = true });
-                }
-                return new JsonResult(new { success = false, message = "Ошибка при создании" });
+                // Вызываем метод создания напрямую из сервиса
+                await _priceService.CreateAsync(dto, ct); // Имя метода может отличаться (например, AddAsync)
+
+                return new JsonResult(new { success = true });
             }
             catch (Exception ex)
             {
@@ -55,17 +55,14 @@ namespace FurniturePro.WebAdmin.Pages.Secondary
             }
         }
 
-        public async Task<JsonResult> OnPostUpdatePartAsync([FromForm] int id, [FromForm] UpdatePartDTO dto, [FromForm] string weight, CancellationToken ct)
+        public async Task<JsonResult> OnPostUpdatePartAsync([FromForm] int id, [FromForm] UpdatePartDTO dto, CancellationToken ct)
         {
             try
             {
-                dto.Weight = decimal.Parse(weight, CultureInfo.InvariantCulture);
-                var response = await _httpClient.PutAsJsonAsync($"/api/parts/{id}", dto, ct);
-                if (response.IsSuccessStatusCode)
-                {
-                    return new JsonResult(new { success = true });
-                }
-                return new JsonResult(new { success = false, message = "Ошибка при изменении" });
+                // Вызываем метод обновления напрямую из сервиса
+                await _partService.UpdateAsync(id, dto, ct); // Имя метода может отличаться
+
+                return new JsonResult(new { success = true });
             }
             catch (Exception ex)
             {
@@ -77,18 +74,14 @@ namespace FurniturePro.WebAdmin.Pages.Secondary
         {
             try
             {
-                var response = await _httpClient.DeleteAsync($"/api/parts/{id}", ct);
-                if (response.IsSuccessStatusCode)
-                {
-                    var delId = new CreateDeletedIdDTO() { EntityId = id, TableName = "parts" };
-                    response = await _httpClient.PostAsJsonAsync($"/api/deletedIds", delId, ct);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        return new JsonResult(new { success = true });
-                    }
-                    return new JsonResult(new { success = false, message = "Ошибка при логировании удаления" });
-                }
-                return new JsonResult(new { success = false, message = "Ошибка при удалении" });
+                // Вызываем метод удаления
+                await _partService.DeleteAsync(id, ct);
+
+                // Логируем удаление через сервис deletedId
+                var delId = new CreateDeletedIdDTO() { EntityId = id, TableName = "parts" };
+                await _deletedIdService.CreateAsync(delId, ct); // Имя метода может отличаться
+
+                return new JsonResult(new { success = true });
             }
             catch (Exception ex)
             {

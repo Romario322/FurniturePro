@@ -1,5 +1,6 @@
 using FurniturePro.Core.Models.DTO.DeletedIds;
 using FurniturePro.Core.Models.DTO.Prices;
+using FurniturePro.Core.Services.Interfaces; // Добавляем using для сервисов
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Globalization;
@@ -8,12 +9,16 @@ namespace FurniturePro.WebAdmin.Pages.Main
 {
     public class PricesModel : PageModel
     {
-        private readonly HttpClient _httpClient;
+        private readonly IPriceService _priceService;
+        private readonly IDeletedIdService _deletedIdService;
 
-        public PricesModel(IHttpClientFactory httpClientFactory)
+        // Внедряем интерфейсы сервисов вместо IHttpClientFactory
+        public PricesModel(IPriceService priceService, IDeletedIdService deletedIdService)
         {
-            _httpClient = httpClientFactory.CreateClient("ApiClient");
+            _priceService = priceService;
+            _deletedIdService = deletedIdService;
         }
+
         public void OnGet()
         {
         }
@@ -22,13 +27,13 @@ namespace FurniturePro.WebAdmin.Pages.Main
         {
             try
             {
+                // Оставляем парсинг значения
                 dto.Value = decimal.Parse(value, CultureInfo.InvariantCulture);
-                var response = await _httpClient.PutAsJsonAsync($"/api/prices/{id}", dto, ct);
-                if (response.IsSuccessStatusCode)
-                {
-                    return new JsonResult(new { success = true });
-                }
-                return new JsonResult(new { success = false, message = "Ошибка при изменении" });
+
+                // Вызываем метод обновления напрямую из сервиса
+                await _priceService.UpdateAsync(id, dto, ct);
+
+                return new JsonResult(new { success = true });
             }
             catch (Exception ex)
             {
@@ -40,18 +45,14 @@ namespace FurniturePro.WebAdmin.Pages.Main
         {
             try
             {
-                var response = await _httpClient.DeleteAsync($"/api/prices/{id}", ct);
-                if (response.IsSuccessStatusCode)
-                {
-                    var delId = new CreateDeletedIdDTO() { EntityId = id, TableName = "prices" };
-                    response = await _httpClient.PostAsJsonAsync($"/api/deletedIds", delId, ct);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        return new JsonResult(new { success = true });
-                    }
-                    return new JsonResult(new { success = false, message = "Ошибка при логировании удаления" });
-                }
-                return new JsonResult(new { success = false, message = "Ошибка при удалении" });
+                // 1. Удаляем цену
+                await _priceService.DeleteAsync(id, ct);
+
+                // 2. Логируем удаление
+                var delId = new CreateDeletedIdDTO() { EntityId = id, TableName = "prices" };
+                await _deletedIdService.CreateAsync(delId, ct);
+
+                return new JsonResult(new { success = true });
             }
             catch (Exception ex)
             {
