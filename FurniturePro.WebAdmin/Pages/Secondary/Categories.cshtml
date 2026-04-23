@@ -35,12 +35,14 @@
             <div class="header-block block-actions">
                 <div class="block-title">Управление</div>
                 <div class="actions-column">
-                    <button id="createCategoryButton" type="button" class="btn btn-sm btn-create-entity">
-                        + Создать категорию
-                    </button>
-                    @Html.AntiForgeryToken()
-                    <input type="file" id="excelFileInput" accept=".xlsx" />
-                    <button id="uploadBtn">Загрузить Excel</button>
+                    <div class="action-toolbar">
+                        <button id="createCategoryButton" type="button" class="btn btn-sm btn-create-entity">
+                            + Создать категорию
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="openImportModalBtn">
+                            <i class="icon-upload"></i> Импорт
+                        </button>
+                    </div>
                     <div class="admin-pagination d-flex align-items-center gap-2">
                         <button id="prev" type="button" class="btn btn-outline-secondary btn-sm btn-square" title="Предыдущая страница">◄</button>
                         <span id="pageInfo"></span>
@@ -146,6 +148,29 @@
                 <div class="d-flex justify-content-end mt-3">
                     <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="descriptionModal">Закрыть</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="importModal" class="modal-backdrop-simple" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Импорт категорий</h4>
+                <button type="button" class="close-btn" id="closeImportModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="importForm">
+                    @Html.AntiForgeryToken()
+
+                    <div class="file-drop-area">
+                        <p>Выберите файл для загрузки (.csv, .xlsx)</p>
+                        <input type="file" id="importFileInput" name="file" accept=".csv, .xlsx" required />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelImportBtn">Отмена</button>
+                <button type="submit" form="importForm" class="btn btn-primary">Загрузить</button>
             </div>
         </div>
     </div>

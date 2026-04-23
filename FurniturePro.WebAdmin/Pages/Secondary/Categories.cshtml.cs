@@ -93,7 +93,7 @@ namespace FurniturePro.WebAdmin.Pages.Secondary
                     var description = row.Cell(2).GetString().Trim();
 
                     if (string.IsNullOrEmpty(name))
-                        continue; // Игнорируем пустые строки
+                        continue;
 
                     categoriesToCreate.Add(new CreateCategoryDTO
                     {
