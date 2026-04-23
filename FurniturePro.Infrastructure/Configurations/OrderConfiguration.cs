@@ -15,12 +15,12 @@ internal class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.HasMany(et => et.OrderCompositions)
                .WithOne(e => e.Entity1)
                .HasForeignKey(e => e.Entity1Id)
-               .OnDelete(DeleteBehavior.NoAction);
+               .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(et => et.StatusChanges)
                .WithOne(e => e.Entity1)
                .HasForeignKey(e => e.Entity1Id)
-               .OnDelete(DeleteBehavior.NoAction);
+               .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(et => et.UpdateDate);
     }

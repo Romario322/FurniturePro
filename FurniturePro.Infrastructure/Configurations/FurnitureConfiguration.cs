@@ -17,7 +17,7 @@ internal class FurnitureConfiguration : IEntityTypeConfiguration<Furniture>
         builder.HasMany(et => et.FurnitureCompositions)
                .WithOne(e => e.Entity1)
                .HasForeignKey(e => e.Entity1Id)
-               .OnDelete(DeleteBehavior.NoAction);
+               .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(et => et.OrderCompositions)
                .WithOne(e => e.Entity2)

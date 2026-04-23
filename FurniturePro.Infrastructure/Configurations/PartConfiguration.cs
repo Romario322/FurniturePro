@@ -17,17 +17,17 @@ internal class PartConfiguration : IEntityTypeConfiguration<Part>
         builder.HasMany(et => et.Prices)
                .WithOne(e => e.Part)
                .HasForeignKey(e => e.PartId)
-               .OnDelete(DeleteBehavior.NoAction);
+               .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(et => et.Snapshots)
                .WithOne(e => e.Part)
                .HasForeignKey(e => e.PartId)
-               .OnDelete(DeleteBehavior.NoAction);
+               .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(et => et.Operations)
                .WithOne(e => e.Part)
                .HasForeignKey(e => e.PartId)
-               .OnDelete(DeleteBehavior.NoAction);
+               .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(et => et.UpdateDate);
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -214,7 +215,8 @@ namespace FurniturePro.Infrastructure.Migrations
                         name: "FK_orderCompositions_orders_Entity1Id",
                         column: x => x.Entity1Id,
                         principalTable: "orders",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -233,7 +235,8 @@ namespace FurniturePro.Infrastructure.Migrations
                         name: "FK_statusChanges_orders_Entity1Id",
                         column: x => x.Entity1Id,
                         principalTable: "orders",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_statusChanges_statuses_Entity2Id",
                         column: x => x.Entity2Id,
@@ -257,7 +260,8 @@ namespace FurniturePro.Infrastructure.Migrations
                         name: "FK_furnitureCompositions_furniture_Entity1Id",
                         column: x => x.Entity1Id,
                         principalTable: "furniture",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_furnitureCompositions_parts_Entity2Id",
                         column: x => x.Entity2Id,
@@ -290,7 +294,8 @@ namespace FurniturePro.Infrastructure.Migrations
                         name: "FK_operations_parts_PartId",
                         column: x => x.PartId,
                         principalTable: "parts",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -311,7 +316,8 @@ namespace FurniturePro.Infrastructure.Migrations
                         name: "FK_prices_parts_PartId",
                         column: x => x.PartId,
                         principalTable: "parts",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -332,7 +338,8 @@ namespace FurniturePro.Infrastructure.Migrations
                         name: "FK_snapshots_parts_PartId",
                         column: x => x.PartId,
                         principalTable: "parts",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -342,10 +349,20 @@ namespace FurniturePro.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_categories_UpdateDate",
+                table: "categories",
+                column: "UpdateDate");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_clients_FullName",
                 table: "clients",
                 column: "FullName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_clients_UpdateDate",
+                table: "clients",
+                column: "UpdateDate");
 
             migrationBuilder.CreateIndex(
                 name: "IX_colors_Name",
@@ -354,10 +371,20 @@ namespace FurniturePro.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_colors_UpdateDate",
+                table: "colors",
+                column: "UpdateDate");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_deletedIds_TableName_EntityId",
                 table: "deletedIds",
                 columns: new[] { "TableName", "EntityId" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_deletedIds_UpdateDate",
+                table: "deletedIds",
+                column: "UpdateDate");
 
             migrationBuilder.CreateIndex(
                 name: "IX_furniture_CategoryId",
@@ -371,15 +398,30 @@ namespace FurniturePro.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_furniture_UpdateDate",
+                table: "furniture",
+                column: "UpdateDate");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_furnitureCompositions_Entity2Id",
                 table: "furnitureCompositions",
                 column: "Entity2Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_furnitureCompositions_UpdateDate",
+                table: "furnitureCompositions",
+                column: "UpdateDate");
 
             migrationBuilder.CreateIndex(
                 name: "IX_materials_Name",
                 table: "materials",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_materials_UpdateDate",
+                table: "materials",
+                column: "UpdateDate");
 
             migrationBuilder.CreateIndex(
                 name: "IX_operations_OperationTypeId",
@@ -392,10 +434,20 @@ namespace FurniturePro.Infrastructure.Migrations
                 column: "PartId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_operations_UpdateDate",
+                table: "operations",
+                column: "UpdateDate");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_operationTypes_Name",
                 table: "operationTypes",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_operationTypes_UpdateDate",
+                table: "operationTypes",
+                column: "UpdateDate");
 
             migrationBuilder.CreateIndex(
                 name: "IX_orderCompositions_Entity2Id",
@@ -403,9 +455,19 @@ namespace FurniturePro.Infrastructure.Migrations
                 column: "Entity2Id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_orderCompositions_UpdateDate",
+                table: "orderCompositions",
+                column: "UpdateDate");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_orders_ClientId",
                 table: "orders",
                 column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_orders_UpdateDate",
+                table: "orders",
+                column: "UpdateDate");
 
             migrationBuilder.CreateIndex(
                 name: "IX_parts_ColorId",
@@ -424,9 +486,19 @@ namespace FurniturePro.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_parts_UpdateDate",
+                table: "parts",
+                column: "UpdateDate");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_prices_PartId",
                 table: "prices",
                 column: "PartId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_prices_UpdateDate",
+                table: "prices",
+                column: "UpdateDate");
 
             migrationBuilder.CreateIndex(
                 name: "IX_snapshots_PartId",
@@ -434,15 +506,30 @@ namespace FurniturePro.Infrastructure.Migrations
                 column: "PartId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_snapshots_UpdateDate",
+                table: "snapshots",
+                column: "UpdateDate");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_statusChanges_Entity2Id",
                 table: "statusChanges",
                 column: "Entity2Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_statusChanges_UpdateDate",
+                table: "statusChanges",
+                column: "UpdateDate");
 
             migrationBuilder.CreateIndex(
                 name: "IX_statuses_Name",
                 table: "statuses",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_statuses_UpdateDate",
+                table: "statuses",
+                column: "UpdateDate");
         }
 
         /// <inheritdoc />

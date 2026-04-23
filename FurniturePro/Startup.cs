@@ -3,7 +3,6 @@ using Asp.Versioning.ApiExplorer;
 using FluentValidation.AspNetCore;
 using FurniturePro.Extensions;
 using FurniturePro.Infrastructure.Data;
-using FurniturePro.Infrastructure.Migrations;
 using FurniturePro.Models.Settings;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.EntityFrameworkCore;
@@ -90,8 +89,6 @@ public class Startup
         using (var serviceScope = app.ApplicationServices.CreateScope())
         {
             var context = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
-            DbInitilization.AddFixedData(context);
-            DbInitilization.AddExampleData(context);
         }
 
         if (_appSettings.DbOptions.UseInMemory.HasValue && _appSettings.DbOptions.UseInMemory.Value)

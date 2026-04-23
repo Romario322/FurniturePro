@@ -510,7 +510,7 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.HasOne("FurniturePro.Core.Entities.Furniture", "Entity1")
                         .WithMany("FurnitureCompositions")
                         .HasForeignKey("Entity1Id")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FurniturePro.Core.Entities.Part", "Entity2")
@@ -529,7 +529,7 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.HasOne("FurniturePro.Core.Entities.Order", "Entity1")
                         .WithMany("OrderCompositions")
                         .HasForeignKey("Entity1Id")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FurniturePro.Core.Entities.Furniture", "Entity2")
@@ -548,7 +548,7 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.HasOne("FurniturePro.Core.Entities.Order", "Entity1")
                         .WithMany("StatusChanges")
                         .HasForeignKey("Entity1Id")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("FurniturePro.Core.Entities.Dictionaries.Status", "Entity2")
@@ -583,7 +583,7 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.HasOne("FurniturePro.Core.Entities.Part", "Part")
                         .WithMany("Operations")
                         .HasForeignKey("PartId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("OperationType");
@@ -624,7 +624,7 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.HasOne("FurniturePro.Core.Entities.Part", "Part")
                         .WithMany("Prices")
                         .HasForeignKey("PartId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Part");
@@ -635,7 +635,7 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.HasOne("FurniturePro.Core.Entities.Part", "Part")
                         .WithMany("Snapshots")
                         .HasForeignKey("PartId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Part");
