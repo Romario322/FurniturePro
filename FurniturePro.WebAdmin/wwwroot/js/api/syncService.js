@@ -1,4 +1,8 @@
-﻿async function syncTable(tableName) {
+﻿import { getLastSyncedAt, setLastSyncedAt } from '../db/syncState.js';
+import { upsertMany, deleteMany } from '../db/repository.js';
+import { normalizeIsoFraction } from '../utils/dateFormatter.js';
+
+export async function syncTable(tableName) {
     let date = await getLastSyncedAt(tableName);
     date = date ? normalizeIsoFraction(date) : '1000-01-01T00:00:00.000000';
     const params = `/API/${tableName}?dateTime=${date}`;
@@ -16,13 +20,4 @@
     await upsertMany(tableName, data.items);
     await deleteMany(tableName, data.deletedItems);
     await setLastSyncedAt(tableName, data.syncDate);
-}
-
-function normalizeIsoFraction(s) {
-    const withoutZ = s.endsWith('Z') ? s.slice(0, -1) : s;
-
-    const [left, frac = ''] = withoutZ.split('.');
-    const frac6 = (frac + '000000').slice(0, 6);
-
-    return `${left}.${frac6}`;
 }

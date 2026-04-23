@@ -5,11 +5,20 @@ import { showModal, hideModal } from '../ui/modals.js';
 import { attachRowSelection, updateHeaderSortUI } from '../ui/tables.js';
 import { getSearchMode, initSearchModeSwitcher } from '../utils/domHelper.js';
 import { paginateData, updatePaginationUI } from '../utils/pagination.js';
-import { initPhoneMask } from '../utils/phoneMask.js';
-import { createCopyableContent } from '../utils/clipboard.js';
 
-class ClientsPage {
-    constructor() {
+export class DictionaryManager {
+    /**
+     * @param {string} entityPlural - Название во мн. числе для БД и синхронизации (например, 'Categories')
+     * @param {string} entitySingular - Название в ед. числе для обработчиков Razor (например, 'Category')
+     * @param {string} tableId - ID таблицы (например, 'categoriesTable')
+     * @param {string} createBtnId - ID кнопки создания (например, 'createCategoryButton')
+     * @param {string} countId - ID элемента для вывода счетчика (например, 'categoriesCount')
+     */
+    constructor(entityPlural, entitySingular, tableId, createBtnId, countId) {
+        this.entityPlural = entityPlural;
+        this.entitySingular = entitySingular;
+
+        // State
         this.cachedData = [];
         this.currentData = [];
         this.currentPage = 1;
@@ -17,62 +26,58 @@ class ClientsPage {
         this.sortField = null;
         this.sortDirection = 'asc';
 
-        this.initDOM();
-        this.attachEvents();
-    }
+        // Specific UI Elements
+        this.table = document.getElementById(tableId);
+        this.createButton = document.getElementById(createBtnId);
+        this.countElement = document.getElementById(countId);
 
-    initDOM() {
-        // Таблица и пагинация
-        this.table = document.getElementById('clientsTable');
-        this.tbody = this.table?.querySelector('tbody');
-        this.headers = this.table?.querySelectorAll('thead th');
-        this.pageInfo = document.getElementById('pageInfo');
-        this.prevBtn = document.getElementById('prev');
-        this.nextBtn = document.getElementById('next');
-
-        // Поиск и фильтры
+        // Common UI Elements (одинаковые на всех страницах)
         this.searchInput = document.getElementById('searchInput');
         this.clearSearchTextBtn = document.getElementById('clearSearchText');
-        this.emailDomainFilter = document.getElementById('emailDomainFilter');
-        this.countElement = document.getElementById('clientsCount');
+        this.prevBtn = document.getElementById('prev');
+        this.nextBtn = document.getElementById('next');
+        this.pageInfo = document.getElementById('pageInfo');
 
-        // Кнопки и модалки
-        this.createButton = document.getElementById('createClientButton');
+        // Modals
         this.createModal = document.getElementById('createModal');
         this.editModal = document.getElementById('editModal');
         this.deleteModal = document.getElementById('deleteModal');
+        this.descriptionModal = document.getElementById('descriptionModal');
         this.errorModal = document.getElementById('errorModal');
 
-        // Формы и инпуты
+        // Forms & Inputs
         this.createForm = document.getElementById('createForm');
         this.editForm = document.getElementById('editForm');
         this.deleteForm = document.getElementById('deleteForm');
         this.editIdInput = document.getElementById('editId');
         this.deleteIdInput = document.getElementById('deleteId');
+        this.descriptionContent = document.getElementById('descriptionContent');
 
-        // Инициализация масок для телефонов
-        initPhoneMask(document.getElementById('createPhone'));
-        initPhoneMask(document.getElementById('editPhone'));
+        this.init();
     }
 
     async init() {
+        if (!this.table) return;
+
+        this.headers = this.table.querySelectorAll('thead th');
+        this.headers.forEach((th, index) => {
+            th.style.cursor = 'pointer';
+            th.addEventListener('click', () => this.onHeaderClick(index, th));
+        });
+
+        this.attachEvents();
+
         try {
             toggleLoader(true);
             initSearchModeSwitcher(() => this.renderTable());
-            attachRowSelection('#clientsTable tbody');
-
-            if (this.headers) {
-                this.headers.forEach((th, index) => {
-                    th.style.cursor = 'pointer';
-                    th.addEventListener('click', () => this.onHeaderClick(index, th));
-                });
-            }
+            attachRowSelection(`#${this.table.id} tbody`);
 
             await this.loadData();
             this.renderTable();
         } finally {
             toggleLoader(false);
         }
+
         this.startAutoSync();
     }
 
@@ -92,26 +97,11 @@ class ClientsPage {
             });
         }
 
-        if (this.emailDomainFilter) {
-            this.emailDomainFilter.addEventListener('change', () => {
-                this.currentPage = 1;
-                this.renderTable();
-            });
-        }
-
-        if (this.searchInput) {
-            this.searchInput.addEventListener('input', () => {
-                this.currentPage = 1;
-                this.renderTable();
-            });
-        }
-
         if (this.prevBtn) {
             this.prevBtn.addEventListener('click', () => {
                 if (this.currentPage > 1) { this.currentPage--; this.renderTable(); }
             });
         }
-
         if (this.nextBtn) {
             this.nextBtn.addEventListener('click', () => {
                 const totalPages = Math.ceil(this.currentData.length / this.perPage);
@@ -119,42 +109,15 @@ class ClientsPage {
             });
         }
 
-        if (this.createForm) this.createForm.addEventListener('submit', (e) => this.handleFormSubmit(e, 'CreateClient', this.createModal));
-        if (this.editForm) this.editForm.addEventListener('submit', (e) => this.handleFormSubmit(e, 'UpdateClient', this.editModal));
-        if (this.deleteForm) this.deleteForm.addEventListener('submit', (e) => this.handleFormSubmit(e, 'DeleteClient', this.deleteModal));
+        if (this.createForm) this.createForm.addEventListener('submit', (e) => this.handleFormSubmit(e, `Create${this.entitySingular}`, this.createModal));
+        if (this.editForm) this.editForm.addEventListener('submit', (e) => this.handleFormSubmit(e, `Update${this.entitySingular}`, this.editModal));
+        if (this.deleteForm) this.deleteForm.addEventListener('submit', (e) => this.handleFormSubmit(e, `Delete${this.entitySingular}`, this.deleteModal));
     }
 
     async loadData() {
-        await syncTable('Clients');
-        this.cachedData = await getAll('Clients') || [];
-        this.updateEmailFilterOptions();
-    }
-
-    updateEmailFilterOptions() {
-        if (!this.emailDomainFilter) return;
-
-        const currentVal = this.emailDomainFilter.value;
-        const domains = new Set();
-
-        this.cachedData.forEach(c => {
-            if (c.email && c.email.includes('@')) {
-                const domain = c.email.split('@')[1].toLowerCase();
-                domains.add(domain);
-            }
-        });
-
-        while (this.emailDomainFilter.options.length > 1) {
-            this.emailDomainFilter.remove(1);
-        }
-
-        Array.from(domains).sort().forEach(domain => {
-            const opt = document.createElement('option');
-            opt.value = '@' + domain;
-            opt.textContent = '@' + domain;
-            this.emailDomainFilter.appendChild(opt);
-        });
-
-        this.emailDomainFilter.value = currentVal;
+        await syncTable(this.entityPlural);
+        const data = await getAll(this.entityPlural);
+        this.cachedData = data || [];
     }
 
     startAutoSync() {
@@ -167,7 +130,7 @@ class ClientsPage {
     }
 
     onHeaderClick(index, th) {
-        const fieldMap = ['fullName', 'phone', 'email', 'actions'];
+        const fieldMap = ['name', 'description', 'actions'];
         const field = fieldMap[index];
 
         if (!field || field === 'actions') return;
@@ -185,20 +148,16 @@ class ClientsPage {
     }
 
     renderTable() {
-        if (!this.tbody) return;
+        const tbody = this.table.querySelector('tbody');
+        if (!tbody) return;
 
         const search = (this.searchInput?.value || '').toLowerCase().trim();
-        const domainFilter = this.emailDomainFilter ? this.emailDomainFilter.value : '';
+        tbody.innerHTML = '';
 
-        this.tbody.innerHTML = '';
-
-        let findedItems = this.cachedData.filter(c => {
+        let findedItems = this.cachedData.filter(item => {
             if (search) {
-                const haystack = [c.fullName, c.phone, c.email].map(v => (v ?? '').toString().toLowerCase()).join(' ');
+                const haystack = [item.name, item.description].map(v => (v ?? '').toString().toLowerCase()).join(' ');
                 if (!haystack.includes(search)) return false;
-            }
-            if (domainFilter) {
-                if (!c.email || !c.email.toLowerCase().endsWith(domainFilter)) return false;
             }
             return true;
         });
@@ -210,33 +169,23 @@ class ClientsPage {
             this.currentData = findedItems;
         } else if (mode === 'highlight') {
             this.currentData = this.cachedData;
-            if (domainFilter) {
-                this.currentData = this.currentData.filter(c => c.email && c.email.toLowerCase().endsWith(domainFilter));
-            }
             isHighlight = true;
         }
 
         if (this.countElement) {
             const total = this.cachedData.length;
             const filtered = findedItems.length;
+            // Упрощенный падеж для счетчика или можно передавать кастомную строку
             this.countElement.textContent = mode === 'filter'
-                ? `Клиентов: ${filtered} из ${total}`
-                : `Клиентов: ${this.currentData.length} (совпадений: ${filtered}) из ${total}`;
+                ? `Записей: ${filtered} из ${total}`
+                : `Записей: ${this.currentData.length} (совпадений: ${filtered}) из ${total}`;
         }
 
         if (this.currentData.length > 0 && this.sortField) {
             this.currentData.sort((a, b) => {
                 const dir = this.sortDirection === 'asc' ? 1 : -1;
-                const getValue = (item) => {
-                    switch (this.sortField) {
-                        case 'fullName': return (item.fullName || '').toLowerCase();
-                        case 'phone': return (item.phone || '').toLowerCase();
-                        case 'email': return (item.email || '').toLowerCase();
-                        default: return '';
-                    }
-                };
-                const va = getValue(a);
-                const vb = getValue(b);
+                const va = (a[this.sortField] || '').toLowerCase();
+                const vb = (b[this.sortField] || '').toLowerCase();
                 return va < vb ? -1 * dir : (va > vb ? 1 * dir : 0);
             });
         }
@@ -244,7 +193,7 @@ class ClientsPage {
         this.currentPage = updatePaginationUI(this.currentPage, this.currentData.length, this.perPage, this.pageInfo, this.prevBtn, this.nextBtn);
 
         if (this.currentData.length === 0) {
-            this.tbody.innerHTML = '<tr><td colspan="4" class="text-center" style="opacity:0.6; padding:1rem;">Записей нет</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center">Записей нет</td></tr>';
             return;
         }
 
@@ -253,20 +202,26 @@ class ClientsPage {
 
         for (const item of pageData) {
             const tr = document.createElement('tr');
-            if (isHighlight && findedItems.includes(item)) {
-                tr.classList.add('highlight-match');
-            }
+            if (isHighlight && findedItems.includes(item)) tr.classList.add('highlight-match');
 
+            // Name
             const tdName = document.createElement('td');
-            tdName.textContent = item.fullName;
-            tdName.style.fontWeight = '500';
+            tdName.textContent = item.name;
 
-            const tdPhone = document.createElement('td');
-            tdPhone.appendChild(createCopyableContent(item.phone));
+            // Description
+            const tdDescription = document.createElement('td');
+            tdDescription.classList.add('col-fit');
+            const descBtn = document.createElement('button');
+            descBtn.textContent = '📄';
+            descBtn.title = 'Описание';
+            descBtn.className = 'btn btn-sm btn-description btn-square';
+            descBtn.addEventListener('click', () => {
+                this.descriptionContent.textContent = item.description || 'Описания нет';
+                showModal(this.descriptionModal);
+            });
+            tdDescription.appendChild(descBtn);
 
-            const tdEmail = document.createElement('td');
-            tdEmail.appendChild(createCopyableContent(item.email));
-
+            // Actions
             const tdActions = document.createElement('td');
             tdActions.classList.add('col-fit');
             const actionsDiv = document.createElement('div');
@@ -276,33 +231,33 @@ class ClientsPage {
             editBtn.textContent = '✎';
             editBtn.title = 'Изменить';
             editBtn.className = 'btn btn-sm btn-primary btn-square';
-            editBtn.onclick = (e) => { e.stopPropagation(); this.openEditModal(item); };
+            editBtn.addEventListener('click', () => this.openEditModal(item));
 
             const deleteBtn = document.createElement('button');
             deleteBtn.textContent = '🗑';
             deleteBtn.title = 'Удалить';
             deleteBtn.className = 'btn btn-sm btn-danger btn-square';
-            deleteBtn.onclick = (e) => { e.stopPropagation(); this.openDeleteModal(item); };
+            deleteBtn.addEventListener('click', () => this.openDeleteModal(item));
 
             actionsDiv.appendChild(editBtn);
             actionsDiv.appendChild(deleteBtn);
             tdActions.appendChild(actionsDiv);
 
             tr.appendChild(tdName);
-            tr.appendChild(tdPhone);
-            tr.appendChild(tdEmail);
+            tr.appendChild(tdDescription);
             tr.appendChild(tdActions);
 
             fragment.appendChild(tr);
         }
-        this.tbody.appendChild(fragment);
+        tbody.appendChild(fragment);
     }
 
     openEditModal(item) {
         if (this.editIdInput) this.editIdInput.value = item.id;
-        document.getElementById('editFullName').value = item.fullName || '';
-        document.getElementById('editPhone').value = item.phone || '';
-        document.getElementById('editEmail').value = item.email || '';
+        const editName = document.getElementById('editName');
+        const editDesc = document.getElementById('editDescription');
+        if (editName) editName.value = item.name || '';
+        if (editDesc) editDesc.value = item.description || '';
         showModal(this.editModal);
     }
 
@@ -313,16 +268,8 @@ class ClientsPage {
 
     validateForm(prefix) {
         const errors = [];
-        const name = document.getElementById(prefix + 'FullName');
-        const phone = document.getElementById(prefix + 'Phone');
-
-        if (!name.value.trim()) errors.push('Поле "ФИО" обязательно.');
-
-        if (!phone.value.trim()) {
-            errors.push('Поле "Телефон" обязательно.');
-        } else if (phone.value.length < 18) {
-            errors.push('Телефон должен быть введен полностью.');
-        }
+        const nameInput = document.getElementById(prefix + 'Name');
+        if (nameInput && !nameInput.value.trim()) errors.push('Поле "Название" обязательно.');
 
         if (errors.length > 0) {
             const errorList = document.getElementById('errorList');
@@ -368,8 +315,3 @@ class ClientsPage {
         }
     }
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    const page = new ClientsPage();
-    page.init();
-});
