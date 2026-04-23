@@ -38,6 +38,9 @@
                     <button id="createCategoryButton" type="button" class="btn btn-sm btn-create-entity">
                         + Создать категорию
                     </button>
+                    @Html.AntiForgeryToken()
+                    <input type="file" id="excelFileInput" accept=".xlsx" />
+                    <button id="uploadBtn">Загрузить Excel</button>
                     <div class="admin-pagination d-flex align-items-center gap-2">
                         <button id="prev" type="button" class="btn btn-outline-secondary btn-sm btn-square" title="Предыдущая страница">◄</button>
                         <span id="pageInfo"></span>

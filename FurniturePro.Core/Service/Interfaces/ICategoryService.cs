@@ -12,6 +12,8 @@ public interface ICategoryService
 
     Task<int> CreateAsync(CreateCategoryDTO modelDto, CancellationToken ct = default);
 
+    Task<List<int>> CreateRangeAsync(List<CreateCategoryDTO> modelDtos, CancellationToken ct = default);
+
     Task UpdateAsync(int id, UpdateCategoryDTO modelDto, CancellationToken ct = default);
 
     Task DeleteAsync(int id, CancellationToken ct = default);

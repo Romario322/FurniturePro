@@ -49,6 +49,13 @@ public class CategoryService : ICategoryService
         return createdEntity.Id;
     }
 
+    public async Task<List<int>> CreateRangeAsync(List<CreateCategoryDTO> modelDtos, CancellationToken ct = default)
+    {
+        var entitiesToCreate = _mapper.Map<List<Category>>(modelDtos);
+        var createdEntities = await _categoryRepository.CreateRangeAsync(entitiesToCreate, ct);
+        return createdEntities.Select(ent => ent.Id).ToList();
+    }
+ 
     public async Task UpdateAsync(int id, UpdateCategoryDTO modelDto, CancellationToken ct = default)
     {
         var entity = await _categoryRepository.GetByIdAsync(id, ct)
