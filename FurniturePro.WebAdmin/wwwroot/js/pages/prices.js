@@ -1,7 +1,7 @@
 ﻿import { syncTable } from '../api/syncService.js';
 import { getAll } from '../db/repository.js';
 import { toggleLoader } from '../ui/loader.js';
-import { showModal, hideModal } from '../ui/modals.js';
+import { showModal, hideModal } from '../ui/modal.js';
 import { attachRowSelection, updateHeaderSortUI } from '../ui/tables.js';
 import { fillSelect } from '../utils/domHelper.js';
 import { paginateData, updatePaginationUI } from '../utils/pagination.js';
