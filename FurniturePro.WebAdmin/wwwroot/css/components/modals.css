@@ -147,35 +147,48 @@
     line-height: 1.2;
 }
 
-/* File Import Area */
 .file-upload-label {
     display: block;
     width: 100%;
     padding: 1.5rem 1rem;
-    border: 2px dashed var(--warm-border);
-    border-radius: 0.5rem;
     background-color: var(--input-bg);
-    color: var(--app-text);
-    cursor: pointer;
-    transition: all 0.2s ease;
+    border: 2px dashed var(--warm-border);
+    border-radius: 0.6rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
     font-weight: 500;
     text-align: center;
-    margin-bottom: 0;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
     .file-upload-label:hover {
-        /* Если переменной --primary-main нет, сработает фолбэк на синий */
-        border-color: var(--primary-main);
-        background-color: var(--bg-subtle);
+        background-color: var(--input-bg-focus);
+        border-color: var(--accent-secondary);
+        color: var(--accent-secondary);
+    }
+
+    .file-upload-label i,
+    .file-upload-label::before {
+        /* Если захотите добавить иконку, можно раскомментировать или использовать emoji прямо в HTML */
+        content: "📂"; 
+        display: block; 
+        font-size: 1.5rem; 
+        margin-bottom: 0.5rem; 
     }
 
 .file-upload-name {
-    margin-top: 0.75rem;
+    margin-top: 0.8rem;
+    padding: 0.6rem 0.8rem;
+    background-color: var(--form-section-bg);
+    border: 1px solid var(--warm-border-soft);
+    border-radius: 0.4rem;
+    color: var(--app-text);
     font-size: 0.85rem;
     font-weight: 600;
-    /* Если переменной --success-main нет, сработает фолбэк на зеленый */
-    color: var(--success-main);
     text-align: center;
+    word-break: break-all; /* Чтобы длинные имена файлов не ломали верстку */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 /* Animations */

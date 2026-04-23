@@ -4,6 +4,7 @@ using FurniturePro.Core.Models.DTO.DeletedIds;
 using FurniturePro.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Text.Json;
 
 namespace FurniturePro.WebAdmin.Pages.Secondary
 {
@@ -71,14 +72,19 @@ namespace FurniturePro.WebAdmin.Pages.Secondary
             }
         }
 
-        public async Task<IActionResult> OnPostImportAsync(IFormFile excelFile, CancellationToken ct)
+        public async Task<IActionResult> OnPostImportAsync(IFormFile excelFile, [FromForm] string existingNamesStr, CancellationToken ct)
         {
             if (excelFile == null || excelFile.Length == 0)
             {
-                return BadRequest("Файл не выбран или пуст");
+                return new JsonResult(new { success = false, message = "Файл не выбран или пуст." });
             }
 
             var categoriesToCreate = new List<CreateCategoryDTO>();
+
+            var existingNamesList = string.IsNullOrEmpty(existingNamesStr) ? new List<string>()
+                : JsonSerializer.Deserialize<List<string>>(existingNamesStr);
+
+            var existingNames = new HashSet<string>(existingNamesList, StringComparer.OrdinalIgnoreCase);
 
             // Открываем поток файла и передаем его в парсер ClosedXML
             using (var stream = excelFile.OpenReadStream())
@@ -95,12 +101,25 @@ namespace FurniturePro.WebAdmin.Pages.Secondary
                     if (string.IsNullOrEmpty(name))
                         continue;
 
+                    // 2. Проверяем, существует ли уже такая категория в кеше
+                    if (existingNames.Contains(name))
+                        continue;
+
+                    // 3. Добавляем имя в HashSet, чтобы избежать дубликатов внутри самого Excel файла
+                    existingNames.Add(name);
+
                     categoriesToCreate.Add(new CreateCategoryDTO
                     {
                         Name = name,
                         Description = description
                     });
                 }
+            }
+
+            // 4. Информируем пользователя, если новых записей не найдено
+            if (!categoriesToCreate.Any())
+            {
+                return new JsonResult(new { success = false, message = "В файле нет новых записей для добавления. Все данные уже существуют." });
             }
 
             // Передаем готовый List<DTO> в слой бизнес-логики (Core)

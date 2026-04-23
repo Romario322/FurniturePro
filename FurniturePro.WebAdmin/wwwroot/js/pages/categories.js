@@ -1,6 +1,7 @@
 ﻿import { DictionaryManager } from '../classes/DictionaryManager.js';
-import { showModal, hideModal } from '../ui/modal.js';
+import { showModal } from '../ui/modal.js';
 import { toggleLoader } from '../ui/loader.js';
+import { getAll } from '../db/repository.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     new DictionaryManager(
@@ -50,8 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (openImportModalBtn) {
         openImportModalBtn.addEventListener('click', () => {
             if (importForm) {
-                importForm.reset();
-                // Скрываем имя файла при новом открытии модалки
                 if (fileNameDisplay) {
                     fileNameDisplay.style.display = 'none';
                     fileNameDisplay.textContent = '';
@@ -81,7 +80,15 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 toggleLoader(true);
 
-                const response = await fetch('?handler=Import', {
+                const cachedCategories = await getAll('Categories');
+                const existingNames = cachedCategories.map(c => c.name);
+
+                const formData = new FormData();
+                formData.append("excelFile", file);
+                // 2. Добавляем массив имен в FormData
+                formData.append("existingNamesStr", JSON.stringify(existingNames));
+
+                const response = await fetch(`?handler=Import`, {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -89,26 +96,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
 
+                let result;
+                try {
+                    result = await response.json();
+                } catch (parseError) {
+                    displayErrors(["Не удалось обработать ответ от сервера."]);
+                    return;
+                }
+
                 if (response.ok) {
-                    location.reload();
+                    if (result.success) {
+                        hideModal(importModal);
+                        location.reload();
+                    } else {
+                        displayErrors([result.message || "Произошла ошибка при обработке файла."]);
+                    }
                 } else {
                     let errorMessages = ['Произошла ошибка при импорте.'];
-                    try {
-                        const errorData = await response.json();
-                        if (errorData.errors) {
-                            errorMessages = Object.values(errorData.errors).flat();
-                        } else if (errorData.title) {
-                            errorMessages = [errorData.title];
-                        } else if (errorData.message) {
-                            errorMessages = [errorData.message];
-                        }
-                    } catch (parseError) {
+
+                    if (result.errors) {
+                        errorMessages = Object.values(result.errors).flat();
+                    } else if (result.title) {
+                        errorMessages = [result.title];
+                    } else if (result.message) {
+                        errorMessages = [result.message];
                     }
+
                     displayErrors(errorMessages);
                 }
             } catch (error) {
                 console.error('Ошибка:', error);
-                displayErrors(['Произошла непредвиденная ошибка сети или сервера.']);
+                displayErrors(['Произошла непредвиденная ошибка сети. Проверьте подключение.']);
             } finally {
                 toggleLoader(false);
             }
