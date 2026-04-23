@@ -13,22 +13,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const importModal = document.getElementById('importModal');
     const openImportModalBtn = document.getElementById('openImportModalBtn');
-    const closeImportModalBtn = document.getElementById('closeImportModalBtn');
-    const cancelImportBtn = document.getElementById('cancelImportBtn');
     const importForm = document.getElementById('importForm');
     const importFileInput = document.getElementById('importFileInput');
+    const fileNameDisplay = document.getElementById('fileNameDisplay'); // Элемент для имени файла
+    const errorModal = document.getElementById('errorModal');
+    const errorList = document.getElementById('errorList');
 
-    if (openImportModalBtn) {
-        openImportModalBtn.addEventListener('click', () => {
-            importForm.reset();
-            showModal(importModal);
+    // Функция для отображения ошибок в модальном окне
+    function displayErrors(messages) {
+        if (errorList && errorModal) {
+            errorList.innerHTML = '';
+            messages.forEach(msg => {
+                const li = document.createElement('li');
+                li.textContent = msg;
+                errorList.appendChild(li);
+            });
+            showModal(errorModal);
+        } else {
+            alert(messages.join('\n'));
+        }
+    }
+
+    // Отображение имени файла при выборе
+    if (importFileInput && fileNameDisplay) {
+        importFileInput.addEventListener('change', function () {
+            if (this.files && this.files.length > 0) {
+                fileNameDisplay.textContent = '📄 ' + this.files[0].name;
+                fileNameDisplay.style.display = 'block';
+            } else {
+                fileNameDisplay.style.display = 'none';
+                fileNameDisplay.textContent = '';
+            }
         });
     }
 
-    // Закрытие модалки
-    const closeModal = () => hideModal(importModal);
-    if (closeImportModalBtn) closeImportModalBtn.addEventListener('click', closeModal);
-    if (cancelImportBtn) cancelImportBtn.addEventListener('click', closeModal);
+    if (openImportModalBtn) {
+        openImportModalBtn.addEventListener('click', () => {
+            if (importForm) {
+                importForm.reset();
+                // Скрываем имя файла при новом открытии модалки
+                if (fileNameDisplay) {
+                    fileNameDisplay.style.display = 'none';
+                    fileNameDisplay.textContent = '';
+                }
+            }
+            showModal(importModal);
+        });
+    }
 
     // Обработка отправки формы
     if (importForm) {
@@ -38,38 +69,46 @@ document.addEventListener('DOMContentLoaded', () => {
             const file = importFileInput.files[0];
 
             if (!file) {
-                alert("Выберите файл!");
+                displayErrors(["Выберите файл для загрузки!"]);
                 return;
             }
 
-            // Собираем данные в FormData (стандартный способ передачи файлов)
             const formData = new FormData();
-            formData.append('excelFile', file); // Имя 'excelFile' должно совпадать с параметром в C#
+            formData.append('excelFile', file);
 
-            // Достаем CSRF токен со страницы
             const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
 
             try {
-                closeModal();
                 toggleLoader(true);
 
-                // Отправляем POST запрос к обработчику Import на этой же странице
                 const response = await fetch('?handler=Import', {
                     method: 'POST',
                     body: formData,
                     headers: {
-                        'RequestVerificationToken': token // Передаем токен
+                        'RequestVerificationToken': token
                     }
                 });
 
                 if (response.ok) {
-                    alert('Файл успешно загружен и обработан!');
-                    location.reload(); // Перезагружаем страницу для обновления таблицы
+                    location.reload();
                 } else {
-                    alert('Ошибка при импорте');
+                    let errorMessages = ['Произошла ошибка при импорте.'];
+                    try {
+                        const errorData = await response.json();
+                        if (errorData.errors) {
+                            errorMessages = Object.values(errorData.errors).flat();
+                        } else if (errorData.title) {
+                            errorMessages = [errorData.title];
+                        } else if (errorData.message) {
+                            errorMessages = [errorData.message];
+                        }
+                    } catch (parseError) {
+                    }
+                    displayErrors(errorMessages);
                 }
             } catch (error) {
                 console.error('Ошибка:', error);
+                displayErrors(['Произошла непредвиденная ошибка сети или сервера.']);
             } finally {
                 toggleLoader(false);
             }

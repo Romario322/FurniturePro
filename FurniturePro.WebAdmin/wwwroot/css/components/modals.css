@@ -147,6 +147,37 @@
     line-height: 1.2;
 }
 
+/* File Import Area */
+.file-upload-label {
+    display: block;
+    width: 100%;
+    padding: 1.5rem 1rem;
+    border: 2px dashed var(--warm-border);
+    border-radius: 0.5rem;
+    background-color: var(--input-bg);
+    color: var(--app-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 0;
+}
+
+    .file-upload-label:hover {
+        /* Если переменной --primary-main нет, сработает фолбэк на синий */
+        border-color: var(--primary-main);
+        background-color: var(--bg-subtle);
+    }
+
+.file-upload-name {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    /* Если переменной --success-main нет, сработает фолбэк на зеленый */
+    color: var(--success-main);
+    text-align: center;
+}
+
 /* Animations */
 @keyframes fadeInBackdrop {
     from {
