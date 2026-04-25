@@ -1,9 +1,11 @@
+using ClosedXML.Excel;
 using FurniturePro.Core.Models.DTO.Colors;
 using FurniturePro.Core.Models.DTO.DeletedIds;
 using FurniturePro.Core.Models.DTO.Materials;
 using FurniturePro.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Text.Json;
 
 namespace FurniturePro.WebAdmin.Pages.Secondary
 {
@@ -69,6 +71,54 @@ namespace FurniturePro.WebAdmin.Pages.Secondary
             {
                 return new JsonResult(new { success = false, message = $"Ошибка: {ex.Message}" });
             }
+        }
+
+        public async Task<IActionResult> OnPostImportAsync(IFormFile excelFile, [FromForm] string existingNamesStr, CancellationToken ct)
+        {
+            if (excelFile == null || excelFile.Length == 0)
+            {
+                return new JsonResult(new { success = false, message = "Файл не выбран или пуст." });
+            }
+
+            var materialsToCreate = new List<CreateMaterialDTO>();
+
+            var existingNamesList = string.IsNullOrEmpty(existingNamesStr) ? new List<string>()
+                : JsonSerializer.Deserialize<List<string>>(existingNamesStr);
+
+            var existingNames = new HashSet<string>(existingNamesList, StringComparer.OrdinalIgnoreCase);
+
+            using (var stream = excelFile.OpenReadStream())
+            using (var workbook = new XLWorkbook(stream))
+            {
+                var worksheet = workbook.Worksheet(1);
+                var rows = worksheet.RangeUsed().RowsUsed().Skip(1);
+
+                foreach (var row in rows)
+                {
+                    var name = row.Cell(1).GetString().Trim();
+                    var description = row.Cell(2).GetString().Trim();
+
+                    if (string.IsNullOrEmpty(name) || existingNames.Contains(name))
+                        continue;
+
+                    existingNames.Add(name);
+
+                    materialsToCreate.Add(new CreateMaterialDTO
+                    {
+                        Name = name,
+                        Description = description
+                    });
+                }
+            }
+
+            if (!materialsToCreate.Any())
+            {
+                return new JsonResult(new { success = false, message = "В файле нет новых записей для добавления. Все данные уже существуют." });
+            }
+
+            await _materialService.CreateRangeAsync(materialsToCreate, ct);
+
+            return new JsonResult(new { success = true, count = materialsToCreate.Count });
         }
     }
 }

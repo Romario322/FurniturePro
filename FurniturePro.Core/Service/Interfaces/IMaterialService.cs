@@ -1,4 +1,5 @@
-﻿using FurniturePro.Core.Models.DTO.Materials;
+﻿using FurniturePro.Core.Models.DTO.Colors;
+using FurniturePro.Core.Models.DTO.Materials;
 
 namespace FurniturePro.Core.Services.Interfaces;
 
@@ -11,6 +12,8 @@ public interface IMaterialService
     Task<List<MaterialDTO>> GetAfterDateAsync(string dateTime, CancellationToken ct = default);
 
     Task<int> CreateAsync(CreateMaterialDTO modelDto, CancellationToken ct = default);
+
+    Task<List<int>> CreateRangeAsync(List<CreateMaterialDTO> modelDtos, CancellationToken ct = default);
 
     Task UpdateAsync(int id, UpdateMaterialDTO modelDto, CancellationToken ct = default);
 

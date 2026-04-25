@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FurniturePro.Core.Entities.Dictionaries;
+using FurniturePro.Core.Models.DTO.Categories;
 using FurniturePro.Core.Models.DTO.Materials;
 using FurniturePro.Core.Repositories;
 using FurniturePro.Core.Services.Interfaces;
@@ -47,6 +48,13 @@ public class MaterialService : IMaterialService
         var entityToCreate = _mapper.Map<Material>(modelDto);
         var createdEntity = await _materialRepository.CreateAsync(entityToCreate, ct);
         return createdEntity.Id;
+    }
+
+    public async Task<List<int>> CreateRangeAsync(List<CreateMaterialDTO> modelDtos, CancellationToken ct = default)
+    {
+        var entitiesToCreate = _mapper.Map<List<Material>>(modelDtos);
+        var createdEntities = await _materialRepository.CreateRangeAsync(entitiesToCreate, ct);
+        return createdEntities.Select(ent => ent.Id).ToList();
     }
 
     public async Task UpdateAsync(int id, UpdateMaterialDTO modelDto, CancellationToken ct = default)

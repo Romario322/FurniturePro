@@ -1,4 +1,5 @@
-﻿using FurniturePro.Core.Models.DTO.Colors;
+﻿using FurniturePro.Core.Models.DTO.Categories;
+using FurniturePro.Core.Models.DTO.Colors;
 
 namespace FurniturePro.Core.Services.Interfaces;
 
@@ -11,6 +12,8 @@ public interface IColorService
     Task<List<ColorDTO>> GetAfterDateAsync(string dateTime, CancellationToken ct = default);
 
     Task<int> CreateAsync(CreateColorDTO modelDto, CancellationToken ct = default);
+
+    Task<List<int>> CreateRangeAsync(List<CreateColorDTO> modelDtos, CancellationToken ct = default);
 
     Task UpdateAsync(int id, UpdateColorDTO modelDto, CancellationToken ct = default);
 

@@ -1,8 +1,10 @@
+using ClosedXML.Excel;
 using FurniturePro.Core.Models.DTO.Clients;
 using FurniturePro.Core.Models.DTO.DeletedIds;
 using FurniturePro.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Text.Json;
 
 namespace FurniturePro.WebAdmin.Pages.Main
 {
@@ -68,6 +70,62 @@ namespace FurniturePro.WebAdmin.Pages.Main
             {
                 return new JsonResult(new { success = false, message = $"Ошибка: {ex.Message}" });
             }
+        }
+
+        public async Task<IActionResult> OnPostImportAsync(IFormFile excelFile, [FromForm] string existingPhonesStr, CancellationToken ct)
+        {
+            if (excelFile == null || excelFile.Length == 0)
+            {
+                return new JsonResult(new { success = false, message = "Файл не выбран или пуст." });
+            }
+
+            var clientsToCreate = new List<CreateClientDTO>();
+
+            // Получаем телефоны существующих клиентов для предотвращения дубликатов
+            var existingPhonesList = string.IsNullOrEmpty(existingPhonesStr) ? new List<string>()
+                : JsonSerializer.Deserialize<List<string>>(existingPhonesStr);
+
+            var existingPhones = new HashSet<string>(existingPhonesList, StringComparer.OrdinalIgnoreCase);
+
+            using (var stream = excelFile.OpenReadStream())
+            using (var workbook = new XLWorkbook(stream))
+            {
+                var worksheet = workbook.Worksheet(1);
+                var rows = worksheet.RangeUsed().RowsUsed().Skip(1); // Пропуск заголовков
+
+                foreach (var row in rows)
+                {
+                    var fullName = row.Cell(1).GetString().Trim();
+                    var phone = row.Cell(2).GetString().Trim();
+                    var email = row.Cell(3).GetString().Trim();
+
+                    // Минимум нужны Имя и Телефон
+                    if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(email))
+                        continue;
+
+                    // Проверяем на дубликаты в базе и в самом файле Excel по телефону
+                    if (existingPhones.Contains(phone))
+                        continue;
+
+                    existingPhones.Add(phone);
+
+                    clientsToCreate.Add(new CreateClientDTO
+                    {
+                        FullName = fullName,
+                        Phone = phone,
+                        Email = email
+                    });
+                }
+            }
+
+            if (!clientsToCreate.Any())
+            {
+                return new JsonResult(new { success = false, message = "В файле нет новых записей для добавления. Все данные уже существуют (проверка по номеру телефона)." });
+            }
+
+            await _clientService.CreateRangeAsync(clientsToCreate, ct);
+
+            return new JsonResult(new { success = true, count = clientsToCreate.Count });
         }
     }
 }

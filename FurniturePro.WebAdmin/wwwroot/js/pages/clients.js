@@ -42,6 +42,14 @@ class ClientsPage {
         this.editModal = document.getElementById('editModal');
         this.deleteModal = document.getElementById('deleteModal');
         this.errorModal = document.getElementById('errorModal');
+        this.errorList = document.getElementById('errorList');
+
+        // Модалка импорта
+        this.importModal = document.getElementById('importModal');
+        this.openImportModalBtn = document.getElementById('openImportModalBtn');
+        this.importForm = document.getElementById('importForm');
+        this.importFileInput = document.getElementById('importFileInput');
+        this.fileNameDisplay = document.getElementById('fileNameDisplay');
 
         // Формы и инпуты
         this.createForm = document.getElementById('createForm');
@@ -119,6 +127,33 @@ class ClientsPage {
             });
         }
 
+        // События импорта
+        if (this.importFileInput && this.fileNameDisplay) {
+            this.importFileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                    this.fileNameDisplay.textContent = '📄 ' + e.target.files[0].name;
+                    this.fileNameDisplay.style.display = 'block';
+                } else {
+                    this.fileNameDisplay.style.display = 'none';
+                    this.fileNameDisplay.textContent = '';
+                }
+            });
+        }
+
+        if (this.openImportModalBtn) {
+            this.openImportModalBtn.addEventListener('click', () => {
+                if (this.importForm) {
+                    this.importForm.reset();
+                    if (this.fileNameDisplay) {
+                        this.fileNameDisplay.style.display = 'none';
+                        this.fileNameDisplay.textContent = '';
+                    }
+                }
+                showModal(this.importModal);
+            });
+        }
+
+        if (this.importForm) this.importForm.addEventListener('submit', (e) => this.handleImportSubmit(e));
         if (this.createForm) this.createForm.addEventListener('submit', (e) => this.handleFormSubmit(e, 'CreateClient', this.createModal));
         if (this.editForm) this.editForm.addEventListener('submit', (e) => this.handleFormSubmit(e, 'UpdateClient', this.editModal));
         if (this.deleteForm) this.deleteForm.addEventListener('submit', (e) => this.handleFormSubmit(e, 'DeleteClient', this.deleteModal));
@@ -311,6 +346,20 @@ class ClientsPage {
         showModal(this.deleteModal);
     }
 
+    displayErrors(messages) {
+        if (this.errorList && this.errorModal) {
+            this.errorList.innerHTML = '';
+            messages.forEach(msg => {
+                const li = document.createElement('li');
+                li.textContent = msg;
+                this.errorList.appendChild(li);
+            });
+            showModal(this.errorModal);
+        } else {
+            alert(messages.join('\n'));
+        }
+    }
+
     validateForm(prefix) {
         const errors = [];
         const name = document.getElementById(prefix + 'FullName');
@@ -325,19 +374,74 @@ class ClientsPage {
         }
 
         if (errors.length > 0) {
-            const errorList = document.getElementById('errorList');
-            if (errorList) {
-                errorList.innerHTML = '';
-                errors.forEach(msg => {
-                    const li = document.createElement('li');
-                    li.textContent = msg;
-                    errorList.appendChild(li);
-                });
-            }
-            showModal(this.errorModal);
+            this.displayErrors(errors);
             return false;
         }
         return true;
+    }
+
+    async handleImportSubmit(e) {
+        e.preventDefault();
+
+        const file = this.importFileInput?.files[0];
+        if (!file) {
+            this.displayErrors(["Выберите файл для загрузки!"]);
+            return;
+        }
+
+        const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+        if (!token) {
+            this.displayErrors(["Токен безопасности не найден!"]);
+            return;
+        }
+
+        try {
+            toggleLoader(true);
+
+            // Получаем телефоны существующих клиентов для передачи на бэкэнд
+            const existingPhones = this.cachedData.map(c => c.phone);
+
+            const formData = new FormData();
+            formData.append("excelFile", file);
+            formData.append("existingPhonesStr", JSON.stringify(existingPhones));
+
+            const response = await fetch(`?handler=Import`, {
+                method: 'POST',
+                body: formData,
+                headers: { 'RequestVerificationToken': token }
+            });
+
+            let result;
+            try {
+                result = await response.json();
+            } catch (parseError) {
+                this.displayErrors(["Не удалось обработать ответ от сервера."]);
+                return;
+            }
+
+            if (response.ok) {
+                if (result.success) {
+                    hideModal(this.importModal);
+                    // Вместо полной перезагрузки обновляем таблицу
+                    await this.loadData();
+                    this.renderTable();
+                } else {
+                    this.displayErrors([result.message || "Произошла ошибка при обработке файла."]);
+                }
+            } else {
+                let errorMessages = ['Произошла ошибка при импорте.'];
+                if (result.errors) errorMessages = Object.values(result.errors).flat();
+                else if (result.title) errorMessages = [result.title];
+                else if (result.message) errorMessages = [result.message];
+
+                this.displayErrors(errorMessages);
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            this.displayErrors(['Произошла непредвиденная ошибка сети. Проверьте подключение.']);
+        } finally {
+            toggleLoader(false);
+        }
     }
 
     async handleFormSubmit(e, handlerName, modalToClose) {
@@ -355,9 +459,7 @@ class ClientsPage {
             const result = await response.json();
 
             if (!result.success) {
-                const errorList = document.getElementById('errorList');
-                if (errorList) errorList.innerHTML = `<li>${result.message || 'Ошибка операции'}</li>`;
-                showModal(this.errorModal);
+                this.displayErrors([result.message || 'Ошибка операции']);
             } else {
                 hideModal(modalToClose);
                 await this.loadData();

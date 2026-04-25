@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FurniturePro.Core.Entities.Dictionaries;
 using FurniturePro.Core.Models.DTO.Clients;
+using FurniturePro.Core.Models.DTO.Colors;
 using FurniturePro.Core.Repositories;
 using FurniturePro.Core.Services.Interfaces;
 
@@ -47,6 +48,13 @@ public class ClientService : IClientService
         var entityToCreate = _mapper.Map<Client>(modelDto);
         var createdEntity = await _clientRepository.CreateAsync(entityToCreate, ct);
         return createdEntity.Id;
+    }
+
+    public async Task<List<int>> CreateRangeAsync(List<CreateClientDTO> modelDtos, CancellationToken ct = default)
+    {
+        var entitiesToCreate = _mapper.Map<List<Client>>(modelDtos);
+        var createdEntities = await _clientRepository.CreateRangeAsync(entitiesToCreate, ct);
+        return createdEntities.Select(ent => ent.Id).ToList();
     }
 
     public async Task UpdateAsync(int id, UpdateClientDTO modelDto, CancellationToken ct = default)

@@ -10,7 +10,7 @@ internal class ClientConfiguration : IEntityTypeConfiguration<Client>
     {
         builder.ToTable("clients");
 
-        builder.HasIndex(c => c.FullName).IsUnique();
+        builder.HasIndex(c => c.Phone).IsUnique();
 
         builder.HasKey(et => et.Id);
 
