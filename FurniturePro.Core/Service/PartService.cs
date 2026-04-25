@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using FurniturePro.Core.Entities;
+using FurniturePro.Core.Entities.Dictionaries;
+using FurniturePro.Core.Models.DTO.Categories;
 using FurniturePro.Core.Models.DTO.Parts;
 using FurniturePro.Core.Repositories;
 using FurniturePro.Core.Services.Interfaces;
@@ -47,6 +49,13 @@ public class PartService : IPartService
         var entityToCreate = _mapper.Map<Part>(modelDto);
         var createdEntity = await _partRepository.CreateAsync(entityToCreate, ct);
         return createdEntity.Id;
+    }
+
+    public async Task<List<int>> CreateRangeAsync(List<CreatePartDTO> modelDtos, CancellationToken ct = default)
+    {
+        var entitiesToCreate = _mapper.Map<List<Part>>(modelDtos);
+        var createdEntities = await _partRepository.CreateRangeAsync(entitiesToCreate, ct);
+        return createdEntities.Select(ent => ent.Id).ToList();
     }
 
     public async Task UpdateAsync(int id, UpdatePartDTO modelDto, CancellationToken ct = default)

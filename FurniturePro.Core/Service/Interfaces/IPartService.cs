@@ -1,4 +1,5 @@
-﻿using FurniturePro.Core.Models.DTO.Parts;
+﻿using FurniturePro.Core.Models.DTO.Categories;
+using FurniturePro.Core.Models.DTO.Parts;
 
 namespace FurniturePro.Core.Services.Interfaces;
 
@@ -11,6 +12,8 @@ public interface IPartService
     Task<List<PartDTO>> GetAfterDateAsync(string dateTime, CancellationToken ct = default);
 
     Task<int> CreateAsync(CreatePartDTO modelDto, CancellationToken ct = default);
+
+    Task<List<int>> CreateRangeAsync(List<CreatePartDTO> modelDtos, CancellationToken ct = default);
 
     Task UpdateAsync(int id, UpdatePartDTO modelDto, CancellationToken ct = default);
 

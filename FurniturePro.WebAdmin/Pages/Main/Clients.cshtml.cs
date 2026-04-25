@@ -96,23 +96,54 @@ namespace FurniturePro.WebAdmin.Pages.Main
                 foreach (var row in rows)
                 {
                     var fullName = row.Cell(1).GetString().Trim();
-                    var phone = row.Cell(2).GetString().Trim();
+                    var rawPhone = row.Cell(2).GetString().Trim();
                     var email = row.Cell(3).GetString().Trim();
 
-                    // Минимум нужны Имя и Телефон
-                    if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(email))
+                    // Минимум нужны Имя, Телефон и Email
+                    if (string.IsNullOrEmpty(fullName) || string.IsNullOrEmpty(rawPhone) || string.IsNullOrEmpty(email))
                         continue;
 
-                    // Проверяем на дубликаты в базе и в самом файле Excel по телефону
-                    if (existingPhones.Contains(phone))
+                    // --- 1. Валидация и форматирование Email ---
+                    int atIndex = email.IndexOf('@');
+                    // Если '@' нет, либо она стоит первой (нет имени ящика), либо последней (нет домена) — пропускаем
+                    if (atIndex <= 0 || atIndex == email.Length - 1)
+                    {
+                        continue;
+                    }
+
+                    // --- 2. Форматирование телефона к виду +7 (___) ___-__-__ ---
+                    // Извлекаем из строки только цифры
+                    string digitsOnly = new string(rawPhone.Where(char.IsDigit).ToArray());
+                    string formattedPhone = string.Empty;
+
+                    // Приводим номера с кодом страны '7' или '8' к единому знаменателю (10 цифр)
+                    if (digitsOnly.Length == 11 && (digitsOnly.StartsWith("7") || digitsOnly.StartsWith("8")))
+                    {
+                        digitsOnly = digitsOnly.Substring(1);
+                    }
+
+                    // Если после отсечения кода у нас осталось ровно 10 цифр — собираем формат
+                    if (digitsOnly.Length == 10)
+                    {
+                        formattedPhone = $"+7 ({digitsOnly.Substring(0, 3)}) {digitsOnly.Substring(3, 3)}-{digitsOnly.Substring(6, 2)}-{digitsOnly.Substring(8, 2)}";
+                    }
+
+                    // Если формат собрать не удалось (цифр больше/меньше) — пропускаем строку
+                    if (string.IsNullOrEmpty(formattedPhone))
+                    {
+                        continue;
+                    }
+
+                    // Проверяем на дубликаты по отформатированному номеру
+                    if (existingPhones.Contains(formattedPhone))
                         continue;
 
-                    existingPhones.Add(phone);
+                    existingPhones.Add(formattedPhone);
 
                     clientsToCreate.Add(new CreateClientDTO
                     {
                         FullName = fullName,
-                        Phone = phone,
+                        Phone = formattedPhone,
                         Email = email
                     });
                 }
@@ -120,7 +151,7 @@ namespace FurniturePro.WebAdmin.Pages.Main
 
             if (!clientsToCreate.Any())
             {
-                return new JsonResult(new { success = false, message = "В файле нет новых записей для добавления. Все данные уже существуют (проверка по номеру телефона)." });
+                return new JsonResult(new { success = false, message = "В файле нет новых записей для добавления. Возможные причины: дубликаты, неверный формат телефона/почты." });
             }
 
             await _clientService.CreateRangeAsync(clientsToCreate, ct);

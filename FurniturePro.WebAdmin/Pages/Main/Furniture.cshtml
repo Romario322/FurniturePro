@@ -52,9 +52,14 @@
             <div class="header-block block-actions">
                 <div class="block-title">Управление</div>
                 <div class="actions-column">
-                    <button id="createFurnitureButton" type="button" class="btn btn-sm btn-create-entity">
-                        + Создать мебель
-                    </button>
+                    <div class="action-toolbar">
+                        <button id="createFurnitureButton" type="button" class="btn btn-sm btn-create-entity">
+                            + Создать Мебель
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="openImportModalBtn">
+                            <i class="icon-upload"></i> Импорт
+                        </button>
+                    </div>
                     <div class="admin-pagination d-flex align-items-center gap-2">
                         <button id="prev" type="button" class="btn btn-outline-secondary btn-sm">◄</button>
                         <span id="pageInfo"></span>
@@ -307,6 +312,34 @@
                     <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="editCompositionModal">Отмена</button>
                     <button type="button" id="saveCompositionBtn" class="btn btn-primary btn-sm">Сохранить изменения</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="importModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple modal-dialog-compact">
+            <div class="modal-content-simple">
+                <h2 class="modal-title-simple">Импорт мебели</h2>
+                <form id="importForm" method="post" class="modal-form-simple" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="form-section">
+                        <div class="form-section-title">Загрузка файла</div>
+                        <div class="mb-2 text-center">
+                            <input type="file" id="importFileInput" name="file" class="d-none" accept=".csv, .xlsx" required />
+
+                            <label for="importFileInput" class="file-upload-label">
+                                Выбрать файл (.csv, .xlsx)
+                            </label>
+
+                            <div id="fileNameDisplay" class="file-upload-name" style="display: none;"></div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="importModal">Отмена</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Загрузить</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

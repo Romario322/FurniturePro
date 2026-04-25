@@ -43,6 +43,13 @@ class PartsPage {
         this.createPartButton = document.getElementById('createPartButton');
         this.partsCount = document.getElementById('partsCount');
 
+        // --- Элементы для модального окна импорта ---
+        this.importModal = document.getElementById('importModal');
+        this.openImportModalBtn = document.getElementById('openImportModalBtn');
+        this.importForm = document.getElementById('importForm');
+        this.importFileInput = document.getElementById('importFileInput');
+        this.fileNameDisplay = document.getElementById('fileNameDisplay');
+
         this.createModal = document.getElementById('createModal');
         this.editModal = document.getElementById('editModal');
         this.deleteModal = document.getElementById('deleteModal');
@@ -133,6 +140,22 @@ class PartsPage {
         loop();
     }
 
+    // --- Функция для отображения ошибок в модальном окне ---
+    displayErrors(messages) {
+        const errorList = document.getElementById('errorList');
+        if (errorList && this.errorModal) {
+            errorList.innerHTML = '';
+            messages.forEach(msg => {
+                const li = document.createElement('li');
+                li.textContent = msg;
+                errorList.appendChild(li);
+            });
+            showModal(this.errorModal);
+        } else {
+            alert(messages.join('\n'));
+        }
+    }
+
     attachEvents() {
         if (this.headers) {
             this.headers.forEach((th, index) => {
@@ -158,6 +181,35 @@ class PartsPage {
                 if (activeCheck) activeCheck.checked = true;
                 showModal(this.createModal);
             });
+        }
+
+        // --- Обработка логики модального окна импорта ---
+        if (this.importFileInput && this.fileNameDisplay) {
+            this.importFileInput.addEventListener('change', (e) => {
+                const input = e.target;
+                if (input.files && input.files.length > 0) {
+                    this.fileNameDisplay.textContent = '📄 ' + input.files[0].name;
+                    this.fileNameDisplay.style.display = 'block';
+                } else {
+                    this.fileNameDisplay.style.display = 'none';
+                    this.fileNameDisplay.textContent = '';
+                }
+            });
+        }
+
+        if (this.openImportModalBtn && this.importModal) {
+            this.openImportModalBtn.addEventListener('click', () => {
+                if (this.importForm) this.importForm.reset();
+                if (this.fileNameDisplay) {
+                    this.fileNameDisplay.style.display = 'none';
+                    this.fileNameDisplay.textContent = '';
+                }
+                showModal(this.importModal);
+            });
+        }
+
+        if (this.importForm) {
+            this.importForm.addEventListener('submit', (e) => this.handleImportSubmit(e));
         }
 
         if (this.prevBtn) this.prevBtn.addEventListener('click', () => { if (this.currentPage > 1) { this.currentPage--; this.renderTable(); } });
@@ -543,9 +595,8 @@ class PartsPage {
         }
 
         if (errors.length > 0) {
-            const errorList = document.getElementById('errorList');
-            if (errorList) { errorList.innerHTML = ''; errors.forEach(msg => { const li = document.createElement('li'); li.textContent = msg; errorList.appendChild(li); }); }
-            showModal(this.errorModal); return false;
+            this.displayErrors(errors);
+            return false;
         }
         return true;
     }
@@ -560,11 +611,91 @@ class PartsPage {
         else if (dateInput.min && dateInput.value < dateInput.min) errors.push(`Дата не может быть раньше предыдущей записи.`);
 
         if (errors.length > 0) {
-            const errorList = document.getElementById('errorList');
-            if (errorList) { errorList.innerHTML = ''; errors.forEach(msg => { const li = document.createElement('li'); li.textContent = msg; errorList.appendChild(li); }); }
-            showModal(this.errorModal); return false;
+            this.displayErrors(errors);
+            return false;
         }
         return true;
+    }
+
+    // --- Новый обработчик отправки формы импорта ---
+    async handleImportSubmit(e) {
+        e.preventDefault();
+
+        const file = this.importFileInput?.files[0];
+        if (!file) {
+            this.displayErrors(["Выберите файл для загрузки!"]);
+            return;
+        }
+
+        try {
+            toggleLoader(true);
+
+            const formData = new FormData();
+            formData.append('excelFile', file);
+
+            // Собираем кэш для проверки на бэкенде
+            const existingParts = this.cachedParts.map(p => p.name);
+            const materialsCache = Object.fromEntries(this.cachedMaterials.map(m => [m.name, m.id]));
+            const colorsCache = Object.fromEntries(this.cachedColors.map(c => [c.name, c.id]));
+
+            formData.append('existingPartsStr', JSON.stringify(existingParts));
+            formData.append('materialsCacheStr', JSON.stringify(materialsCache));
+            formData.append('colorsCacheStr', JSON.stringify(colorsCache));
+
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            const token = tokenInput ? tokenInput.value : '';
+
+            const response = await fetch('?handler=Import', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    ...(token ? { 'RequestVerificationToken': token } : {})
+                }
+            });
+
+            let result = {};
+            try {
+                result = await response.json();
+            } catch (parseError) {
+                this.displayErrors(["Не удалось обработать ответ от сервера."]);
+                return;
+            }
+
+            if (response.ok) {
+                if (result.success) {
+                    hideModal(this.importModal);
+                    alert(`Импорт успешно завершен! Добавлено записей: ${result.count}`);
+                    // Обновляем данные после импорта (включая цены), без перезагрузки страницы
+                    await this.loadData();
+                    this.initFiltersFromData();
+                    this.renderTable();
+                } else {
+                    this.displayErrors([result.message || "Произошла ошибка при обработке файла."]);
+                }
+            } else {
+                let errorMessages = ['Произошла ошибка при импорте.'];
+
+                if (result.errors) {
+                    errorMessages = Object.values(result.errors).flat();
+                } else if (result.title) {
+                    errorMessages = [result.title];
+                } else if (result.message) {
+                    errorMessages = [result.message];
+                }
+
+                this.displayErrors(errorMessages);
+            }
+        } catch (error) {
+            console.error("Import error:", error);
+            this.displayErrors(['Произошла непредвиденная ошибка сети. Проверьте подключение.']);
+        } finally {
+            if (this.importFileInput) this.importFileInput.value = '';
+            if (this.fileNameDisplay) {
+                this.fileNameDisplay.style.display = 'none';
+                this.fileNameDisplay.textContent = '';
+            }
+            toggleLoader(false);
+        }
     }
 
     async handleFormSubmit(e, handlerName, modalToClose) {
@@ -580,9 +711,7 @@ class PartsPage {
             try { result = await response.json(); } catch { result = { success: response.ok }; }
 
             if (!response.ok || (result.hasOwnProperty('success') && !result.success)) {
-                const errorList = document.getElementById('errorList');
-                if (errorList) errorList.innerHTML = `<li>${result.message || 'Ошибка операции'}</li>`;
-                showModal(this.errorModal);
+                this.displayErrors([result.message || 'Ошибка операции']);
             } else {
                 hideModal(modalToClose);
                 if (handlerName === 'CreatePrice') {

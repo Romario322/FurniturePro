@@ -22,6 +22,11 @@ internal class OrderConfiguration : IEntityTypeConfiguration<Order>
                .HasForeignKey(e => e.Entity1Id)
                .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasMany(et => et.Operations)
+               .WithOne(e => e.Order)
+               .HasForeignKey(e => e.OrderId)
+               .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasIndex(et => et.UpdateDate);
     }
 }

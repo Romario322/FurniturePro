@@ -68,7 +68,7 @@ export class DictionaryManager {
         this.attachEvents();
 
         try {
-            toggleLoader(true); initModal();
+            toggleLoader(true);
             initSearchModeSwitcher(() => this.renderTable());
             attachRowSelection(`#${this.table.id} tbody`);
 

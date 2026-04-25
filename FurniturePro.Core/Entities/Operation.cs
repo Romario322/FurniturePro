@@ -17,4 +17,8 @@ public class Operation : BaseEntity<int>
     [Column(TypeName = "integer")]
     public required int PartId { get; set; }
     public Part? Part { get; set; }
+
+    [Column(TypeName = "integer")]
+    public int? OrderId { get; set; }
+    public Order? Order { get; set; }
 }

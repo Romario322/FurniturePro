@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FurniturePro.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260423083715_Create")]
+    [Migration("20260425131526_Create")]
     partial class Create
     {
         /// <inheritdoc />
@@ -175,7 +175,7 @@ namespace FurniturePro.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FullName")
+                    b.HasIndex("Phone")
                         .IsUnique();
 
                     b.HasIndex("UpdateDate");
@@ -348,6 +348,9 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.Property<int>("OperationTypeId")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("PartId")
                         .HasColumnType("integer");
 
@@ -360,6 +363,8 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OperationTypeId");
+
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("PartId");
 
@@ -376,10 +381,11 @@ namespace FurniturePro.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClientId")
-                        .HasColumnType("integer");
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)");
 
-                    b.Property<int?>("Discount")
+                    b.Property<int>("ClientId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("UpdateDate")
@@ -583,6 +589,11 @@ namespace FurniturePro.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("FurniturePro.Core.Entities.Order", "Order")
+                        .WithMany("Operations")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("FurniturePro.Core.Entities.Part", "Part")
                         .WithMany("Operations")
                         .HasForeignKey("PartId")
@@ -590,6 +601,8 @@ namespace FurniturePro.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("OperationType");
+
+                    b.Navigation("Order");
 
                     b.Navigation("Part");
                 });
@@ -683,6 +696,8 @@ namespace FurniturePro.Infrastructure.Migrations
 
             modelBuilder.Entity("FurniturePro.Core.Entities.Order", b =>
                 {
+                    b.Navigation("Operations");
+
                     b.Navigation("OrderCompositions");
 
                     b.Navigation("StatusChanges");

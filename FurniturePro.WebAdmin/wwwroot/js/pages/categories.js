@@ -1,5 +1,5 @@
 ﻿import { DictionaryManager } from '../classes/DictionaryManager.js';
-import { showModal } from '../ui/modal.js';
+import { showModal, hideModal } from '../ui/modal.js';
 import { toggleLoader } from '../ui/loader.js';
 import { getAll } from '../db/repository.js';
 

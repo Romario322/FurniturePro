@@ -147,7 +147,7 @@ namespace FurniturePro.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Discount = table.Column<int>(type: "integer", nullable: true),
+                    Address = table.Column<string>(type: "varchar(200)", nullable: false),
                     ClientId = table.Column<int>(type: "integer", nullable: false),
                     UpdateDate = table.Column<DateTime>(type: "timestamptz", nullable: false)
                 },
@@ -280,6 +280,7 @@ namespace FurniturePro.Infrastructure.Migrations
                     Date = table.Column<DateTime>(type: "timestamptz", nullable: false),
                     OperationTypeId = table.Column<int>(type: "integer", nullable: false),
                     PartId = table.Column<int>(type: "integer", nullable: false),
+                    OrderId = table.Column<int>(type: "integer", nullable: true),
                     UpdateDate = table.Column<DateTime>(type: "timestamptz", nullable: false)
                 },
                 constraints: table =>
@@ -290,6 +291,12 @@ namespace FurniturePro.Infrastructure.Migrations
                         column: x => x.OperationTypeId,
                         principalTable: "operationTypes",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_operations_orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_operations_parts_PartId",
                         column: x => x.PartId,
@@ -354,9 +361,9 @@ namespace FurniturePro.Infrastructure.Migrations
                 column: "UpdateDate");
 
             migrationBuilder.CreateIndex(
-                name: "IX_clients_FullName",
+                name: "IX_clients_Phone",
                 table: "clients",
-                column: "FullName",
+                column: "Phone",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -427,6 +434,11 @@ namespace FurniturePro.Infrastructure.Migrations
                 name: "IX_operations_OperationTypeId",
                 table: "operations",
                 column: "OperationTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_operations_OrderId",
+                table: "operations",
+                column: "OrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_operations_PartId",
