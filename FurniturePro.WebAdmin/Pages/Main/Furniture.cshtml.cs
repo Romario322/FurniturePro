@@ -138,7 +138,7 @@ namespace FurniturePro.WebAdmin.Pages.Main
             public string Composition { get; set; } // Строка состава "Деталь - 1, Деталь2 - 2"
         }
 
-        public async Task<JsonResult> OnPostImportFurnitureAsync(
+        public async Task<JsonResult> OnPostImportAsync(
             IFormFile excelFile,
             [FromForm] string existingFurnitureStr,
             [FromForm] string categoriesCacheStr,

@@ -76,6 +76,13 @@ class FurniturePage {
         this.deleteIdInput = document.getElementById('deleteId');
         this.descriptionContent = document.getElementById('descriptionContent');
         this.compositionContent = document.getElementById('compositionContent');
+
+        // --- Элементы для модального окна импорта ---
+        this.importModal = document.getElementById('importModal');
+        this.openImportModalBtn = document.getElementById('openImportModalBtn');
+        this.importForm = document.getElementById('importForm');
+        this.importFileInput = document.getElementById('importFileInput');
+        this.fileNameDisplay = document.getElementById('fileNameDisplay');
     }
 
     async init() {
@@ -139,6 +146,21 @@ class FurniturePage {
         loop();
     }
 
+    displayErrors(messages) {
+        const errorList = document.getElementById('errorList');
+        if (errorList && this.errorModal) {
+            errorList.innerHTML = '';
+            messages.forEach(msg => {
+                const li = document.createElement('li');
+                li.textContent = msg;
+                errorList.appendChild(li);
+            });
+            showModal(this.errorModal);
+        } else {
+            alert(messages.join('\n'));
+        }
+    }
+
     attachEvents() {
         if (this.headers) {
             this.headers.forEach((th, index) => {
@@ -183,6 +205,35 @@ class FurniturePage {
         });
 
         if (this.saveCompositionBtn) this.saveCompositionBtn.addEventListener('click', () => this.handleCompositionSave());
+
+        // --- Обработка логики модального окна импорта ---
+        if (this.importFileInput && this.fileNameDisplay) {
+            this.importFileInput.addEventListener('change', (e) => {
+                const input = e.target;
+                if (input.files && input.files.length > 0) {
+                    this.fileNameDisplay.textContent = '📄 ' + input.files[0].name;
+                    this.fileNameDisplay.style.display = 'block';
+                } else {
+                    this.fileNameDisplay.style.display = 'none';
+                    this.fileNameDisplay.textContent = '';
+                }
+            });
+        }
+
+        if (this.openImportModalBtn && this.importModal) {
+            this.openImportModalBtn.addEventListener('click', () => {
+                if (this.importForm) this.importForm.reset();
+                if (this.fileNameDisplay) {
+                    this.fileNameDisplay.style.display = 'none';
+                    this.fileNameDisplay.textContent = '';
+                }
+                showModal(this.importModal);
+            });
+        }
+
+        if (this.importForm) {
+            this.importForm.addEventListener('submit', (e) => this.handleImportSubmit(e));
+        }
     }
 
     onHeaderClick(index) {
@@ -626,6 +677,7 @@ class FurniturePage {
         }
     }
 
+    // --- ВОЗВРАЩЕННЫЕ МЕТОДЫ ---
     openEditModal(item) {
         if (this.editIdInput) this.editIdInput.value = item.id;
         document.getElementById('editName').value = item.name || '';
@@ -645,6 +697,7 @@ class FurniturePage {
         if (this.deleteIdInput) this.deleteIdInput.value = item.id;
         showModal(this.deleteModal);
     }
+    // ---------------------------
 
     validateFurnitureForm(prefix) {
         const errors = [];
@@ -669,6 +722,86 @@ class FurniturePage {
             return false;
         }
         return true;
+    }
+
+    async handleImportSubmit(e) {
+        e.preventDefault();
+
+        const file = this.importFileInput?.files[0];
+        if (!file) {
+            this.displayErrors(["Выберите файл для загрузки!"]);
+            return;
+        }
+
+        try {
+            toggleLoader(true);
+
+            const formData = new FormData();
+            formData.append('excelFile', file);
+
+            // Собираем кэш для проверки на бэкенде
+            const existingFurniture = this.cachedFurniture.map(f => f.name);
+            const categoriesCache = Object.fromEntries(this.cachedCategories.map(c => [c.name, c.id]));
+            const partsCache = Object.fromEntries(this.cachedParts.map(p => [p.name, p.id]));
+
+            formData.append('existingFurnitureStr', JSON.stringify(existingFurniture));
+            formData.append('categoriesCacheStr', JSON.stringify(categoriesCache));
+            formData.append('partsCacheStr', JSON.stringify(partsCache));
+
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            const token = tokenInput ? tokenInput.value : '';
+
+            const response = await fetch('?handler=Import', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    ...(token ? { 'RequestVerificationToken': token } : {})
+                }
+            });
+
+            let result = {};
+            try {
+                result = await response.json();
+            } catch (parseError) {
+                this.displayErrors(["Не удалось обработать ответ от сервера."]);
+                return;
+            }
+
+            if (response.ok) {
+                if (result.success) {
+                    hideModal(this.importModal);
+                    alert(`Импорт успешно завершен! Добавлено записей: ${result.count}`);
+                    // Обновляем данные после импорта (включая цены), без перезагрузки страницы
+                    await this.loadData();
+                    this.initFiltersFromData();
+                    this.renderTable();
+                } else {
+                    this.displayErrors([result.message || "Произошла ошибка при обработке файла."]);
+                }
+            } else {
+                let errorMessages = ['Произошла ошибка при импорте.'];
+
+                if (result.errors) {
+                    errorMessages = Object.values(result.errors).flat();
+                } else if (result.title) {
+                    errorMessages = [result.title];
+                } else if (result.message) {
+                    errorMessages = [result.message];
+                }
+
+                this.displayErrors(errorMessages);
+            }
+        } catch (error) {
+            console.error("Import error:", error);
+            this.displayErrors(['Произошла непредвиденная ошибка сети. Проверьте подключение.']);
+        } finally {
+            if (this.importFileInput) this.importFileInput.value = '';
+            if (this.fileNameDisplay) {
+                this.fileNameDisplay.style.display = 'none';
+                this.fileNameDisplay.textContent = '';
+            }
+            toggleLoader(false);
+        }
     }
 
     async handleFormSubmit(e, handlerName, modalToClose) {
