@@ -7,6 +7,7 @@ import { getSearchMode, initSearchModeSwitcher, fillSelect } from '../utils/domH
 import { paginateData, updatePaginationUI } from '../utils/pagination.js';
 import { initCustomSelects } from '../ui/customSelect.js';
 import { copyToClipboard } from '../utils/clipboard.js';
+import { initPhoneMask } from '../utils/phoneMask.js';
 
 class OrdersPage {
     constructor() {
@@ -114,6 +115,8 @@ class OrdersPage {
         this.btnOpenCreateClientModal = document.getElementById('btnOpenCreateClientModal');
         this.createClientQuickModal = document.getElementById('createClientModal');
         this.quickClientForm = document.getElementById('createClientForm');
+
+        initPhoneMask(document.getElementById('createPhone'));
     }
 
     async init() {
@@ -510,40 +513,47 @@ class OrdersPage {
         }
     }
 
-    async handleCreateClient() {
-        if (!this.quickClientForm.checkValidity()) {
-            this.quickClientForm.reportValidity();
+    async handleCreateClient(e) {
+        // 1. Предотвращаем стандартную отправку формы
+        e.preventDefault();
+
+        // 2. Используем нашу кастомную валидацию
+        if (!this.validateClientForm()) {
             return;
         }
 
         const formData = new FormData(this.quickClientForm);
-        const clientData = Object.fromEntries(formData.entries());
 
         try {
             toggleLoader(true);
 
-            // Отправляем запрос. Убедись, что путь '/api/Clients' совпадает с роутом твоего API
+            // Отправляем запрос
             const response = await fetch(`?handler=CreateClient`, { method: 'POST', body: formData });
+            const result = await response.json();
 
-            if (response.ok) {
-                const newClient = await response.json();
+            if (response.ok && result.success) {
 
-                // 1. Добавляем в локальный кэш
+                // Забираем клиента из ответа
+                const newClient = result.client;
+
+                // 3. Добавляем в локальный кэш
                 this.cachedClients.push(newClient);
 
-                // 2. Очищаем поле поиска и обновляем список
+                // 4. Очищаем поле поиска и обновляем список
                 if (this.clientSearchInput) this.clientSearchInput.value = '';
-                this.handleClientSearch({ target: { value: '' } }); // принудительный рендер полного списка
 
-                // 3. Выбираем только что созданного клиента
+                // Вызываем принудительный рендер списка
+                this.handleClientSearch({ target: { value: '' } });
+
+                // 5. Выбираем только что созданного клиента в селекте
                 if (this.createClientIdSelect) {
                     this.createClientIdSelect.value = newClient.id;
-                    initCustomSelects();
+                    initCustomSelects(); // Перерисовываем кастомный селект с новым значением
                 }
 
                 hideModal(this.createClientQuickModal);
             } else {
-                this.displayErrors(['Ошибка при создании клиента. Проверьте данные.']);
+                this.displayErrors([result.message || 'Ошибка при создании клиента. Проверьте данные.']);
             }
         } catch (error) {
             console.error('Ошибка создания клиента:', error);
@@ -551,6 +561,41 @@ class OrdersPage {
         } finally {
             toggleLoader(false);
         }
+    }
+
+    validateClientForm() {
+        const errors = [];
+        const name = document.getElementById('createFullName');
+        const phone = document.getElementById('createPhone');
+        const email = document.getElementById('createEmail');
+
+        if (!name || !name.value.trim()) {
+            errors.push('Поле "ФИО" обязательно.');
+        }
+
+        if (!phone || !phone.value.trim()) {
+            errors.push('Поле "Телефон" обязательно.');
+
+        } else if (phone.value.length < 18) {
+            // Проверка на длину маски: +7 (___) ___-__-__ (18 символов)
+            errors.push('Телефон должен быть введен полностью.');
+        }
+        // Проверка Email
+        if (!email || !email.value.trim()) {
+            errors.push('Поле "Email" обязательно.');
+        } else {
+            // Проверка корректности формата почты
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email.value.trim())) {
+                errors.push('Введите корректный адрес Email.');
+            }
+        }
+
+        if (errors.length > 0) {
+            this.displayErrors(errors);
+            return false;
+        }
+        return true;
     }
 
     displayErrors(messages) {

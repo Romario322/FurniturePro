@@ -80,7 +80,18 @@ namespace FurniturePro.WebAdmin.Pages.Main
                 // Вызываем метод создания напрямую из сервиса
                 var id = await _clientService.CreateAsync(dto, ct); // Имя метода может отличаться (например, AddAsync)
 
-                return new JsonResult(new { success = true,  });
+                // Возвращаем объект клиента, чтобы JS мог добавить его в свой массив (this.cachedClients)
+                return new JsonResult(new
+                {
+                    success = true,
+                    client = new
+                    {
+                        id,
+                        fullName = dto.FullName,
+                        phone = dto.Phone,
+                        email = dto.Email
+                    }
+                });
             }
             catch (Exception ex)
             {

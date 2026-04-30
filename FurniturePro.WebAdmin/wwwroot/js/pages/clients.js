@@ -364,6 +364,7 @@ class ClientsPage {
         const errors = [];
         const name = document.getElementById(prefix + 'FullName');
         const phone = document.getElementById(prefix + 'Phone');
+        const email = document.getElementById(prefix + 'Email');
 
         if (!name.value.trim()) errors.push('Поле "ФИО" обязательно.');
 
@@ -371,6 +372,17 @@ class ClientsPage {
             errors.push('Поле "Телефон" обязательно.');
         } else if (phone.value.length < 18) {
             errors.push('Телефон должен быть введен полностью.');
+        }
+
+        // Проверка Email
+        if (!email || !email.value.trim()) {
+            errors.push('Поле "Email" обязательно.');
+        } else {
+            // Проверка корректности формата почты
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email.value.trim())) {
+                errors.push('Введите корректный адрес Email.');
+            }
         }
 
         if (errors.length > 0) {
