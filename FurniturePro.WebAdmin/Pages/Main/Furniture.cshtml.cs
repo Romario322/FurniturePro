@@ -38,11 +38,31 @@ namespace FurniturePro.WebAdmin.Pages.Main
         {
         }
 
-        public async Task<JsonResult> OnPostCreateFurnitureAsync([FromForm] CreateFurnitureDTO dto, CancellationToken ct)
+        public async Task<JsonResult> OnPostCreateFurnitureAsync(
+            [FromForm] CreateFurnitureDTO dto,
+            [FromForm] string compositionsJson,
+            CancellationToken ct)
         {
             try
             {
-                await _furnitureService.CreateAsync(dto, ct);
+                // Сохраняем мебель и получаем её ID
+                int newFurnitureId = await _furnitureService.CreateAsync(dto, ct);
+
+                // Если есть состав, сохраняем его
+                if (newFurnitureId > 0 && !string.IsNullOrEmpty(compositionsJson))
+                {
+                    var items = System.Text.Json.JsonSerializer.Deserialize<List<FurnitureCompositionDTO>>(compositionsJson);
+                    if (items != null && items.Any())
+                    {
+                        items.ForEach(i =>
+                        {
+                            i.IdFurniture = newFurnitureId;
+                            i.UpdateDate = DateTime.UtcNow;
+                        });
+                        await _furnitureCompositionService.CreateRangeAsync(items, ct);
+                    }
+                }
+
                 return new JsonResult(new { success = true });
             }
             catch (Exception ex)

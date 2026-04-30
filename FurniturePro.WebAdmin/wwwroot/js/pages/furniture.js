@@ -18,6 +18,7 @@ class FurniturePage {
         this.currentData = [];
 
         // Состояние редактора
+        this.createCompositionDraft = [];
         this.currentCompositionDraft = [];
         this.currentEditingFurnitureId = null;
 
@@ -52,20 +53,25 @@ class FurniturePage {
         this.deleteModal = document.getElementById('deleteModal');
         this.descriptionModal = document.getElementById('descriptionModal');
         this.compositionModal = document.getElementById('compositionModal');
-        this.editCompositionModal = document.getElementById('editCompositionModal');
         this.errorModal = document.getElementById('errorModal');
 
         this.createForm = document.getElementById('createForm');
         this.editForm = document.getElementById('editForm');
         this.deleteForm = document.getElementById('deleteForm');
 
-        this.partSearchInput = document.getElementById('partSearchInput');
-        this.clearPartSearchBtn = document.getElementById('clearPartSearch');
-        this.saveCompositionBtn = document.getElementById('saveCompositionBtn');
-        this.pModeFilter = document.getElementById('pModeFilter');
-        this.pModeHighlight = document.getElementById('pModeHighlight');
-        this.currentCompTableBody = document.querySelector('#currentCompTable tbody');
-        this.availablePartsTableBody = document.querySelector('#availablePartsTable tbody');
+        this.partSearchInputCreate = document.getElementById('partSearchInputCreate');
+        this.clearPartSearchCreateBtn = document.getElementById('clearPartSearchCreate');
+        this.createCompTableBody = document.querySelector('#createCompTable tbody');
+        this.availablePartsTableCreateBody = document.querySelector('#availablePartsTableCreate tbody');
+        this.createTotalCountLabel = document.getElementById('createTotalCount');
+        this.createSummaryPriceLabel = document.getElementById('createSummaryPrice');
+
+        this.partSearchInputEdit = document.getElementById('partSearchInputEdit');
+        this.clearPartSearchEditBtn = document.getElementById('clearPartSearchEdit');
+        this.editCompTableBody = document.querySelector('#editCompTable tbody');
+        this.availablePartsTableEditBody = document.querySelector('#availablePartsTableEdit tbody');
+        this.editTotalCountLabel = document.getElementById('editTotalCount');
+        this.editSummaryPriceLabel = document.getElementById('editSummaryPrice');
 
         this.headerTotalCountLabel = document.getElementById('headerTotalCount');
         this.summaryPriceLabel = document.getElementById('summaryTotalPrice');
@@ -197,14 +203,32 @@ class FurniturePage {
         if (this.editForm) this.editForm.addEventListener('submit', (e) => this.handleFormSubmit(e, 'UpdateFurniture', this.editModal));
         if (this.deleteForm) this.deleteForm.addEventListener('submit', (e) => this.handleFormSubmit(e, 'DeleteFurniture', this.deleteModal));
 
-        if (this.partSearchInput) this.partSearchInput.addEventListener('input', () => this.renderAvailablePartsTable());
-        if (this.pModeFilter) this.pModeFilter.addEventListener('change', () => this.renderAvailablePartsTable());
-        if (this.pModeHighlight) this.pModeHighlight.addEventListener('change', () => this.renderAvailablePartsTable());
-        if (this.clearPartSearchBtn) this.clearPartSearchBtn.addEventListener('click', () => {
-            this.partSearchInput.value = ''; this.partSearchInput.focus(); this.renderAvailablePartsTable();
+        if (this.createFurnitureButton) {
+            this.createFurnitureButton.addEventListener('click', () => {
+                if (this.createForm) { initCustomSelects(); this.createForm.reset(); }
+                document.getElementById('createActivity').value = 'true';
+
+                // Сброс и рендер состава при создании
+                this.createCompositionDraft = [];
+                if (this.partSearchInputCreate) this.partSearchInputCreate.value = '';
+                this.renderCreateDraftTable();
+                this.renderAvailablePartsCreateTable();
+
+                showModal(this.createModal);
+            });
+        }
+
+        // Поиск деталей (Создание)
+        if (this.partSearchInputCreate) this.partSearchInputCreate.addEventListener('input', () => this.renderAvailablePartsCreateTable());
+        if (this.clearPartSearchCreateBtn) this.clearPartSearchCreateBtn.addEventListener('click', () => {
+            this.partSearchInputCreate.value = ''; this.partSearchInputCreate.focus(); this.renderAvailablePartsCreateTable();
         });
 
-        if (this.saveCompositionBtn) this.saveCompositionBtn.addEventListener('click', () => this.handleCompositionSave());
+        // Поиск деталей (Редактирование)
+        if (this.partSearchInputEdit) this.partSearchInputEdit.addEventListener('input', () => this.renderAvailablePartsEditTable());
+        if (this.clearPartSearchEditBtn) this.clearPartSearchEditBtn.addEventListener('click', () => {
+            this.partSearchInputEdit.value = ''; this.partSearchInputEdit.focus(); this.renderAvailablePartsEditTable();
+        });
 
         // --- Обработка логики модального окна импорта ---
         if (this.importFileInput && this.fileNameDisplay) {
@@ -402,11 +426,6 @@ class FurniturePage {
             const actionsDiv = document.createElement('div');
             actionsDiv.className = 'actions-group justify-content-end';
 
-            const configBtn = document.createElement('button');
-            configBtn.textContent = '⚙'; configBtn.title = 'Редактировать состав';
-            configBtn.className = 'btn btn-sm btn-outline-secondary btn-square';
-            configBtn.onclick = () => this.openEditCompositionModal(item);
-
             const editBtn = document.createElement('button');
             editBtn.textContent = '✎'; editBtn.title = 'Изменить';
             editBtn.className = 'btn btn-sm btn-primary btn-square';
@@ -417,7 +436,7 @@ class FurniturePage {
             deleteBtn.className = 'btn btn-sm btn-danger btn-square';
             deleteBtn.onclick = () => this.openDeleteModal(item);
 
-            actionsDiv.append(configBtn, editBtn, deleteBtn);
+            actionsDiv.append(editBtn, deleteBtn);
             tdActions.appendChild(actionsDiv);
 
             tr.append(tdName, tdCategory, tdSelfPrice, tdMarkup, tdPrice, tdActivity, tdDescription, tdComposition, tdActions);
@@ -493,25 +512,6 @@ class FurniturePage {
         return prices[0].value;
     }
 
-    openEditCompositionModal(item) {
-        this.currentEditingFurnitureId = item.id;
-        const existingComps = this.cachedCompositions.filter(c => (c.idFurniture === item.id) || (c.entity1Id === item.id));
-        const partsMap = new Map(this.cachedParts.map(p => [p.id, p]));
-
-        this.currentCompositionDraft = existingComps.map(c => {
-            const pId = c.idPart ?? c.entity2Id;
-            const part = partsMap.get(pId);
-            return { partId: pId, count: c.count, name: part ? part.name : 'Неизвестная деталь', price: this.getLatestPrice(pId) };
-        });
-
-        if (this.partSearchInput) this.partSearchInput.value = '';
-        if (this.pModeFilter) this.pModeFilter.checked = true;
-
-        this.renderDraftTable();
-        this.renderAvailablePartsTable();
-        showModal(this.editCompositionModal);
-    }
-
     attachInnerRowSelection(tbody) {
         if (!tbody) return;
         tbody.querySelectorAll('tr').forEach(tr => {
@@ -521,160 +521,6 @@ class FurniturePage {
                 tr.classList.add('selected-row');
             });
         });
-    }
-
-    renderDraftTable() {
-        if (!this.currentCompTableBody) return;
-        this.currentCompTableBody.innerHTML = '';
-
-        let totalCount = 0;
-        let totalSumMoney = 0;
-
-        this.currentCompositionDraft.forEach((item, index) => {
-            totalCount += item.count;
-            const itemTotalCost = item.price * item.count;
-            totalSumMoney += itemTotalCost;
-
-            const tr = document.createElement('tr');
-            const tdName = document.createElement('td'); tdName.textContent = item.name;
-
-            const tdQty = document.createElement('td'); tdQty.className = 'text-center';
-            const input = document.createElement('input');
-            input.type = 'number'; input.value = item.count; input.min = 1; input.className = 'qty-input';
-            input.onkeydown = (e) => { if (e.key === '-' || e.key === 'Subtract' || e.key === 'e') e.preventDefault(); };
-            input.onchange = (e) => {
-                let val = parseInt(e.target.value);
-                if (val < 1 || isNaN(val)) { val = 1; e.target.value = 1; }
-                item.count = val;
-                this.renderDraftTable();
-            };
-            tdQty.appendChild(input);
-
-            const tdSum = document.createElement('td');
-            tdSum.className = 'text-end small fw-bold';
-            tdSum.textContent = Math.round(itemTotalCost).toLocaleString('ru-RU') + ' ₽';
-
-            const tdAct = document.createElement('td'); tdAct.className = 'col-fit';
-            const delBtn = document.createElement('button');
-            delBtn.textContent = '×'; delBtn.className = 'btn btn-sm btn-danger btn-square'; delBtn.title = 'Убрать из состава';
-            delBtn.onclick = (e) => {
-                e.stopPropagation();
-                this.currentCompositionDraft.splice(index, 1);
-                this.renderDraftTable();
-                this.renderAvailablePartsTable();
-            };
-            tdAct.appendChild(delBtn);
-
-            tr.append(tdName, tdQty, tdSum, tdAct);
-            this.currentCompTableBody.appendChild(tr);
-        });
-
-        if (this.headerTotalCountLabel) this.headerTotalCountLabel.textContent = totalCount + ' шт.';
-        if (this.summaryPriceLabel) this.summaryPriceLabel.textContent = totalSumMoney.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' });
-        this.attachInnerRowSelection(this.currentCompTableBody);
-    }
-
-    renderAvailablePartsTable() {
-        if (!this.availablePartsTableBody) return;
-        this.availablePartsTableBody.innerHTML = '';
-
-        const searchText = (this.partSearchInput?.value || '').toLowerCase().trim();
-        const mode = document.querySelector('input[name="partSearchMode"]:checked')?.value || 'filter';
-        const addedIds = new Set(this.currentCompositionDraft.map(x => x.partId));
-
-        let partsToRender = this.cachedParts;
-        if (mode === 'filter' && searchText) {
-            partsToRender = this.cachedParts.filter(p => p.name.toLowerCase().includes(searchText));
-        }
-
-        const fragment = document.createDocumentFragment();
-
-        partsToRender.forEach(part => {
-            const isMatch = searchText && part.name.toLowerCase().includes(searchText);
-            const isAdded = addedIds.has(part.id);
-            const tr = document.createElement('tr');
-
-            if (mode === 'highlight' && isMatch) tr.classList.add('highlight-match');
-            if (isAdded) tr.style.backgroundColor = 'rgba(237, 217, 183, 0.3)';
-
-            const tdName = document.createElement('td'); tdName.textContent = part.name;
-            const tdPrice = document.createElement('td'); tdPrice.className = 'text-end small';
-            const price = this.getLatestPrice(part.id);
-            tdPrice.textContent = price.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' });
-
-            const tdAction = document.createElement('td'); tdAction.className = 'col-fit text-center';
-            if (isAdded) {
-                const check = document.createElement('div');
-                check.className = 'icon-added-check'; check.textContent = '✓'; check.title = 'Уже в составе';
-                tdAction.appendChild(check);
-            } else {
-                const addBtn = document.createElement('button');
-                addBtn.textContent = '+'; addBtn.className = 'btn btn-sm btn-success btn-square';
-                addBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    this.currentCompositionDraft.push({ partId: part.id, count: 1, name: part.name, price: price });
-                    this.renderDraftTable();
-                    this.renderAvailablePartsTable();
-                };
-                tdAction.appendChild(addBtn);
-            }
-            tr.append(tdName, tdPrice, tdAction);
-            fragment.appendChild(tr);
-        });
-
-        this.availablePartsTableBody.appendChild(fragment);
-        this.attachInnerRowSelection(this.availablePartsTableBody);
-    }
-
-    async handleCompositionSave() {
-        if (!this.currentEditingFurnitureId) return;
-
-        try {
-            toggleLoader(true);
-            const originalComps = this.cachedCompositions.filter(c => (c.idFurniture === this.currentEditingFurnitureId) || (c.entity1Id === this.currentEditingFurnitureId));
-            const newComps = this.currentCompositionDraft;
-            const toCreate = [], toUpdate = [], toDelete = [];
-
-            originalComps.forEach(old => {
-                const oldPartId = old.idPart ?? old.entity2Id;
-                if (!newComps.find(n => n.partId === oldPartId)) {
-                    toDelete.push({ IdFurniture: Number(this.currentEditingFurnitureId), IdPart: Number(oldPartId) });
-                }
-            });
-
-            newComps.forEach(newItem => {
-                const oldItem = originalComps.find(o => (o.idPart ?? o.entity2Id) === newItem.partId);
-                const dto = { IdFurniture: Number(this.currentEditingFurnitureId), IdPart: Number(newItem.partId), Count: Number(newItem.count), UpdateDate: new Date().toISOString() };
-                if (!oldItem) toCreate.push(dto);
-                else if (oldItem.count !== newItem.count) toUpdate.push(dto);
-            });
-
-            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-            const headers = { 'Content-Type': 'application/json', 'RequestVerificationToken': token };
-
-            if (toCreate.length > 0) {
-                const res = await fetch('?handler=CreateCompositionRange', { method: 'POST', headers: headers, body: JSON.stringify(toCreate) });
-                const data = await res.json(); if (!data.success) throw new Error(data.message || 'Ошибка создания');
-            }
-            if (toUpdate.length > 0) {
-                const res = await fetch('?handler=UpdateCompositionRange', { method: 'POST', headers: headers, body: JSON.stringify(toUpdate) });
-                const data = await res.json(); if (!data.success) throw new Error(data.message || 'Ошибка обновления');
-            }
-            if (toDelete.length > 0) {
-                const res = await fetch('?handler=DeleteCompositionRange', { method: 'POST', headers: headers, body: JSON.stringify(toDelete) });
-                const data = await res.json();
-                if (!data.success) throw new Error(data.message || 'Ошибка удаления');
-                else await clearStore('FurnitureCompositions');
-            }
-
-            hideModal(this.editCompositionModal);
-            await this.loadData();
-            this.renderTable();
-        } catch (e) {
-            console.error(e); alert(e.message || 'Ошибка сохранения');
-        } finally {
-            toggleLoader(false);
-        }
     }
 
     // --- ВОЗВРАЩЕННЫЕ МЕТОДЫ ---
@@ -690,6 +536,22 @@ class FurniturePage {
             this.editCategorySelect.dispatchEvent(new Event('change'));
         }
         initCustomSelects();
+
+        // Загрузка состава
+        this.currentEditingFurnitureId = item.id;
+        const existingComps = this.cachedCompositions.filter(c => (c.idFurniture === item.id) || (c.entity1Id === item.id));
+        const partsMap = new Map(this.cachedParts.map(p => [p.id, p]));
+
+        this.currentCompositionDraft = existingComps.map(c => {
+            const pId = c.idPart ?? c.entity2Id;
+            const part = partsMap.get(pId);
+            return { partId: pId, count: c.count, name: part ? part.name : 'Удаленная деталь', price: this.getLatestPrice(pId) };
+        });
+
+        if (this.partSearchInputEdit) this.partSearchInputEdit.value = '';
+        this.renderEditDraftTable();
+        this.renderAvailablePartsEditTable();
+
         showModal(this.editModal);
     }
 
@@ -710,15 +572,16 @@ class FurniturePage {
         if (markup.value === '') errors.push('Поле "Наценка" обязательно.');
         else if (Number(markup.value) < 0) errors.push('Поле "Наценка" должно быть больше или равно 0.');
 
+        // Проверка состава
+        if (prefix === 'create' && this.createCompositionDraft.length === 0) {
+            errors.push('Мебель должна содержать хотя бы одну деталь.');
+        }
+        if (prefix === 'edit' && this.currentCompositionDraft.length === 0) {
+            errors.push('Мебель должна содержать хотя бы одну деталь.');
+        }
+
         if (errors.length > 0) {
-            const errorList = document.getElementById('errorList');
-            if (errorList) {
-                errorList.innerHTML = '';
-                errors.forEach(msg => {
-                    const li = document.createElement('li'); li.textContent = msg; errorList.appendChild(li);
-                });
-            }
-            showModal(this.errorModal);
+            this.displayErrors(errors);
             return false;
         }
         return true;
@@ -812,20 +675,201 @@ class FurniturePage {
             const formData = new FormData(e.target);
             if (formPrefix === 'edit') formData.set('Activity', document.getElementById('editIsActive').checked);
 
+            // Для создания: отправляем JSON
+            if (formPrefix === 'create' && this.createCompositionDraft.length > 0) {
+                const compData = this.createCompositionDraft.map(c => ({
+                    IdPart: Number(c.partId),
+                    Count: Number(c.count),
+                    IdFurniture: 0,
+                    UpdateDate: new Date().toISOString()
+                }));
+                formData.append('compositionsJson', JSON.stringify(compData));
+            }
+
             const response = await fetch(`?handler=${handlerName}`, { method: 'POST', body: formData });
             let result = {};
             try { result = await response.json(); } catch { result = { success: response.ok }; }
 
             if (!response.ok || (result.hasOwnProperty('success') && !result.success)) {
-                const errorList = document.getElementById('errorList');
-                if (errorList) errorList.innerHTML = `<li>${result.message || 'Ошибка операции'}</li>`;
-                showModal(this.errorModal);
+                this.displayErrors([result.message || 'Ошибка операции']);
             } else {
+
+                // Для редактирования: синхронизируем через API
+                if (formPrefix === 'edit') {
+                    const originalComps = this.cachedCompositions.filter(c => (c.idFurniture === this.currentEditingFurnitureId) || (c.entity1Id === this.currentEditingFurnitureId));
+                    const newComps = this.currentCompositionDraft;
+                    const toCreate = [], toUpdate = [], toDelete = [];
+
+                    originalComps.forEach(old => {
+                        const oldPartId = old.idPart ?? old.entity2Id;
+                        if (!newComps.find(n => n.partId === oldPartId)) {
+                            toDelete.push({ IdFurniture: Number(this.currentEditingFurnitureId), IdPart: Number(oldPartId) });
+                        }
+                    });
+
+                    newComps.forEach(newItem => {
+                        const oldItem = originalComps.find(o => (o.idPart ?? o.entity2Id) === newItem.partId);
+                        const dto = { IdFurniture: Number(this.currentEditingFurnitureId), IdPart: Number(newItem.partId), Count: Number(newItem.count), UpdateDate: new Date().toISOString() };
+                        if (!oldItem) toCreate.push(dto);
+                        else if (oldItem.count !== newItem.count) toUpdate.push(dto);
+                    });
+
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                    const headers = { 'Content-Type': 'application/json', 'RequestVerificationToken': token };
+
+                    if (toCreate.length > 0) await fetch('?handler=CreateCompositionRange', { method: 'POST', headers: headers, body: JSON.stringify(toCreate) });
+                    if (toUpdate.length > 0) await fetch('?handler=UpdateCompositionRange', { method: 'POST', headers: headers, body: JSON.stringify(toUpdate) });
+                    if (toDelete.length > 0) await fetch('?handler=DeleteCompositionRange', { method: 'POST', headers: headers, body: JSON.stringify(toDelete) });
+                }
+
                 hideModal(modalToClose);
+                if (formPrefix === 'create' || formPrefix === 'edit') await clearStore('FurnitureCompositions');
                 await this.loadData();
                 this.renderTable();
             }
         } catch (err) { console.error(err); } finally { toggleLoader(false); }
+    }
+
+    // === МЕТОДЫ СОЗДАНИЯ ===
+    renderCreateDraftTable() {
+        if (!this.createCompTableBody) return;
+        this.createCompTableBody.innerHTML = '';
+        let totalCount = 0; let totalSumMoney = 0;
+
+        this.createCompositionDraft.forEach((item, index) => {
+            totalCount += item.count;
+            const itemTotalCost = item.price * item.count;
+            totalSumMoney += itemTotalCost;
+
+            const tr = document.createElement('tr');
+            const tdName = document.createElement('td'); tdName.textContent = item.name;
+            const tdQty = document.createElement('td'); tdQty.className = 'text-center';
+
+            const input = document.createElement('input'); input.type = 'number'; input.value = item.count; input.min = 1; input.className = 'qty-input';
+            input.onkeydown = (e) => { if (e.key === '-' || e.key === 'Subtract' || e.key === 'e') e.preventDefault(); };
+            input.addEventListener('change', (e) => {
+                let val = parseInt(e.target.value); if (val < 1 || isNaN(val)) { val = 1; e.target.value = 1; }
+                item.count = val; this.renderCreateDraftTable();
+            });
+            tdQty.appendChild(input);
+
+            const tdSum = document.createElement('td'); tdSum.className = 'text-end small fw-bold'; tdSum.textContent = Math.round(itemTotalCost).toLocaleString('ru-RU') + ' ₽';
+            const tdAct = document.createElement('td'); tdAct.className = 'col-fit';
+
+            const delBtn = document.createElement('button'); delBtn.textContent = '×'; delBtn.className = 'btn btn-sm btn-danger btn-square'; delBtn.type = 'button';
+            delBtn.onclick = (e) => { e.stopPropagation(); this.createCompositionDraft.splice(index, 1); this.renderCreateDraftTable(); this.renderAvailablePartsCreateTable(); };
+            tdAct.appendChild(delBtn);
+
+            tr.append(tdName, tdQty, tdSum, tdAct);
+            this.createCompTableBody.appendChild(tr);
+        });
+
+        if (this.createTotalCountLabel) this.createTotalCountLabel.textContent = totalCount + ' шт.';
+        if (this.createSummaryPriceLabel) this.createSummaryPriceLabel.textContent = totalSumMoney.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' });
+    }
+
+    renderAvailablePartsCreateTable() {
+        if (!this.availablePartsTableCreateBody) return;
+        this.availablePartsTableCreateBody.innerHTML = '';
+        const searchText = (this.partSearchInputCreate?.value || '').toLowerCase().trim();
+        const addedIds = new Set(this.createCompositionDraft.map(x => x.partId));
+
+        let partsToRender = this.cachedParts;
+        if (searchText) partsToRender = partsToRender.filter(p => p.name.toLowerCase().includes(searchText));
+
+        const fragment = document.createDocumentFragment();
+        partsToRender.forEach(part => {
+            const isAdded = addedIds.has(part.id);
+            const tr = document.createElement('tr');
+            if (isAdded) tr.style.backgroundColor = 'rgba(237, 217, 183, 0.3)';
+
+            const tdName = document.createElement('td'); tdName.textContent = part.name;
+            const tdPrice = document.createElement('td'); tdPrice.className = 'text-end small';
+            const price = this.getLatestPrice(part.id); tdPrice.textContent = price.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' });
+
+            const tdAction = document.createElement('td'); tdAction.className = 'col-fit text-center';
+            if (isAdded) {
+                const check = document.createElement('div'); check.className = 'icon-added-check'; check.textContent = '✓'; tdAction.appendChild(check);
+            } else {
+                const addBtn = document.createElement('button'); addBtn.textContent = '+'; addBtn.className = 'btn btn-sm btn-success btn-square'; addBtn.type = 'button';
+                addBtn.onclick = (e) => { e.stopPropagation(); this.createCompositionDraft.push({ partId: part.id, count: 1, name: part.name, price: price }); this.renderCreateDraftTable(); this.renderAvailablePartsCreateTable(); };
+                tdAction.appendChild(addBtn);
+            }
+            tr.append(tdName, tdPrice, tdAction);
+            fragment.appendChild(tr);
+        });
+        this.availablePartsTableCreateBody.appendChild(fragment);
+    }
+
+    // === МЕТОДЫ РЕДАКТИРОВАНИЯ ===
+    renderEditDraftTable() {
+        if (!this.editCompTableBody) return;
+        this.editCompTableBody.innerHTML = '';
+        let totalCount = 0; let totalSumMoney = 0;
+
+        this.currentCompositionDraft.forEach((item, index) => {
+            totalCount += item.count;
+            const itemTotalCost = item.price * item.count;
+            totalSumMoney += itemTotalCost;
+
+            const tr = document.createElement('tr');
+            const tdName = document.createElement('td'); tdName.textContent = item.name;
+            const tdQty = document.createElement('td'); tdQty.className = 'text-center';
+
+            const input = document.createElement('input'); input.type = 'number'; input.value = item.count; input.min = 1; input.className = 'qty-input';
+            input.onkeydown = (e) => { if (e.key === '-' || e.key === 'Subtract' || e.key === 'e') e.preventDefault(); };
+            input.addEventListener('change', (e) => {
+                let val = parseInt(e.target.value); if (val < 1 || isNaN(val)) { val = 1; e.target.value = 1; }
+                item.count = val; this.renderEditDraftTable();
+            });
+            tdQty.appendChild(input);
+
+            const tdSum = document.createElement('td'); tdSum.className = 'text-end small fw-bold'; tdSum.textContent = Math.round(itemTotalCost).toLocaleString('ru-RU') + ' ₽';
+            const tdAct = document.createElement('td'); tdAct.className = 'col-fit';
+
+            const delBtn = document.createElement('button'); delBtn.textContent = '×'; delBtn.className = 'btn btn-sm btn-danger btn-square'; delBtn.type = 'button';
+            delBtn.onclick = (e) => { e.stopPropagation(); this.currentCompositionDraft.splice(index, 1); this.renderEditDraftTable(); this.renderAvailablePartsEditTable(); };
+            tdAct.appendChild(delBtn);
+
+            tr.append(tdName, tdQty, tdSum, tdAct);
+            this.editCompTableBody.appendChild(tr);
+        });
+
+        if (this.editTotalCountLabel) this.editTotalCountLabel.textContent = totalCount + ' шт.';
+        if (this.editSummaryPriceLabel) this.editSummaryPriceLabel.textContent = totalSumMoney.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' });
+    }
+
+    renderAvailablePartsEditTable() {
+        if (!this.availablePartsTableEditBody) return;
+        this.availablePartsTableEditBody.innerHTML = '';
+        const searchText = (this.partSearchInputEdit?.value || '').toLowerCase().trim();
+        const addedIds = new Set(this.currentCompositionDraft.map(x => x.partId));
+
+        let partsToRender = this.cachedParts;
+        if (searchText) partsToRender = partsToRender.filter(p => p.name.toLowerCase().includes(searchText));
+
+        const fragment = document.createDocumentFragment();
+        partsToRender.forEach(part => {
+            const isAdded = addedIds.has(part.id);
+            const tr = document.createElement('tr');
+            if (isAdded) tr.style.backgroundColor = 'rgba(237, 217, 183, 0.3)';
+
+            const tdName = document.createElement('td'); tdName.textContent = part.name;
+            const tdPrice = document.createElement('td'); tdPrice.className = 'text-end small';
+            const price = this.getLatestPrice(part.id); tdPrice.textContent = price.toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' });
+
+            const tdAction = document.createElement('td'); tdAction.className = 'col-fit text-center';
+            if (isAdded) {
+                const check = document.createElement('div'); check.className = 'icon-added-check'; check.textContent = '✓'; tdAction.appendChild(check);
+            } else {
+                const addBtn = document.createElement('button'); addBtn.textContent = '+'; addBtn.className = 'btn btn-sm btn-success btn-square'; addBtn.type = 'button';
+                addBtn.onclick = (e) => { e.stopPropagation(); this.currentCompositionDraft.push({ partId: part.id, count: 1, name: part.name, price: price }); this.renderEditDraftTable(); this.renderAvailablePartsEditTable(); };
+                tdAction.appendChild(addBtn);
+            }
+            tr.append(tdName, tdPrice, tdAction);
+            fragment.appendChild(tr);
+        });
+        this.availablePartsTableEditBody.appendChild(fragment);
     }
 }
 

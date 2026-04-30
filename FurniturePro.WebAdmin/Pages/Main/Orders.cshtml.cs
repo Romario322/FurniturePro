@@ -42,7 +42,8 @@ namespace FurniturePro.WebAdmin.Pages.Main
 
         public async Task<JsonResult> OnPostCreateOrderAsync(
             [FromForm] CreateOrderDTO orderDto,
-            [FromForm] DateTime date,
+            [FromForm] DateTime date, 
+            [FromForm] string compositionsJson,
             [FromForm] int statusId,
             CancellationToken ct)
         {
@@ -63,6 +64,22 @@ namespace FurniturePro.WebAdmin.Pages.Main
                     };
 
                     await _statusChangeService.CreateAsync(statusDto, ct);
+                }
+
+                // 3. —охран€ем состав заказа (если он был передан)
+                if (!string.IsNullOrEmpty(compositionsJson))
+                {
+                    var items = JsonSerializer.Deserialize<List<OrderCompositionDTO>>(compositionsJson);
+                    if (items != null && items.Any())
+                    {
+                        // ѕроставл€ем ID созданного заказа всем позици€м
+                        items.ForEach(i =>
+                        {
+                            i.IdOrder = newOrderId;
+                            i.UpdateDate = DateTime.UtcNow;
+                        });
+                        await _orderCompositionService.CreateRangeAsync(items, ct);
+                    }
                 }
 
                 return new JsonResult(new { success = true });

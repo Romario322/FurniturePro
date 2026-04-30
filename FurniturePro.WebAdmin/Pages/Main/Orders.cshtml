@@ -137,47 +137,99 @@
     </div>
 
     <div id="createModal" class="modal-backdrop-simple" style="display:none;">
-        <div class="modal-dialog-simple">
+        <div class="modal-dialog-simple" style="max-width: 1200px;">
             <div class="modal-content-simple">
                 <h2 class="modal-title-simple">Создание заказа</h2>
-                <form id="createForm" method="post" class="modal-form-simple">
+                <form id="createForm" method="post" class="modal-form-simple" novalidate>
                     @Html.AntiForgeryToken()
-
                     <input type="hidden" id="createStatusId" name="StatusId" value="">
 
-                    <div class="form-section mb-0">
+                    <div class="form-section mb-3">
                         <div class="form-section-title">Параметры заказа</div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Клиент</label>
-                            <!-- Поиск и кнопка добавления -->
-                            <div class="input-group mb-2">
-                                <input type="text" id="clientSearchInput" class="form-control" placeholder="Поиск по ФИО в списке..." autocomplete="off">
-                                <button class="btn btn-outline-success" type="button" id="btnOpenCreateClientModal">
-                                    <i class="bi bi-person-plus"></i> Новый
-                                </button>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Клиент</label>
+                                <div class="input-group mb-1">
+                                    <input type="text" id="clientSearchInput" class="form-control form-control-sm" placeholder="Поиск по ФИО..." autocomplete="off">
+                                    <button class="btn btn-outline-success btn-sm" type="button" id="btnOpenCreateClientModal" title="Новый клиент">
+                                        <i class="bi bi-person-plus"></i> Новый
+                                    </button>
+                                </div>
+                                <select id="createClientId" name="clientId" class="form-select form-select-sm" required></select>
                             </div>
-
-                            <select id="createClientId" name="clientId" class="form-select" required>
-                                <!-- Заполняется через JS -->
-                            </select>
-                        </div>
-
-                        <div class="row g-2 mb-2">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="createDate" class="form-label">Дата начала</label>
                                 <input type="text" id="createDate" name="Date" class="form-control form-control-sm" placeholder="Выберите дату..." autocomplete="off">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="createAddress" class="form-label">Адрес</label>
                                 <input type="text" id="createAddress" name="Address" class="form-control form-control-sm" placeholder="Введите адрес..." autocomplete="off">
                             </div>
                         </div>
                     </div>
 
+                    <div class="form-section mb-0">
+                        <div class="form-section-title">Состав заказа</div>
+                        <div class="composition-editor-container" style="height: 350px;">
+                            <!-- Левая колонка: Что выбрано -->
+                            <div class="composition-left-col">
+                                <div class="panel-header">
+                                    <span class="panel-title">В заказе</span>
+                                    <span id="createOrderTotalCount" class="badge badge-theme">0 шт.</span>
+                                </div>
+                                <div class="composition-table-wrapper">
+                                    <div class="composition-table-scroll">
+                                        <table class="table table-sm table-hover align-middle mb-0 admin-table" id="createOrderCompTable">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Мебель</th>
+                                                    <th style="width: 70px; text-align: center;">Кол-во</th>
+                                                    <th style="width: 100px; text-align: right;">Сумма</th>
+                                                    <th class="col-fit"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                    <div class="composition-footer-row">
+                                        <div class="d-flex justify-content-between align-items-center w-100">
+                                            <span class="fw-bold text-uppercase small" style="color: var(--app-text); letter-spacing: 0.05em;">Итого:</span>
+                                            <span class="fw-bold fs-5" id="createOrderSummaryPrice" style="color: var(--app-text);">0,00 ₽</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Правая колонка: Выбор мебели -->
+                            <div class="composition-right-col">
+                                <div class="panel-header">
+                                    <span class="panel-title">Добавить мебель</span>
+                                </div>
+                                <div class="input-group input-group-sm mb-2" style="width: 100%;">
+                                    <input type="search" id="furnitureSearchInputCreate" class="form-control" placeholder="Поиск мебели...">
+                                    <button class="btn btn-outline-secondary btn-clear-search btn-square" type="button" id="clearFurnitureSearchCreate" title="Очистить">×</button>
+                                </div>
+                                <div class="composition-table-wrapper">
+                                    <div class="composition-table-scroll">
+                                        <table class="table table-sm table-hover align-middle mb-0 admin-table" id="availableFurnitureTableCreate">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Название</th>
+                                                    <th style="width: 80px; text-align: right;">Цена</th>
+                                                    <th class="col-fit"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="d-flex justify-content-end gap-2 mt-3">
                         <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="createModal">Отмена</button>
-                        <button type="submit" class="btn btn-success btn-sm">Создать</button>
+                        <button type="submit" class="btn btn-success btn-sm">Создать заказ</button>
                     </div>
                 </form>
             </div>
@@ -218,38 +270,93 @@
     </div>
 
     <div id="editModal" class="modal-backdrop-simple" style="display:none;">
-        <div class="modal-dialog-simple">
+        <div class="modal-dialog-simple" style="max-width: 1200px;">
             <div class="modal-content-simple">
                 <h2 class="modal-title-simple">Редактирование заказа</h2>
-                <form id="editForm" method="post" class="modal-form-simple">
+                <form id="editForm" method="post" class="modal-form-simple" novalidate>
                     @Html.AntiForgeryToken()
                     <input type="hidden" id="editId" name="Id">
                     <input type="hidden" id="editClientIdHidden" name="ClientId">
                     <input type="hidden" id="editDateHidden" name="Date">
 
-                    <div class="form-section mb-0">
-                        <div class="form-section-title">Информация</div>
-                        <div class="mb-2">
-                            <label class="form-label" style="opacity:0.7">Клиент</label>
-                            <input type="text" id="editClientNameDisplay" class="form-control form-control-sm" disabled style="background-color: rgba(0,0,0,0.02);">
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label" style="opacity:0.7">Дата создания</label>
-                            <input type="text" id="editDateDisplay" class="form-control form-control-sm" disabled style="background-color: rgba(0,0,0,0.02);">
+                    <div class="form-section mb-3">
+                        <div class="form-section-title">Параметры заказа</div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label" style="opacity:0.7">Клиент</label>
+                                <input type="text" id="editClientNameDisplay" class="form-control form-control-sm" disabled style="background-color: rgba(0,0,0,0.02);">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" style="opacity:0.7">Дата создания</label>
+                                <input type="text" id="editDateDisplay" class="form-control form-control-sm" disabled style="background-color: rgba(0,0,0,0.02);">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editAddress" class="form-label">Адрес</label>
+                                <input type="text" id="editAddress" name="Address" class="form-control form-control-sm" placeholder="Введите адрес...">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="form-section mb-0 mt-2">
-                        <div class="form-section-title">Редактируемые поля</div>
-                        <div class="mb-2">
-                            <label for="editAddress" class="form-label">Адрес</label>
-                            <input type="text" id="editAddress" name="Address" class="form-control form-control-sm" placeholder="Введите адрес...">
+                    <div class="form-section mb-0">
+                        <div class="form-section-title">Состав заказа</div>
+                        <div class="composition-editor-container" style="height: 350px;">
+                            <div class="composition-left-col">
+                                <div class="panel-header">
+                                    <span class="panel-title">В заказе</span>
+                                    <span id="editOrderTotalCount" class="badge badge-theme">0 шт.</span>
+                                </div>
+                                <div class="composition-table-wrapper">
+                                    <div class="composition-table-scroll">
+                                        <table class="table table-sm table-hover align-middle mb-0 admin-table" id="editOrderCompTable">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Мебель</th>
+                                                    <th style="width: 70px; text-align: center;">Кол-во</th>
+                                                    <th style="width: 100px; text-align: right;">Сумма</th>
+                                                    <th class="col-fit"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                    <div class="composition-footer-row">
+                                        <div class="d-flex justify-content-between align-items-center w-100">
+                                            <span class="fw-bold text-uppercase small" style="color: var(--app-text); letter-spacing: 0.05em;">Итого:</span>
+                                            <span class="fw-bold fs-5" id="editOrderSummaryPrice" style="color: var(--app-text);">0,00 ₽</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="composition-right-col">
+                                <div class="panel-header">
+                                    <span class="panel-title">Добавить мебель</span>
+                                </div>
+                                <div class="input-group input-group-sm mb-2" style="width: 100%;">
+                                    <input type="search" id="furnitureSearchInputEdit" class="form-control" placeholder="Поиск мебели...">
+                                    <button class="btn btn-outline-secondary btn-clear-search btn-square" type="button" id="clearFurnitureSearchEdit" title="Очистить">×</button>
+                                </div>
+                                <div class="composition-table-wrapper">
+                                    <div class="composition-table-scroll">
+                                        <table class="table table-sm table-hover align-middle mb-0 admin-table" id="availableFurnitureTableEdit">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Название</th>
+                                                    <th style="width: 80px; text-align: right;">Цена</th>
+                                                    <th class="col-fit"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="d-flex justify-content-end gap-2 mt-3">
                         <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="editModal">Отмена</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Сохранить изменения</button>
                     </div>
                 </form>
             </div>
