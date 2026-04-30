@@ -51,7 +51,7 @@ namespace FurniturePro.WebAdmin.Pages.Main
                 // Если есть состав, сохраняем его
                 if (newFurnitureId > 0 && !string.IsNullOrEmpty(compositionsJson))
                 {
-                    var items = System.Text.Json.JsonSerializer.Deserialize<List<FurnitureCompositionDTO>>(compositionsJson);
+                    var items = JsonSerializer.Deserialize<List<FurnitureCompositionDTO>>(compositionsJson);
                     if (items != null && items.Any())
                     {
                         items.ForEach(i =>
@@ -185,7 +185,7 @@ namespace FurniturePro.WebAdmin.Pages.Main
             using (var workbook = new XLWorkbook(stream))
             {
                 var worksheet = workbook.Worksheet(1);
-                var rows = worksheet.RangeUsed().RowsUsed().Skip(1); // Пропуск заголовков
+                var rows = worksheet.RangeUsed().RowsUsed().Skip(1); 
 
                 foreach (var row in rows)
                 {

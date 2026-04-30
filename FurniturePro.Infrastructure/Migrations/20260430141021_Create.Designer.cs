@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FurniturePro.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260428173815_Create")]
+    [Migration("20260430141021_Create")]
     partial class Create
     {
         /// <inheritdoc />
@@ -365,12 +365,6 @@ namespace FurniturePro.Infrastructure.Migrations
                         {
                             Id = 12,
                             Name = "Возврат на склад",
-                            UpdateDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Name = "На паузе",
                             UpdateDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
                         });
                 });

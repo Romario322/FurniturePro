@@ -367,8 +367,7 @@ namespace FurniturePro.Infrastructure.Migrations
                     { 9, null, "Завершен", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
                     { 10, null, "Отменен", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
                     { 11, null, "Средства возвращены", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { 12, null, "Возврат на склад", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
-                    { 13, null, "На паузе", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) }
+                    { 12, null, "Возврат на склад", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) }
                 });
 
             migrationBuilder.CreateIndex(

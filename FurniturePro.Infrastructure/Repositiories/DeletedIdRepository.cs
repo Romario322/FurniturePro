@@ -21,6 +21,6 @@ public class DeletedIdRepository(AppDbContext context) : BaseRepository<DeletedI
             CultureInfo.InvariantCulture,
             DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal
         );
-        return await _dbSet.AsNoTracking().Where(ent => ent.UpdateDate > date).ToListAsync(ct);
+        return await _dbSet.AsNoTracking().Where(ent => ent.UpdateDate > date && ent.TableName == tableName).ToListAsync(ct);
     }
 }

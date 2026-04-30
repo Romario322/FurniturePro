@@ -17,7 +17,7 @@ export async function syncTable(tableName) {
         return;
     }
 
-    await upsertMany(tableName, data.items);
     await deleteMany(tableName, data.deletedItems);
+    await upsertMany(tableName, data.items);
     await setLastSyncedAt(tableName, data.syncDate);
 }
