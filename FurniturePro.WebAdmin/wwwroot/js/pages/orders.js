@@ -11,8 +11,8 @@ import { copyToClipboard } from '../utils/clipboard.js';
 class OrdersPage {
     constructor() {
         this.STATUS_FLOW = [
-            "Новый", "В обработке", "Ожидает оплаты", "Оплачен",
-            "В производстве", "Готов к отгрузке", "Отгружен", "Доставлен"
+            "Создан", "В обработке", "Ожидает оплаты", "Оплачен",
+            "Собирается", "Передан в доставку", "В пути", "Доставлен"
         ];
 
         // Кэш данных
@@ -103,6 +103,12 @@ class OrdersPage {
         this.summaryOrderPriceLabel = document.getElementById('summaryOrderPrice');
         this.fModeFilter = document.getElementById('fModeFilter');
         this.fModeHighlight = document.getElementById('fModeHighlight');
+
+        this.importModal = document.getElementById('importModal');
+        this.openImportModalBtn = document.getElementById('openImportModalBtn');
+        this.importForm = document.getElementById('importForm');
+        this.importFileInput = document.getElementById('importFileInput');
+        this.fileNameDisplay = document.getElementById('fileNameDisplay');
     }
 
     async init() {
@@ -111,7 +117,6 @@ class OrdersPage {
             this.initOrderPickers();
             initSearchModeSwitcher(() => this.renderTable());
             attachRowSelection('#ordersTable tbody');
-            this.attachDiscountInputLimits();
 
             await this.loadData();
             this.initFiltersFromData();
@@ -191,18 +196,16 @@ class OrdersPage {
             const currentSt = this.getCurrentStatus(changes);
             const comps = compositionMap.get(order.id) || [];
 
-            let rawSum = 0;
-            comps.forEach(oc => { rawSum += this.calculateFurniturePrice(oc.idFurniture) * oc.count; });
-            const discount = order.discount || 0;
-            const totalSum = rawSum * (1 - discount / 100);
+            let totalSum = 0;
+            comps.forEach(oc => { totalSum += this.calculateFurniturePrice(oc.idFurniture) * oc.count; });
 
             return {
                 ...order,
                 _clientName: client ? client.fullName : 'Неизвестный клиент',
+                _address: order.address || '—', // Добавили адрес
                 _statusObj: currentSt,
                 _statusName: currentSt.name,
                 _creationDate: this.getCreationDate(changes) || new Date(0),
-                _rawSum: rawSum,
                 _totalSum: totalSum,
                 _compositions: comps,
                 _changes: changes
@@ -213,18 +216,36 @@ class OrdersPage {
     getStatusStyle(statusName) {
         if (!statusName) return { bg: 'var(--status-default-bg)', color: 'var(--status-default-text)' };
         const lower = statusName.toLowerCase();
-        if (lower.includes('отменен')) return { bg: 'var(--status-danger-bg)', color: 'var(--status-danger-text)' };
-        if (lower.includes('пауз') || lower.includes('ожидает оплаты')) return { bg: 'var(--status-warning-bg)', color: 'var(--status-warning-text)' };
-        if (lower.includes('доставлен') || lower.includes('оплачен') || lower.includes('готов')) return { bg: 'var(--status-success-bg)', color: 'var(--status-success-text)' };
-        if (lower === 'новый') return { bg: 'var(--status-new-bg)', color: 'var(--status-new-text)' };
+
+        if (lower.includes('отменен') || lower.includes('возврат')) return { bg: 'var(--status-danger-bg)', color: 'var(--status-danger-text)' };
+        if (lower.includes('ожидает оплаты')) return { bg: 'var(--status-warning-bg)', color: 'var(--status-warning-text)' };
+        if (lower.includes('доставлен') || lower.includes('оплачен')) return { bg: 'var(--status-success-bg)', color: 'var(--status-success-text)' };
+        if (lower === 'создан') return { bg: 'var(--status-new-bg)', color: 'var(--status-new-text)' };
+
         return { bg: 'var(--status-process-bg)', color: 'var(--status-process-text)' };
     }
 
-    isOrderLocked(statusName) {
-        if (!statusName) return false;
-        const lower = statusName.toLowerCase();
-        const lockedKeywords = ['оплачен', 'производств', 'готов', 'отгружен', 'доставлен', 'отменен', 'пауз', 'ожидает оплаты'];
-        return lockedKeywords.some(keyword => lower.includes(keyword));
+    isOrderLocked(changesList) {
+        if (!changesList || changesList.length === 0) return false;
+
+        let highestMainStage = 0;
+        let isTerminated = false;
+
+        for (const change of changesList) {
+            const stObj = this.cachedStatuses.find(s => s.id === change.idStatus);
+            if (!stObj) continue;
+
+            const val = this.getHierarchyValue(stObj.name.trim());
+            if (val >= 1 && val <= 8) {
+                if (val > highestMainStage) highestMainStage = val;
+            }
+            if (val >= 9) {
+                isTerminated = true; // Отменен, возврат или завершен
+            }
+        }
+
+        // ЗАМОК: Если дошли до 4 (Оплачен) ИЛИ заказ отменен/завершен - блокируем редактирование
+        return highestMainStage >= 4 || isTerminated;
     }
 
     getSortedStatusChanges(changesList) {
@@ -233,11 +254,23 @@ class OrdersPage {
     }
 
     getCurrentStatus(changesList) {
-        const sorted = this.getSortedStatusChanges(changesList);
-        if (sorted.length === 0) return { name: 'Не определен', id: 0, date: null };
-        const last = sorted[sorted.length - 1];
-        const status = this.cachedStatuses.find(s => s.id === last.idStatus);
-        return { name: status ? status.name : '?', id: last.idStatus, date: last.date };
+        if (!changesList || changesList.length === 0) return { name: 'Неизвестно', id: 0 };
+
+        let currentSt = null;
+        let maxVal = -1;
+
+        for (const change of changesList) {
+            const stObj = this.cachedStatuses.find(s => s.id === change.idStatus);
+            if (!stObj) continue;
+
+            const val = this.getHierarchyValue(stObj.name.trim());
+            // Выбираем статус с максимальным весом в иерархии
+            if (val > maxVal) {
+                maxVal = val;
+                currentSt = stObj;
+            }
+        }
+        return currentSt || { name: 'Неизвестно', id: 0 };
     }
 
     getEffectiveStatusName(changesList) {
@@ -250,32 +283,91 @@ class OrdersPage {
     }
 
     getAllowedNextStatuses(changesList) {
+        const sorted = this.getSortedStatusChanges(changesList);
+        if (sorted.length === 0) return [];
+
+        let highestMainStage = 0;
+        let isCancelled = false;
+        let isReturnedToWarehouse = false;
+        let isRefunded = false;
+        let isCompleted = false;
+
+        for (const h of sorted) {
+            const stObj = this.cachedStatuses.find(s => s.id === h.idStatus);
+            if (!stObj) continue;
+            const status = stObj.name.trim().toLowerCase();
+
+            if (status === "завершен") { isCompleted = true; }
+            else if (status === "отменен") { isCancelled = true; }
+            else if (status === "средства возвращены") { isRefunded = true; }
+            else if (status === "возврат на склад") { isReturnedToWarehouse = true; }
+            else {
+                const stage = this.getHierarchyValue(status);
+                if (stage >= 1 && stage <= 8 && stage > highestMainStage) {
+                    highestMainStage = stage;
+                }
+            }
+        }
+
+        // Если заказ завершен, любые дальнейшие действия запрещены
+        if (isCompleted) return [];
+
+        const allowedNames = new Set();
+
+        // --- ЛОГИКА 1: Заказ в процессе (еще не отменен) ---
+        if (!isCancelled && !isReturnedToWarehouse && !isRefunded) {
+            // Шаг вперед по основной ветке
+            if (highestMainStage >= 1 && highestMainStage < 8) {
+                const nextMainStatus = this.STATUS_FLOW[highestMainStage]; // Индекс сдвинут на +1
+                if (nextMainStatus) allowedNames.add(nextMainStatus);
+            }
+
+            // Отмена возможна из любого активного статуса
+            if (highestMainStage >= 1) {
+                allowedNames.add("Отменен");
+            }
+
+            // ПРАВИЛО: Завершение без отмены возможно ТОЛЬКО если заказ Доставлен (8)
+            if (highestMainStage === 8) {
+                allowedNames.add("Завершен");
+            }
+        }
+        // --- ЛОГИКА 2: Ветка отмены ---
+        else if (isCancelled) {
+            if (highestMainStage < 4) {
+                // ПРАВИЛО: Отмена ДО оплаты -> сразу доступно Завершение
+                if (!isCompleted) allowedNames.add("Завершен");
+            }
+            else if (highestMainStage >= 4 && highestMainStage < 6) {
+                // ПРАВИЛО: Отмена ПОСЛЕ оплаты, но ДО передачи в доставку -> Возврат средств
+                if (!isRefunded) allowedNames.add("Средства возвращены");
+            }
+            else if (highestMainStage >= 6) {
+                // ПРАВИЛО: Отмена ПОСЛЕ передачи в доставку (6+) -> Возврат на склад
+                if (!isReturnedToWarehouse) allowedNames.add("Возврат на склад");
+            }
+        }
+
+        // ПРАВИЛО: После возврата на склад -> строго Возврат средств
+        if (isReturnedToWarehouse && !isRefunded) {
+            allowedNames.add("Средства возвращены");
+        }
+
+        // ПРАВИЛО: После возврата средств -> строго Завершение
+        if (isRefunded && !isCompleted) {
+            allowedNames.add("Завершен");
+        }
+
         const currentSt = this.getCurrentStatus(changesList);
-        if (!currentSt.name) return [];
-
-        const currentName = currentSt.name.trim();
-        const currentLower = currentName.toLowerCase();
-
-        if (currentLower.includes('отменен') || currentLower.includes('доставлен')) return [];
-
-        const allowedNames = [];
-        let baseName = currentName;
-        if (currentLower.includes('пауз')) baseName = this.getEffectiveStatusName(changesList);
-
-        const flowIndex = this.STATUS_FLOW.findIndex(s => s.toLowerCase() === baseName.toLowerCase());
-        const paidIndex = this.STATUS_FLOW.findIndex(s => s.toLowerCase() === 'оплачен');
-
-        if (flowIndex !== -1 && flowIndex < this.STATUS_FLOW.length - 1) allowedNames.push(this.STATUS_FLOW[flowIndex + 1]);
-        if (currentLower.includes('пауз') && flowIndex !== -1) allowedNames.push(this.STATUS_FLOW[flowIndex]);
-        if (!currentLower.includes('пауз')) allowedNames.push("На паузе");
-        if (paidIndex !== -1 && flowIndex < paidIndex) allowedNames.push("Отменен");
-
-        const uniqueNames = [...new Set(allowedNames)];
         const result = [];
-        uniqueNames.forEach(targetName => {
-            const found = this.cachedStatuses.find(s => s.name.trim().toLowerCase() === targetName.trim().toLowerCase());
-            if (found) result.push(found);
+
+        allowedNames.forEach(targetName => {
+            if (targetName.trim().toLowerCase() !== currentSt.name.trim().toLowerCase()) {
+                const found = this.cachedStatuses.find(s => s.name.trim().toLowerCase() === targetName.trim().toLowerCase());
+                if (found) result.push(found);
+            }
         });
+
         return result;
     }
 
@@ -327,7 +419,7 @@ class OrdersPage {
             this.createOrderButton.addEventListener('click', () => {
                 if (this.createForm) this.createForm.reset();
                 if (this.fpCreateDate) this.fpCreateDate.setDate(new Date());
-                const newStatus = this.cachedStatuses.find(s => s.name.trim().toLowerCase() === 'новый');
+                const newStatus = this.cachedStatuses.find(s => s.name.trim().toLowerCase() === 'создан');
                 const statusIdInput = document.getElementById('createStatusId');
                 if (statusIdInput) statusIdInput.value = newStatus ? newStatus.id : 1;
                 initCustomSelects();
@@ -347,10 +439,140 @@ class OrdersPage {
             this.furnitureSearchInput.value = ''; this.furnitureSearchInput.focus(); this.renderAvailableFurnitureTable();
         });
         if (this.saveCompositionBtn) this.saveCompositionBtn.addEventListener('click', () => this.handleCompositionSave());
+
+        if (this.importFileInput && this.fileNameDisplay) {
+            this.importFileInput.addEventListener('change', (e) => {
+                const input = e.target;
+                if (input.files && input.files.length > 0) {
+                    this.fileNameDisplay.textContent = '📄 ' + input.files[0].name;
+                    this.fileNameDisplay.style.display = 'block';
+                } else {
+                    this.fileNameDisplay.style.display = 'none';
+                    this.fileNameDisplay.textContent = '';
+                }
+            });
+        }
+
+        if (this.openImportModalBtn && this.importModal) {
+            this.openImportModalBtn.addEventListener('click', () => {
+                if (this.importForm) this.importForm.reset();
+                if (this.fileNameDisplay) {
+                    this.fileNameDisplay.style.display = 'none';
+                    this.fileNameDisplay.textContent = '';
+                }
+                showModal(this.importModal);
+            });
+        }
+
+        if (this.importForm) {
+            this.importForm.addEventListener('submit', (e) => this.handleImportSubmit(e));
+        }
+    }
+
+    displayErrors(messages) {
+        const errorList = document.getElementById('errorList');
+        if (errorList && this.errorModal) {
+            errorList.innerHTML = '';
+            messages.forEach(msg => {
+                const li = document.createElement('li');
+                li.textContent = msg;
+                errorList.appendChild(li);
+            });
+            showModal(this.errorModal);
+        } else {
+            alert(messages.join('\n'));
+        }
+    }
+
+    async handleImportSubmit(e) {
+        e.preventDefault();
+
+        const file = this.importFileInput?.files[0];
+        if (!file) {
+            this.displayErrors(["Выберите файл для загрузки!"]);
+            return;
+        }
+
+        try {
+            toggleLoader(true);
+
+            const formData = new FormData();
+            formData.append('excelFile', file);
+
+            // Собираем кэш для проверки на бэкенде
+            const existingOrders = this.cachedOrders.map(o => o.address); // Извлекаем адреса для проверки дублей
+            const clientsCache = Object.fromEntries(this.cachedClients.map(c => [c.fullName, c.id]));
+            const statusesCache = Object.fromEntries(this.cachedStatuses.map(s => [s.name, s.id]));
+            const furnituresCache = Object.fromEntries(this.cachedFurniture.map(f => [f.name, f.id]));
+
+            formData.append('existingOrdersStr', JSON.stringify(existingOrders));
+            formData.append('clientsCacheStr', JSON.stringify(clientsCache));
+            formData.append('statusesCacheStr', JSON.stringify(statusesCache));
+            formData.append('furnituresCacheStr', JSON.stringify(furnituresCache));
+
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            const token = tokenInput ? tokenInput.value : '';
+
+            const response = await fetch('?handler=Import', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    ...(token ? { 'RequestVerificationToken': token } : {})
+                }
+            });
+
+            let result = {};
+            try {
+                result = await response.json();
+            } catch (parseError) {
+                this.displayErrors(["Не удалось обработать ответ от сервера."]);
+                return;
+            }
+
+            if (response.ok) {
+                if (result.success) {
+                    hideModal(this.importModal);
+
+                    // Очищаем кэши связанных таблиц, чтобы они перетянулись с сервера
+                    await clearStore('StatusChanges');
+                    await clearStore('OrderCompositions');
+
+                    // Обновляем данные на UI
+                    await this.loadData();
+                    this.initFiltersFromData();
+                    this.renderTable();
+                } else {
+                    this.displayErrors([result.message || "Произошла ошибка при обработке файла."]);
+                }
+            } else {
+                let errorMessages = ['Произошла ошибка при импорте.'];
+
+                if (result.errors) {
+                    errorMessages = Object.values(result.errors).flat();
+                } else if (result.title) {
+                    errorMessages = [result.title];
+                } else if (result.message) {
+                    errorMessages = [result.message];
+                }
+
+                this.displayErrors(errorMessages);
+            }
+        } catch (error) {
+            console.error("Import error:", error);
+            this.displayErrors(['Произошла непредвиденная ошибка сети. Проверьте подключение.']);
+        } finally {
+            if (this.importFileInput) this.importFileInput.value = '';
+            if (this.fileNameDisplay) {
+                this.fileNameDisplay.style.display = 'none';
+                this.fileNameDisplay.textContent = '';
+            }
+            toggleLoader(false);
+        }
     }
 
     onHeaderClick(index) {
-        const fieldMap = { 0: 'client', 1: 'date', 2: 'status', 3: 'raw', 4: 'discount', 5: 'total' };
+        // Индексы: 0-Клиент, 1-Адрес, 2-Дата, 3-Статус, 4-Сумма
+        const fieldMap = { 0: 'client', 1: 'address', 2: 'date', 3: 'status', 4: 'total' };
         const field = fieldMap[index];
         if (!field) return;
 
@@ -358,7 +580,7 @@ class OrdersPage {
             this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
         } else {
             this.sortField = field;
-            this.sortDirection = (field === 'date' || field === 'total' || field === 'raw' || field === 'discount') ? 'desc' : 'asc';
+            this.sortDirection = (field === 'date' || field === 'total') ? 'desc' : 'asc';
         }
 
         updateHeaderSortUI(this.headers, index, this.sortDirection);
@@ -377,17 +599,49 @@ class OrdersPage {
         this.tbody.innerHTML = '';
 
         const checkFilters = (item) => {
-            if (search && !item._clientName.toLowerCase().includes(search)) return false;
+            // 1. Поиск по тексту (клиент, адрес)
+            if (search && !item._clientName.toLowerCase().includes(search) && !(item._address && item._address.toLowerCase().includes(search))) return false;
+
+            // 2. Фильтр по конкретному клиенту или статусу
             if (fClient !== null && item.clientId !== fClient) return false;
             if (fStatus !== null && item._statusObj.id !== fStatus) return false;
 
-            const stNameLower = item._statusName.toLowerCase();
-            if (fGroup === 'cancelled' && !stNameLower.includes('отменен')) return false;
-            if (fGroup === 'success' && !stNameLower.includes('доставлен')) return false;
-            if (fGroup === 'action' && (!stNameLower.includes('новый') && !stNameLower.includes('обработке'))) return false;
-            if (fGroup === 'process') {
-                if (stNameLower.includes('отменен') || stNameLower.includes('доставлен') || stNameLower.includes('новый') || stNameLower.includes('обработке')) return false;
+            // 3. Фильтр по группам (Вкладки)
+            if (fGroup && fGroup !== 'all') {
+                let hasCancelled = false;
+
+                // Проверяем всю историю заказа на наличие отмены
+                for (const change of item._changes) {
+                    const stObj = this.cachedStatuses.find(s => s.id === change.idStatus);
+                    if (stObj && stObj.name.trim().toLowerCase() === 'отменен') {
+                        hasCancelled = true;
+                        break;
+                    }
+                }
+
+                const currentStatus = item._statusName.trim().toLowerCase();
+
+                if (fGroup === 'cancelled') {
+                    // Вкладка "Отмененные": все заказы, у которых в истории была отмена (включая завершенные возвраты)
+                    if (!hasCancelled) return false;
+                }
+                else if (fGroup === 'success') {
+                    // Вкладка "Успешные": Доставлен или Завершен, НО строго без отмен в истории
+                    if (hasCancelled) return false;
+                    if (currentStatus !== 'доставлен' && currentStatus !== 'завершен') return false;
+                }
+                else if (fGroup === 'action') {
+                    // Вкладка "Требуют внимания": начальные этапы
+                    if (currentStatus !== 'создан' && currentStatus !== 'в обработке') return false;
+                }
+                else if (fGroup === 'process') {
+                    // Вкладка "В процессе": все, что движется по основной ветке
+                    if (hasCancelled) return false; // Отмененные сюда не попадают
+                    if (currentStatus === 'доставлен' || currentStatus === 'завершен') return false; // Завершенные тоже
+                    if (currentStatus === 'создан' || currentStatus === 'в обработке') return false; // Требующие внимания тоже
+                }
             }
+
             return true;
         };
 
@@ -419,11 +673,10 @@ class OrdersPage {
                 let va, vb;
                 switch (this.sortField) {
                     case 'client': va = a._clientName.toLowerCase(); vb = b._clientName.toLowerCase(); break;
+                    case 'address': va = a._address.toLowerCase(); vb = b._address.toLowerCase(); break;
                     case 'date': va = a._creationDate; vb = b._creationDate; break;
                     case 'status': va = a._statusName; vb = b._statusName; break;
                     case 'total': va = a._totalSum; vb = b._totalSum; break;
-                    case 'raw': va = a._rawSum; vb = b._rawSum; break;
-                    case 'discount': va = a.discount || 0; vb = b.discount || 0; break;
                     default: return 0;
                 }
                 return va < vb ? -1 * dir : (va > vb ? 1 * dir : 0);
@@ -446,22 +699,27 @@ class OrdersPage {
             const tr = document.createElement('tr');
             if (isHighlight && matches.includes(item)) tr.classList.add('highlight-match');
 
+            // 1. Клиент
             const tdClient = document.createElement('td');
             const clientDiv = document.createElement('div');
             clientDiv.className = 'd-flex align-items-center justify-content-between gap-2';
             const nameSpan = document.createElement('span');
             nameSpan.textContent = item._clientName; nameSpan.style.fontWeight = '500';
-
             const contactBtn = document.createElement('button');
             contactBtn.innerHTML = '📄'; contactBtn.title = 'Контакты клиента'; contactBtn.className = 'btn btn-sm btn-contacts btn-square';
             contactBtn.onclick = (e) => { e.stopPropagation(); this.openContactsModal(item.clientId); };
-
             clientDiv.append(nameSpan, contactBtn);
             tdClient.appendChild(clientDiv);
 
+            // 2. Адрес
+            const tdAddress = document.createElement('td');
+            tdAddress.textContent = item._address;
+
+            // 3. Дата
             const tdDate = document.createElement('td');
             tdDate.textContent = item._creationDate.getTime() > 0 ? dateFmt.format(item._creationDate) : '—';
 
+            // 4. Статус
             const tdStatus = document.createElement('td');
             const statusDiv = document.createElement('div'); statusDiv.className = 'd-flex align-items-center justify-content-between gap-1';
             const stName = item._statusName;
@@ -473,26 +731,21 @@ class OrdersPage {
             const historyBtn = document.createElement('button');
             historyBtn.innerHTML = '🕒'; historyBtn.title = 'Просмотр истории статусов'; historyBtn.className = 'btn btn-sm btn-history btn-square';
             historyBtn.onclick = (e) => { e.stopPropagation(); this.openHistoryModal(item._changes); };
-
             const changeStatusBtn = document.createElement('button');
             changeStatusBtn.innerHTML = '⇄'; changeStatusBtn.title = 'Изменить статус'; changeStatusBtn.className = 'btn btn-sm btn-change-status btn-square';
-
             const allowedNext = this.getAllowedNextStatuses(item._changes);
             if (allowedNext.length === 0) changeStatusBtn.disabled = true;
             else changeStatusBtn.onclick = (e) => { e.stopPropagation(); this.openChangeStatusModal(item, item._changes); };
-
             btnGroup.append(historyBtn, changeStatusBtn);
             statusDiv.append(badge, btnGroup);
             tdStatus.appendChild(statusDiv);
 
-            const tdRaw = document.createElement('td'); tdRaw.textContent = currencyFmt.format(item._rawSum);
-            const tdDisc = document.createElement('td');
-            const discount = item.discount || 0;
-            tdDisc.textContent = discount > 0 ? `-${discount}%` : '—';
-            if (discount > 0) tdDisc.classList.add('text-success', 'fw-bold');
+            // 5. Сумма
+            const tdTotal = document.createElement('td');
+            tdTotal.textContent = currencyFmt.format(item._totalSum);
+            tdTotal.classList.add('fw-bold');
 
-            const tdTotal = document.createElement('td'); tdTotal.textContent = currencyFmt.format(item._totalSum); tdTotal.classList.add('fw-bold');
-
+            // 6. Состав
             const tdComp = document.createElement('td'); tdComp.className = 'col-fit';
             const comps = item._compositions || [];
             if (comps.length > 0) {
@@ -505,46 +758,27 @@ class OrdersPage {
             }
 
             const tdActions = document.createElement('td'); tdActions.className = 'col-fit';
-            if (this.isOrderLocked(stName)) {
+            if (this.isOrderLocked(item._changes)) {
                 const lockSpan = document.createElement('span'); lockSpan.innerHTML = '🔒'; lockSpan.title = `Изменение запрещено (Статус: ${stName})`;
                 lockSpan.style.fontSize = '1.2rem'; lockSpan.style.opacity = '0.6';
                 const centerDiv = document.createElement('div'); centerDiv.className = 'd-flex justify-content-center w-100'; centerDiv.appendChild(lockSpan);
                 tdActions.appendChild(centerDiv);
             } else {
                 const actionsDiv = document.createElement('div'); actionsDiv.className = 'actions-group justify-content-end';
-
                 const configBtn = document.createElement('button'); configBtn.textContent = '⚙'; configBtn.title = 'Редактировать состав'; configBtn.className = 'btn btn-sm btn-outline-secondary btn-square';
                 configBtn.onclick = () => this.openEditOrderCompositionModal(item);
-
                 const editBtn = document.createElement('button'); editBtn.textContent = '✎'; editBtn.title = 'Редактировать заказ'; editBtn.className = 'btn btn-sm btn-primary btn-square';
                 editBtn.onclick = () => this.openEditModal(item);
-
                 const delBtn = document.createElement('button'); delBtn.textContent = '🗑'; delBtn.title = 'Удалить'; delBtn.className = 'btn btn-sm btn-danger btn-square';
                 delBtn.onclick = () => this.openDeleteModal(item);
-
                 actionsDiv.append(configBtn, editBtn, delBtn);
                 tdActions.appendChild(actionsDiv);
             }
 
-            tr.append(tdClient, tdDate, tdStatus, tdRaw, tdDisc, tdTotal, tdComp, tdActions);
+            tr.append(tdClient, tdAddress, tdDate, tdStatus, tdTotal, tdComp, tdActions);
             fragment.appendChild(tr);
         }
         this.tbody.appendChild(fragment);
-    }
-
-    attachDiscountInputLimits() {
-        ['createDiscount', 'editDiscount'].forEach(id => {
-            const el = document.getElementById(id);
-            if (!el) return;
-            el.addEventListener('input', function () {
-                let val = parseFloat(this.value);
-                if (val > 100) this.value = 100;
-                if (val < 0) this.value = 0;
-            });
-            el.addEventListener('keydown', function (e) {
-                if (e.key === '-' || e.key === 'Subtract') e.preventDefault();
-            });
-        });
     }
 
     validateOrderForm(prefix) {
@@ -556,12 +790,9 @@ class OrdersPage {
             if (!date?.value) errors.push('Необходимо указать дату начала.');
         }
 
-        const discountInput = document.getElementById(prefix + 'Discount');
-        if (discountInput?.value !== '') {
-            const discountVal = parseFloat(discountInput.value);
-            if (isNaN(discountVal)) errors.push('Скидка должна быть числом.');
-            else if (discountVal < 0) errors.push('Скидка не может быть отрицательной.');
-            else if (discountVal > 100) errors.push('Скидка не может превышать 100%.');
+        const addressInput = document.getElementById(prefix + 'Address');
+        if (addressInput && !addressInput.value.trim()) {
+            errors.push('Поле "Адрес" обязательно для заполнения.');
         }
 
         if (errors.length > 0) {
@@ -614,7 +845,9 @@ class OrdersPage {
 
         const dateFmt = new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         document.getElementById('editDateDisplay').value = order._creationDate.getTime() > 0 ? dateFmt.format(order._creationDate) : '—';
-        document.getElementById('editDiscount').value = order.discount || 0;
+
+        // Подставляем адрес
+        document.getElementById('editAddress').value = order.address || '';
         showModal(this.editModal);
     }
 
@@ -747,12 +980,9 @@ class OrdersPage {
 
             tbl.appendChild(tbody); scroll.appendChild(tbl); wrapper.appendChild(scroll); this.compositionContent.appendChild(wrapper);
 
-            const discount = order.discount || 0;
-            const finalTotal = totalSum * (1 - discount / 100);
             const footer = document.createElement('div'); footer.className = 'd-flex justify-content-end align-items-center mt-2 px-1 small'; footer.style.color = 'var(--app-text)';
             let footerHtml = `<span style="font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 10px; color: var(--text-muted);">Итого:</span>`;
-            if (discount > 0) footerHtml += `<span class="text-decoration-line-through me-2">${currencyFmt.format(totalSum)}</span><span class="text-success me-2">(-${discount}%)</span>`;
-            footerHtml += `<b class="fs-5">${currencyFmt.format(finalTotal)}</b>`;
+            footerHtml += `<b class="fs-5">${currencyFmt.format(totalSum)}</b>`;
             footer.innerHTML = footerHtml; this.compositionContent.appendChild(footer);
         }
         showModal(this.compositionModal);
@@ -861,6 +1091,25 @@ class OrdersPage {
         if (this.headerOrderTotalCountLabel) this.headerOrderTotalCountLabel.textContent = totalCount + ' шт.';
         if (this.summaryOrderPriceLabel) this.summaryOrderPriceLabel.textContent = currencyFmt.format(totalSumMoney);
         attachRowSelection('#currentOrderCompTable tbody');
+    }
+
+    getHierarchyValue(statusName) {
+        if (!statusName) return 0;
+        const stages = {
+            "создан": 1,
+            "в обработке": 2,
+            "ожидает оплаты": 3,
+            "оплачен": 4,
+            "собирается": 5,
+            "передан в доставку": 6,
+            "в пути": 7,
+            "доставлен": 8,
+            "отменен": 9,
+            "возврат на склад": 10,
+            "средства возвращены": 11,
+            "завершен": 12
+        };
+        return stages[statusName.toLowerCase()] || 0;
     }
 
     renderAvailableFurnitureTable() {

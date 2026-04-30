@@ -4,6 +4,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace FurniturePro.Infrastructure.Migrations
 {
     /// <inheritdoc />
@@ -230,7 +232,7 @@ namespace FurniturePro.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_statusChanges", x => new { x.Entity1Id, x.Entity2Id });
+                    table.PrimaryKey("PK_statusChanges", x => new { x.Entity1Id, x.Entity2Id, x.Date });
                     table.ForeignKey(
                         name: "FK_statusChanges_orders_Entity1Id",
                         column: x => x.Entity1Id,
@@ -347,6 +349,26 @@ namespace FurniturePro.Infrastructure.Migrations
                         principalTable: "parts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "statuses",
+                columns: new[] { "Id", "Description", "Name", "UpdateDate" },
+                values: new object[,]
+                {
+                    { 1, null, "Создан", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 2, null, "В обработке", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 3, null, "Ожидает оплаты", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 4, null, "Оплачен", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 5, null, "Собирается", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 6, null, "Передан в доставку", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 7, null, "В пути", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 8, null, "Доставлен", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 9, null, "Завершен", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 10, null, "Отменен", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 11, null, "Средства возвращены", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 12, null, "Возврат на склад", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 13, null, "На паузе", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) }
                 });
 
             migrationBuilder.CreateIndex(

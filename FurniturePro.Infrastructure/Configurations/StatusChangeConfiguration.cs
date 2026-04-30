@@ -10,7 +10,7 @@ internal class StatusChangeConfiguration : IEntityTypeConfiguration<StatusChange
     {
         builder.ToTable("statusChanges");
 
-        builder.HasKey(et => new { et.Entity1Id, et.Entity2Id });
+        builder.HasKey(et => new { et.Entity1Id, et.Entity2Id, et.Date });
 
         builder.HasIndex(et => et.UpdateDate);
     }

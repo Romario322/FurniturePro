@@ -62,9 +62,14 @@
             <div class="header-block block-actions">
                 <div class="block-title">Управление</div>
                 <div class="actions-column">
-                    <button id="createOrderButton" type="button" class="btn btn-sm btn-create-entity">
-                        + Создать заказ
-                    </button>
+                    <div class="action-toolbar">
+                        <button id="createOrderButton" type="button" class="btn btn-sm btn-create-entity">
+                            + Создать заказ
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="openImportModalBtn">
+                            <i class="icon-upload"></i> Импорт
+                        </button>
+                    </div>
                     <div class="admin-pagination d-flex align-items-center gap-2">
                         <button id="prev" type="button" class="btn btn-outline-secondary btn-sm">◄</button>
                         <span id="pageInfo"></span>
@@ -82,11 +87,10 @@
                 <thead class="table-light">
                     <tr>
                         <th>Клиент</th>
+                        <th>Адрес</th>
                         <th>Дата создания</th>
                         <th>Статус</th>
-                        <th>Сумма (без скидки)</th>
-                        <th>Скидка (%)</th>
-                        <th>Итого</th>
+                        <th>Сумма</th>
                         <th class="col-fit">Состав</th>
                         <th class="col-fit">Действия</th>
                     </tr>
@@ -155,13 +159,10 @@
                             <div class="col-md-6">
                                 <label for="createDate" class="form-label">Дата начала</label>
                                 <input type="text" id="createDate" name="Date" class="form-control form-control-sm" placeholder="Выберите дату..." autocomplete="off">
-                                <div class="form-text mt-1" style="font-size: 0.7rem; color: var(--app-text); opacity: 0.6;">
-                                    Будет создан статус "Новый"
-                                </div>
                             </div>
                             <div class="col-md-6">
-                                <label for="createDiscount" class="form-label">Скидка (%)</label>
-                                <input type="number" id="createDiscount" name="Discount" class="form-control form-control-sm" value="0" min="0" max="100" step="0.1">
+                                <label for="createAddress" class="form-label">Адрес</label>
+                                <input type="text" id="createAddress" name="Address" class="form-control form-control-sm" placeholder="Введите адрес..." autocomplete="off">
                             </div>
                         </div>
                     </div>
@@ -186,7 +187,7 @@
                     <input type="hidden" id="editDateHidden" name="Date">
 
                     <div class="form-section mb-0">
-                        <div class="form-section-title">Информация (Только чтение)</div>
+                        <div class="form-section-title">Информация</div>
                         <div class="mb-2">
                             <label class="form-label" style="opacity:0.7">Клиент</label>
                             <input type="text" id="editClientNameDisplay" class="form-control form-control-sm" disabled style="background-color: rgba(0,0,0,0.02);">
@@ -200,8 +201,8 @@
                     <div class="form-section mb-0 mt-2">
                         <div class="form-section-title">Редактируемые поля</div>
                         <div class="mb-2">
-                            <label for="editDiscount" class="form-label">Скидка (%)</label>
-                            <input type="number" id="editDiscount" name="Discount" class="form-control form-control-sm" min="0" max="100" step="0.1">
+                            <label for="editAddress" class="form-label">Адрес</label>
+                            <input type="text" id="editAddress" name="Address" class="form-control form-control-sm" placeholder="Введите адрес...">
                         </div>
                     </div>
 
@@ -345,6 +346,33 @@
                     <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="editOrderCompositionModal">Отмена</button>
                     <button type="button" id="saveCompositionBtn" class="btn btn-primary btn-sm">Сохранить изменения</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="importModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple modal-dialog-compact">
+            <div class="modal-content-simple">
+                <h2 class="modal-title-simple">Импорт заказов</h2>
+                <form id="importForm" method="post" class="modal-form-simple" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="form-section">
+                        <div class="form-section-title">Загрузка файла</div>
+                        <div class="mb-2 text-center">
+                            <input type="file" id="importFileInput" name="file" class="d-none" accept=".xlsx" required />
+
+                            <label for="importFileInput" class="file-upload-label">
+                                Выбрать файл (.xlsx)
+                            </label>
+
+                            <div id="fileNameDisplay" class="file-upload-name" style="display: none;"></div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="importModal">Отмена</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Загрузить</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

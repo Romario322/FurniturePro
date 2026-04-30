@@ -770,8 +770,6 @@ class FurniturePage {
             if (response.ok) {
                 if (result.success) {
                     hideModal(this.importModal);
-                    alert(`Импорт успешно завершен! Добавлено записей: ${result.count}`);
-                    // Обновляем данные после импорта (включая цены), без перезагрузки страницы
                     await this.loadData();
                     this.initFiltersFromData();
                     this.renderTable();
