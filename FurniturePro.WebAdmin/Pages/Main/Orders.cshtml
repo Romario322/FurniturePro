@@ -148,10 +148,18 @@
                     <div class="form-section mb-0">
                         <div class="form-section-title">Параметры заказа</div>
 
-                        <div class="mb-2">
-                            <label for="createClientId" class="form-label">Клиент </label>
-                            <select id="createClientId" name="ClientId" class="form-select form-select-sm">
-                                <option value="">Выберите клиента</option>
+                        <div class="mb-3">
+                            <label class="form-label">Клиент</label>
+                            <!-- Поиск и кнопка добавления -->
+                            <div class="input-group mb-2">
+                                <input type="text" id="clientSearchInput" class="form-control" placeholder="Поиск по ФИО в списке..." autocomplete="off">
+                                <button class="btn btn-outline-success" type="button" id="btnOpenCreateClientModal">
+                                    <i class="bi bi-person-plus"></i> Новый
+                                </button>
+                            </div>
+
+                            <select id="createClientId" name="clientId" class="form-select" required>
+                                <!-- Заполняется через JS -->
                             </select>
                         </div>
 
@@ -167,6 +175,39 @@
                         </div>
                     </div>
 
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="createModal">Отмена</button>
+                        <button type="submit" class="btn btn-success btn-sm">Создать</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="createClientModal" class="modal-backdrop-simple" style="display:none;">
+        <div class="modal-dialog-simple modal-dialog-compact">
+            <div class="modal-content-simple">
+                <h2 class="modal-title-simple">Создание клиента</h2>
+                <form id="createClientForm" method="post" class="modal-form-simple">
+                    @Html.AntiForgeryToken()
+                    <div class="form-section">
+                        <div class="form-section-title">Личные данные</div>
+                        <div class="mb-2">
+                            <label for="createFullName" class="form-label">ФИО</label>
+                            <input type="text" id="createFullName" name="FullName" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="form-section mt-2">
+                        <div class="form-section-title">Контакты</div>
+                        <div class="mb-2">
+                            <label for="createPhone" class="form-label">Телефон</label>
+                            <input type="tel" id="createPhone" name="Phone" class="form-control form-control-sm" placeholder="+7 (___) ___-__-__">
+                        </div>
+                        <div class="mb-2">
+                            <label for="createEmail" class="form-label">Email</label>
+                            <input type="email" id="createEmail" name="Email" class="form-control form-control-sm">
+                        </div>
+                    </div>
                     <div class="d-flex justify-content-end gap-2 mt-3">
                         <button type="button" class="btn btn-outline-secondary btn-sm modal-close" data-target="createModal">Отмена</button>
                         <button type="submit" class="btn btn-success btn-sm">Создать</button>

@@ -109,6 +109,11 @@ class OrdersPage {
         this.importForm = document.getElementById('importForm');
         this.importFileInput = document.getElementById('importFileInput');
         this.fileNameDisplay = document.getElementById('fileNameDisplay');
+
+        this.clientSearchInput = document.getElementById('clientSearchInput');
+        this.btnOpenCreateClientModal = document.getElementById('btnOpenCreateClientModal');
+        this.createClientQuickModal = document.getElementById('createClientModal');
+        this.quickClientForm = document.getElementById('createClientForm');
     }
 
     async init() {
@@ -466,6 +471,85 @@ class OrdersPage {
 
         if (this.importForm) {
             this.importForm.addEventListener('submit', (e) => this.handleImportSubmit(e));
+        }
+
+        if (this.clientSearchInput) {
+            this.clientSearchInput.addEventListener('input', (e) => this.handleClientSearch(e));
+        }
+
+        // Открытие модалки создания клиента
+        if (this.btnOpenCreateClientModal) {
+            this.btnOpenCreateClientModal.addEventListener('click', () => {
+                if (this.quickClientForm) this.quickClientForm.reset();
+
+                // Если пользователь что-то уже вписал в поиск, переносим в поле ФИО
+                if (this.clientSearchInput && this.clientSearchInput.value) {
+                    const nameInput = this.quickClientForm.querySelector('[name="FullName"]');
+                    if (nameInput) nameInput.value = this.clientSearchInput.value;
+                }
+                showModal(this.createClientQuickModal);
+            });
+        }
+
+        if (this.quickClientForm) this.quickClientForm.addEventListener('submit', (e) => this.handleCreateClient(e));
+    }
+
+    handleClientSearch(e) {
+        const searchTerm = e.target.value.toLowerCase().trim();
+
+        // Фильтруем уже существующий кэш клиентов
+        const filteredClients = this.cachedClients.filter(c =>
+            (c.fullName || '').toLowerCase().includes(searchTerm)
+        );
+
+        // Перерисовываем select через твой helper
+        if (this.createClientIdSelect) {
+            const clientList = filteredClients.map(c => ({ id: c.id, name: c.fullName || 'Без имени' })).sort((a, b) => a.name.localeCompare(b.name));
+            fillSelect(this.createClientIdSelect, 'Выберите клиента', clientList);
+            initCustomSelects(); // Переинициализируем кастомные селекты, если используются
+        }
+    }
+
+    async handleCreateClient() {
+        if (!this.quickClientForm.checkValidity()) {
+            this.quickClientForm.reportValidity();
+            return;
+        }
+
+        const formData = new FormData(this.quickClientForm);
+        const clientData = Object.fromEntries(formData.entries());
+
+        try {
+            toggleLoader(true);
+
+            // Отправляем запрос. Убедись, что путь '/api/Clients' совпадает с роутом твоего API
+            const response = await fetch(`?handler=CreateClient`, { method: 'POST', body: formData });
+
+            if (response.ok) {
+                const newClient = await response.json();
+
+                // 1. Добавляем в локальный кэш
+                this.cachedClients.push(newClient);
+
+                // 2. Очищаем поле поиска и обновляем список
+                if (this.clientSearchInput) this.clientSearchInput.value = '';
+                this.handleClientSearch({ target: { value: '' } }); // принудительный рендер полного списка
+
+                // 3. Выбираем только что созданного клиента
+                if (this.createClientIdSelect) {
+                    this.createClientIdSelect.value = newClient.id;
+                    initCustomSelects();
+                }
+
+                hideModal(this.createClientQuickModal);
+            } else {
+                this.displayErrors(['Ошибка при создании клиента. Проверьте данные.']);
+            }
+        } catch (error) {
+            console.error('Ошибка создания клиента:', error);
+            this.displayErrors(['Произошла ошибка при соединении с сервером.']);
+        } finally {
+            toggleLoader(false);
         }
     }
 

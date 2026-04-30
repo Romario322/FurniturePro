@@ -1,4 +1,5 @@
 using ClosedXML.Excel;
+using FurniturePro.Core.Models.DTO.Clients;
 using FurniturePro.Core.Models.DTO.DeletedIds;
 using FurniturePro.Core.Models.DTO.OrderCompositions;
 using FurniturePro.Core.Models.DTO.Orders;
@@ -15,6 +16,7 @@ namespace FurniturePro.WebAdmin.Pages.Main
         private readonly IOrderService _orderService;
         private readonly IOrderCompositionService _orderCompositionService;
         private readonly IStatusChangeService _statusChangeService;
+        private readonly IClientService _clientService;
         private readonly IDeletedIdService _deletedIdService;
 
         // Внедряем 4 необходимых сервиса вместо IHttpClientFactory
@@ -22,12 +24,14 @@ namespace FurniturePro.WebAdmin.Pages.Main
             IOrderService orderService,
             IOrderCompositionService orderCompositionService,
             IStatusChangeService statusChangeService,
-            IDeletedIdService deletedIdService)
+            IDeletedIdService deletedIdService,
+            IClientService clientService)
         {
             _orderService = orderService;
             _orderCompositionService = orderCompositionService;
             _statusChangeService = statusChangeService;
             _deletedIdService = deletedIdService;
+            _clientService = clientService;
         }
 
         public void OnGet()
@@ -62,6 +66,21 @@ namespace FurniturePro.WebAdmin.Pages.Main
                 }
 
                 return new JsonResult(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = $"Ошибка: {ex.Message}" });
+            }
+        }
+
+        public async Task<JsonResult> OnPostCreateClientAsync([FromForm] CreateClientDTO dto, CancellationToken ct)
+        {
+            try
+            {
+                // Вызываем метод создания напрямую из сервиса
+                var id = await _clientService.CreateAsync(dto, ct); // Имя метода может отличаться (например, AddAsync)
+
+                return new JsonResult(new { success = true,  });
             }
             catch (Exception ex)
             {
