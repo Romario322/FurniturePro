@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using FurniturePro.Core.Entities.Dictionaries;
+using FurniturePro.Core.Entities.Parts;
 using FurniturePro.Core.Models.DTO.Categories;
 using FurniturePro.Core.Models.DTO.Materials;
 using FurniturePro.Core.Repositories;

@@ -223,9 +223,9 @@ namespace FurniturePro.WebAdmin.Pages.Main
             var statusesCache = DeserializeCache(statusesCacheStr);
             var furnituresCache = DeserializeCache(furnituresCacheStr);
 
-            var existingOrdersList = string.IsNullOrEmpty(existingOrdersStr) ? new List<string>()
-                : JsonSerializer.Deserialize<List<string>>(existingOrdersStr);
-            var existingAddresses = new HashSet<string>(existingOrdersList ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+            var existingOrders = string.IsNullOrEmpty(existingOrdersStr)
+        ? new List<OrderCacheItem>()
+        : JsonSerializer.Deserialize<List<OrderCacheItem>>(existingOrdersStr, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             int createdCount = 0;
 
@@ -240,7 +240,7 @@ namespace FurniturePro.WebAdmin.Pages.Main
                     // Новая структура: 1-Адрес, 2-Клиент, 3-Состав, 4-История статусов
                     var address = row.Cell(1).GetString().Trim();
 
-                    if (string.IsNullOrEmpty(address) || existingAddresses.Contains(address))
+                    if (string.IsNullOrEmpty(address))
                         continue;
 
                     var clientName = row.Cell(2).GetString().Trim();
@@ -283,7 +283,25 @@ namespace FurniturePro.WebAdmin.Pages.Main
 
                     if (!isStatusesValid || !parsedStatuses.Any()) continue;
 
-                    // --- 2. ПРОВЕРКА ХРОНОЛОГИИ ---
+                    DateTime orderCreatedAt = parsedStatuses.First().Date;
+
+                    bool alreadyExists = existingOrders.Any(o =>
+                    {
+                        if (o.ClientId != clientId) return false;
+
+                        // Важно: переводим дату из JS (UTC) в локальное время сервера
+                        DateTime cachedDateLocal = o.CreatedAt.ToLocalTime();
+
+                        // Сравниваем компоненты времени с точностью до минуты
+                        return cachedDateLocal.Year == orderCreatedAt.Year &&
+                               cachedDateLocal.Month == orderCreatedAt.Month &&
+                               cachedDateLocal.Day == orderCreatedAt.Day &&
+                               cachedDateLocal.Hour == orderCreatedAt.Hour &&
+                               cachedDateLocal.Minute == orderCreatedAt.Minute;
+                    });
+
+                    if (alreadyExists) continue;
+
                     for (int i = 0; i < parsedStatuses.Count - 1; i++)
                     {
                         // Каждое следующее событие должно быть позже или в то же время
@@ -328,11 +346,11 @@ namespace FurniturePro.WebAdmin.Pages.Main
 
                     foreach (var composition in compositionList)
                     {
-                        var nameAndCount = composition.Split('-');
-                        if (nameAndCount.Length >= 2)
+                        int dashIndex = composition.LastIndexOf('-');
+                        if (dashIndex > 0)
                         {
-                            var furnitureName = nameAndCount[0].Trim();
-                            var countStr = nameAndCount[1].Trim();
+                            var furnitureName = composition.Substring(0, dashIndex).Trim();
+                            var countStr = composition.Substring(dashIndex + 1).Trim();
 
                             int furnitureId = furnituresCache.TryGetValue(furnitureName, out int fid) ? fid : -1;
 
@@ -356,7 +374,12 @@ namespace FurniturePro.WebAdmin.Pages.Main
                         }
                     }
 
-                    if (skipOrder) continue;
+                    if (skipOrder)
+                    {
+                        Console.WriteLine(statusChangesStr);
+                        Console.WriteLine(compositionStr);
+                        continue;
+                    }
 
                     // --- 6. СОЗДАНИЕ В БД ---
                     var orderDto = new CreateOrderDTO
@@ -365,7 +388,7 @@ namespace FurniturePro.WebAdmin.Pages.Main
                         ClientId = clientId
                     };
                     int newOrderId = await _orderService.CreateAsync(orderDto, ct);
-                    existingAddresses.Add(address);
+                    existingOrders.Add(new OrderCacheItem { ClientId = clientId, CreatedAt = orderCreatedAt });
                     createdCount++;
 
                     // Сохраняем историю статусов по порядку
@@ -403,7 +426,6 @@ namespace FurniturePro.WebAdmin.Pages.Main
                 { "Оплачен", 4 },
                 { "Собирается", 5 },
                 { "Передан в доставку", 6 },
-                { "Предан в доставку", 6 },
                 { "В пути", 7 },
                 { "Доставлен", 8 }
             };
@@ -492,6 +514,13 @@ namespace FurniturePro.WebAdmin.Pages.Main
             {
                 return new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
             }
+        }
+
+        private class OrderCacheItem
+        {
+            public int ClientId { get; set; }
+            // Поле CreatedAt должно соответствовать _creationDate из JS или дате первого статуса
+            public DateTime CreatedAt { get; set; }
         }
 
         public class SimpleKey

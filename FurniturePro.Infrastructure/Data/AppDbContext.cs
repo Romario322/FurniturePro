@@ -1,6 +1,9 @@
 ﻿using FurniturePro.Core.Entities;
 using FurniturePro.Core.Entities.Connections;
-using FurniturePro.Core.Entities.Dictionaries;
+using FurniturePro.Core.Entities.Furniture;
+using FurniturePro.Core.Entities.Orders;
+using FurniturePro.Core.Entities.Parts;
+using FurniturePro.Core.Entities.Users;
 using FurniturePro.Infrastructure.Configurations;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +17,7 @@ public class AppDbContext : DbContext
     }
 
     // Dictionaries
-    public DbSet<Category> Categories { get; set; }
+    public DbSet<PartRole> Categories { get; set; }
     public DbSet<Color> Colors { get; set; }
     public DbSet<Material> Materials { get; set; }
     public DbSet<Status> Statuses { get; set; }

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using FurniturePro.Core.Entities.Dictionaries;
+using FurniturePro.Core.Entities.Users;
 using FurniturePro.Core.Models.DTO.Clients;
 
 namespace FurniturePro.Core.Mapper;

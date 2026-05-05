@@ -1,8 +1,8 @@
 ﻿using FurniturePro.Core.Entities.Abstractions;
 
-namespace FurniturePro.Core.Entities.Dictionaries;
+namespace FurniturePro.Core.Entities.Furniture;
 
-public class Category : DictionaryEntity<int>
+public class FurnitureCategory : DictionaryEntity<int>
 {
     public List<Furniture>? Furnitures { get; set; }
 }

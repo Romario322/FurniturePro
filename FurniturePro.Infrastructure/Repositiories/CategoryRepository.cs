@@ -1,10 +1,9 @@
-﻿using FurniturePro.Core.Entities.Dictionaries;
-using FurniturePro.Core.Repositories;
+﻿using FurniturePro.Core.Repositories;
 using FurniturePro.Infrastructure.Data;
 
 namespace FurniturePro.Infrastructure.Repositiories;
 
-public class CategoryRepository(AppDbContext context) : BaseRepository<Category, int, AppDbContext>(context), ICategoryRepository
+public class CategoryRepository(AppDbContext context) : BaseRepository<FurnitureCategory, int, AppDbContext>(context), ICategoryRepository
 {
 
 }

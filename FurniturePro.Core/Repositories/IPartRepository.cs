@@ -1,4 +1,4 @@
-﻿using FurniturePro.Core.Entities;
+﻿using FurniturePro.Core.Entities.Parts;
 
 namespace FurniturePro.Core.Repositories;
 

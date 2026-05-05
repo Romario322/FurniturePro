@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using FurniturePro.Core.Entities;
+using FurniturePro.Core.Entities.Parts;
 using FurniturePro.Core.Models.DTO.Parts;
 
 namespace FurniturePro.Core.Mapper;

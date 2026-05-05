@@ -1,4 +1,4 @@
-﻿using FurniturePro.Core.Entities.Dictionaries;
+﻿using FurniturePro.Core.Entities.Users;
 using FurniturePro.Core.Repositories;
 using FurniturePro.Infrastructure.Data;
 

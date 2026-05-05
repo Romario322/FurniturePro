@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using FurniturePro.Core.Entities.Dictionaries;
 using FurniturePro.Core.Models.DTO.Categories;
 using FurniturePro.Core.Repositories;
 using FurniturePro.Core.Services.Interfaces;
@@ -44,14 +43,14 @@ public class CategoryService : ICategoryService
 
     public async Task<int> CreateAsync(CreateCategoryDTO modelDto, CancellationToken ct = default)
     {
-        var entityToCreate = _mapper.Map<Category>(modelDto);
+        var entityToCreate = _mapper.Map<FurnitureCategory>(modelDto);
         var createdEntity = await _categoryRepository.CreateAsync(entityToCreate, ct);
         return createdEntity.Id;
     }
 
     public async Task<List<int>> CreateRangeAsync(List<CreateCategoryDTO> modelDtos, CancellationToken ct = default)
     {
-        var entitiesToCreate = _mapper.Map<List<Category>>(modelDtos);
+        var entitiesToCreate = _mapper.Map<List<FurnitureCategory>>(modelDtos);
         var createdEntities = await _categoryRepository.CreateRangeAsync(entitiesToCreate, ct);
         return createdEntities.Select(ent => ent.Id).ToList();
     }

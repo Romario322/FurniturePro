@@ -1,4 +1,4 @@
-﻿using FurniturePro.Core.Entities;
+﻿using FurniturePro.Core.Entities.Furniture;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

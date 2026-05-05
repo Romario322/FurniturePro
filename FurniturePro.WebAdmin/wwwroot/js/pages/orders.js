@@ -655,7 +655,10 @@ class OrdersPage {
             formData.append('excelFile', file);
 
             // Собираем кэш для проверки на бэкенде
-            const existingOrders = this.cachedOrders.map(o => o.address); // Извлекаем адреса для проверки дублей
+            const existingOrders = this.cachedOrdersViewData.map(o => ({
+                clientId: o.clientId,
+                createdAt: o._creationDate // это объект Date, JSON.stringify автоматически превратит его в ISO-строку
+            }));
             const clientsCache = Object.fromEntries(this.cachedClients.map(c => [c.fullName, c.id]));
             const statusesCache = Object.fromEntries(this.cachedStatuses.map(s => [s.name, s.id]));
             const furnituresCache = Object.fromEntries(this.cachedFurniture.map(f => [f.name, f.id]));

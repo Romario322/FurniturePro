@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.RateLimiting;
 
 namespace FurniturePro;
 
@@ -51,6 +52,35 @@ public class Startup
         services.AddFluentValidationAutoValidation();
 
         services.ConfigureValidationException();
+
+        services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = 429;
+
+            options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+            {
+                return RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    factory: partition => new FixedWindowRateLimiterOptions
+                    {
+                        AutoReplenishment = true,
+                        PermitLimit = 300,
+                        Window = TimeSpan.FromSeconds(10),
+                        QueueLimit = 0,
+                    });
+            });
+
+            options.OnRejected = async (context, token) =>
+            {
+                context.HttpContext.Response.StatusCode = 429;
+                await context.HttpContext.Response.WriteAsJsonAsync(new
+                {
+                    Status = 429,
+                    Title = "Too Many Requests",
+                    Detail = "Слишком много запросов. Подождите 10 секунд."
+                }, token);
+            };
+        });
 
         services.AddApiVersioning(o =>
         {
@@ -114,6 +144,7 @@ public class Startup
         app.UseProblemDetails();
         app.UseRequestLocalization();
         app.UseCors("AllowRazorPages");
+        app.UseRateLimiter();
         app.UseRouting();
 
         //app.UseAuthentication();

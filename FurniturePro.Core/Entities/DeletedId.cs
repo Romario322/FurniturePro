@@ -7,6 +7,8 @@ public class DeletedId : BaseEntity<int>
 {
     [Column(TypeName = "varchar(200)")]
     public required string TableName { get; set; }
+    [Column(TypeName = "text")]
+    public string? Description { get; set; }
     [Column(TypeName = "int")]
     public required int EntityId { get; set; }
 }

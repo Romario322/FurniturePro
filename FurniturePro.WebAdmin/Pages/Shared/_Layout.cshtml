@@ -34,15 +34,15 @@
 
             <nav class="nav nav-pills flex-column mb-auto sidebar-nav pt-2">
                 <a class="nav-link @(currentPage == "/Index" ? "active" : "")" asp-area="" asp-page="/Index">Главная страница</a>
-                <a class="nav-link @(currentPage == "/Main/Report" ? "active" : "")" asp-area="" asp-page="/Main/Report">Аналитика</a>
+                <a class="nav-link @(currentPage == "/Main/Orders" ? "active" : "")" asp-area="" asp-page="/Main/Orders">Заказы</a>
                 <a class="nav-link @(currentPage == "/Main/Furniture" ? "active" : "")" asp-area="" asp-page="/Main/Furniture">Мебель</a>
                 <a class="nav-link @(currentPage == "/Main/Clients" ? "active" : "")" asp-area="" asp-page="/Main/Clients">Клиенты</a>
-                <a class="nav-link @(currentPage == "/Main/Orders" ? "active" : "")" asp-area="" asp-page="/Main/Orders">Заказы</a>
-                <a class="nav-link @(currentPage == "/Main/Prices" ? "active" : "")" asp-area="" asp-page="/Main/Prices">Цены</a>
                 <a class="nav-link @(currentPage == "/Secondary/Parts" ? "active" : "")" asp-area="" asp-page="/Secondary/Parts">Детали</a>
+                <a class="nav-link @(currentPage == "/Main/Prices" ? "active" : "")" asp-area="" asp-page="/Main/Prices">Цены</a>
+                <a class="nav-link @(currentPage == "/Main/Report" ? "active" : "")" asp-area="" asp-page="/Main/Report">Аналитика</a>
+                <a class="nav-link @(currentPage == "/Secondary/Categories" ? "active" : "")" asp-area="" asp-page="/Secondary/Categories">Категории</a>
                 <a class="nav-link @(currentPage == "/Secondary/Materials" ? "active" : "")" asp-area="" asp-page="/Secondary/Materials">Материалы</a>
                 <a class="nav-link @(currentPage == "/Secondary/Colors" ? "active" : "")" asp-area="" asp-page="/Secondary/Colors">Цвета</a>
-                <a class="nav-link @(currentPage == "/Secondary/Categories" ? "active" : "")" asp-area="" asp-page="/Secondary/Categories">Категории</a>
             </nav>
 
             <div class="mt-auto sidebar-footer small px-3 py-2">

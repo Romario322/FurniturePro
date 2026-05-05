@@ -233,11 +233,11 @@ namespace FurniturePro.WebAdmin.Pages.Main
                     var compositionsToCreate = new List<FurnitureCompositionDTO>();
                     foreach (var composition in compositionList)
                     {
-                        var nameAndCount = composition.Split('-');
-                        if (nameAndCount.Length >= 2)
+                        int dashIndex = composition.LastIndexOf('-');
+                        if (dashIndex > 0)
                         {
-                            var partName = nameAndCount[0].Trim();
-                            var partCountStr = nameAndCount[1].Trim();
+                            var partName = composition.Substring(0, dashIndex).Trim();
+                            var partCountStr = composition.Substring(dashIndex + 1).Trim();
 
                             // Ищем деталь в кеше
                             int partId = partsCache.TryGetValue(partName, out int pid) ? pid : -1;

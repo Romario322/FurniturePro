@@ -1,7 +1,5 @@
-﻿using FurniturePro.Core.Entities.Dictionaries;
+﻿namespace FurniturePro.Core.Repositories;
 
-namespace FurniturePro.Core.Repositories;
-
-public interface ICategoryRepository : IBaseRepository<Category, int>
+public interface ICategoryRepository : IBaseRepository<FurnitureCategory, int>
 {
 }

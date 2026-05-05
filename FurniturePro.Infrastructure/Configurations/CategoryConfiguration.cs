@@ -1,12 +1,11 @@
-﻿using FurniturePro.Core.Entities.Dictionaries;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FurniturePro.Infrastructure.Configurations;
 
-internal class CategoryConfiguration : IEntityTypeConfiguration<Category>
+internal class CategoryConfiguration : IEntityTypeConfiguration<FurnitureCategory>
 {
-    public void Configure(EntityTypeBuilder<Category> builder)
+    public void Configure(EntityTypeBuilder<FurnitureCategory> builder)
     {
         builder.ToTable("categories");
 
