@@ -1,10 +1,9 @@
 ﻿using FurniturePro.Core.Entities;
-using FurniturePro.Core.Entities.Connections;
-using FurniturePro.Core.Entities.Furniture;
+using FurniturePro.Core.Entities.Constructors;
+using FurniturePro.Core.Entities.FurnitureEntities;
 using FurniturePro.Core.Entities.Orders;
 using FurniturePro.Core.Entities.Parts;
 using FurniturePro.Core.Entities.Users;
-using FurniturePro.Infrastructure.Configurations;
 using Microsoft.EntityFrameworkCore;
 
 namespace FurniturePro.Infrastructure.Data;
@@ -13,57 +12,48 @@ public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
-
     }
 
-    // Dictionaries
-    public DbSet<PartRole> Categories { get; set; }
+    #region Системные таблицы и Аудит
+    public DbSet<DeletedId> DeletedIds { get; set; }
+    #endregion
+
+    #region Пользователи
+    public DbSet<SystemRole> SystemRoles { get; set; }
+    public DbSet<Employee> Employees { get; set; }
+    #endregion
+
+    #region Справочники и Каталог Деталей
     public DbSet<Color> Colors { get; set; }
     public DbSet<Material> Materials { get; set; }
-    public DbSet<Status> Statuses { get; set; }
-    public DbSet<Client> Clients { get; set; }
-    public DbSet<OperationType> OperationTypes { get; set; }
-
-    // Base entities
+    public DbSet<PartCategory> PartCategories { get; set; }
+    public DbSet<PartType> PartTypes { get; set; }
     public DbSet<Part> Parts { get; set; }
-    public DbSet<Furniture> Furniture { get; set; }
-    public DbSet<DeletedId> DeletedIds { get; set; }
-    public DbSet<Order> Orders { get; set; }
-
-    // Dependent entities
-    public DbSet<Operation> Operations { get; set; }
-    public DbSet<Snapshot> Snapshots { get; set; }
     public DbSet<Price> Prices { get; set; }
+    #endregion
 
-    // Connections
-    public DbSet<FurnitureComposition> FurnitureCompositions { get; set; }
-    public DbSet<OrderComposition> OrderCompositions { get; set; }
+    #region Каталог Мебели и Конструктор
+    public DbSet<FurnitureCategory> FurnitureCategories { get; set; }
+    public DbSet<Furniture> Furnitures { get; set; }
+    public DbSet<PartRole> PartRoles { get; set; }
+    public DbSet<ReplacementGroup> ReplacementGroups { get; set; }
+    public DbSet<ReplacementGroupItem> ReplacementGroupItems { get; set; }
+    public DbSet<FurniturePart> FurnitureParts { get; set; }
+    #endregion
+
+    #region Заказы, Производство и Клиенты
+    public DbSet<Status> Statuses { get; set; }
     public DbSet<StatusChange> StatusChanges { get; set; }
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderComposition> OrderCompositions { get; set; }
+    public DbSet<OrderPartDetail> OrderPartDetails { get; set; }
+    public DbSet<Client> Clients { get; set; }
+    #endregion
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Dictionaries
-        modelBuilder.ApplyConfiguration(new CategoryConfiguration());
-        modelBuilder.ApplyConfiguration(new ColorConfiguration());
-        modelBuilder.ApplyConfiguration(new MaterialConfiguration());
-        modelBuilder.ApplyConfiguration(new StatusConfiguration());
-        modelBuilder.ApplyConfiguration(new ClientConfiguration());
-        modelBuilder.ApplyConfiguration(new OperationTypeConfiguration());
+        base.OnModelCreating(modelBuilder);
 
-        // Base entities
-        modelBuilder.ApplyConfiguration(new PartConfiguration());
-        modelBuilder.ApplyConfiguration(new FurnitureConfiguration());
-        modelBuilder.ApplyConfiguration(new DeletedIdConfiguration());
-        modelBuilder.ApplyConfiguration(new OrderConfiguration());
-
-        // Dependent entities
-        modelBuilder.ApplyConfiguration(new OperationConfiguration());
-        modelBuilder.ApplyConfiguration(new PriceConfiguration());
-        modelBuilder.ApplyConfiguration(new SnapshotConfiguration());
-
-        // Connections
-        modelBuilder.ApplyConfiguration(new FurnitureCompositionConfiguration());
-        modelBuilder.ApplyConfiguration(new OrderCompositionConfiguration());
-        modelBuilder.ApplyConfiguration(new StatusChangeConfiguration());
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 }

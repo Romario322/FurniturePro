@@ -1,19 +1,36 @@
 ﻿using FurniturePro.Core.Entities;
+using FurniturePro.Infrastructure.Configurations.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FurniturePro.Infrastructure.Configurations;
 
-internal class DeletedIdConfiguration : IEntityTypeConfiguration<DeletedId>
+internal class DeletedIdConfiguration : BaseEntityConfiguration<DeletedId, int>
 {
-    public void Configure(EntityTypeBuilder<DeletedId> builder)
+    public override void Configure(EntityTypeBuilder<DeletedId> builder)
     {
-        builder.ToTable("deletedIds");
+        base.Configure(builder);
 
-        builder.HasIndex(c => new { c.TableName, c.EntityId }).IsUnique();
+        builder.ToTable("DeletedIds");
 
-        builder.HasKey(et => et.Id);
+        builder.Property(e => e.TableName)
+               .IsRequired()
+               .HasMaxLength(200);
 
-        builder.HasIndex(et => et.UpdateDate);
+        builder.Property(e => e.Description)
+               .HasColumnType("text");
+
+        builder.Property(e => e.EntityId)
+               .IsRequired();
+
+        builder.Property(e => e.ResponsibleEmployeeId)
+               .IsRequired();
+
+        builder.HasIndex(e => new { e.TableName, e.EntityId });
+
+        builder.HasOne(e => e.ResponsibleEmployee)
+               .WithMany()
+               .HasForeignKey(e => e.ResponsibleEmployeeId)
+               .OnDelete(DeleteBehavior.Restrict);
     }
 }

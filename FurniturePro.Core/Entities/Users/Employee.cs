@@ -7,14 +7,11 @@ namespace FurniturePro.Core.Entities.Users;
 
 public class Employee : BaseEntity<int>
 {
-    [Column(TypeName = "varchar(200)")]
     public required string FullName { get; set; }
-    [Column(TypeName = "varchar(200)")]
     public required string Login { get; set; }
-    [Column(TypeName = "varchar(200)")]
     public required string HashPassword { get; set; }
+    public bool Activity { get; set; }
 
-    [Column(TypeName = "integer")]
     public required int SystemRoleId { get; set; }
     public SystemRole? SystemRole { get; set; }
 
