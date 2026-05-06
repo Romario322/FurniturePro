@@ -1,6 +1,7 @@
 ﻿using FurniturePro.Core.Entities.Abstractions;
-using FurniturePro.Core.Entities.Constructors;
+using FurniturePro.Core.Entities.Constructor;
 using FurniturePro.Core.Entities.Orders;
+using FurniturePro.Core.Enums;
 
 namespace FurniturePro.Core.Entities.Parts;
 
@@ -15,7 +16,7 @@ public class Part : CatalogEntity<int>
     public Material? Material { get; set; }
     public required int ColorId { get; set; }
     public Color? Color { get; set; }
-    public required int PartTypeId { get; set; }
+    public required PartTypeEnum PartTypeId { get; set; }
     public PartType? PartType { get; set; }
     public required int PartCategoryId { get; set; }
     public PartCategory? PartCategory { get; set; }

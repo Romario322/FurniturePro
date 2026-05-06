@@ -1,6 +1,5 @@
 ﻿using FurniturePro.Core.Entities.Abstractions;
-using FurniturePro.Core.Entities.FurnitureEntities;
-using System.ComponentModel.DataAnnotations.Schema;
+using FurniturePro.Core.Entities.Catalog;
 
 namespace FurniturePro.Core.Entities.Orders;
 

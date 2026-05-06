@@ -19,10 +19,19 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <Folder Include="Mapper\" />
-	  <Folder Include="Models\DTO\" />
-	  <Folder Include="Repositories\" />
-	  <Folder Include="Service\Interfaces\" />
+	  <Folder Include="Interfaces\Services\Abstractions\" />
+	  <Folder Include="Interfaces\Services\Catalog\" />
+	  <Folder Include="Interfaces\Services\Constructor\" />
+	  <Folder Include="Interfaces\Services\Orders\" />
+	  <Folder Include="Interfaces\Services\Parts\" />
+	  <Folder Include="Interfaces\Services\System\" />
+	  <Folder Include="Services\Catalog\" />
+	  <Folder Include="Services\Constructor\" />
+	  <Folder Include="Services\Orders\" />
+	  <Folder Include="Services\Parts\" />
+	  <Folder Include="Services\System\" />
+	  <Folder Include="Services\Abstractions\" />
+	  <Folder Include="Services\" />
 	</ItemGroup>
 	
 </Project>

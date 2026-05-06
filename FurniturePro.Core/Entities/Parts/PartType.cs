@@ -1,8 +1,9 @@
 ﻿using FurniturePro.Core.Entities.Abstractions;
+using FurniturePro.Core.Enums;
 
 namespace FurniturePro.Core.Entities.Parts;
 
-public class PartType : DictionaryEntity<int>
+public class PartType : DictionaryEntity<PartTypeEnum>
 {
     public List<Part>? Parts { get; set; }
 }

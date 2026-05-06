@@ -1,5 +1,5 @@
 ﻿using FurniturePro.Core.Entities.Abstractions;
-using System.ComponentModel.DataAnnotations.Schema;
+using FurniturePro.Core.Enums;
 
 namespace FurniturePro.Core.Entities.Orders;
 
@@ -9,6 +9,6 @@ public class StatusChange : BaseEntity<int>
 
     public required int OrderId { get; set; }
     public Order? Order { get; set; }
-    public required int StatusId { get; set; }
+    public required StatusEnum StatusId { get; set; }
     public Status? Status { get; set; }
 }

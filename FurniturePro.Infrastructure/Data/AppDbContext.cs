@@ -1,9 +1,8 @@
-﻿using FurniturePro.Core.Entities;
-using FurniturePro.Core.Entities.Constructors;
-using FurniturePro.Core.Entities.FurnitureEntities;
+﻿using FurniturePro.Core.Entities.Catalog;
+using FurniturePro.Core.Entities.Constructor;
 using FurniturePro.Core.Entities.Orders;
 using FurniturePro.Core.Entities.Parts;
-using FurniturePro.Core.Entities.Users;
+using FurniturePro.Core.Entities.System;
 using Microsoft.EntityFrameworkCore;
 
 namespace FurniturePro.Infrastructure.Data;
