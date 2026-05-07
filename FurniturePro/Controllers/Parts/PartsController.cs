@@ -1,28 +1,28 @@
 ﻿using FurniturePro.Controllers.Abstractions;
 using FurniturePro.Core.Enums;
-using FurniturePro.Core.Interfaces.Services.Catalog;
-using FurniturePro.Core.Models.Dto.Catalog.Create;
-using FurniturePro.Core.Models.Dto.Catalog.Read;
-using FurniturePro.Core.Models.Dto.Catalog.Update;
+using FurniturePro.Core.Interfaces.Services.Parts;
+using FurniturePro.Core.Models.Dto.Parts.Create;
+using FurniturePro.Core.Models.Dto.Parts.Read;
+using FurniturePro.Core.Models.Dto.Parts.Update;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FurniturePro.Controllers.Catalog;
+namespace FurniturePro.Controllers.Parts;
 
 [Authorize(Roles = nameof(SystemRoleEnum.Administrator) + "," + nameof(SystemRoleEnum.Constructor))]
-public class FurnitureController : BaseController<int, FurnitureDto, CreateFurnitureDto, UpdateFurnitureDto>
+public class PartsController : BaseController<int, PartDto, CreatePartDto, UpdatePartDto>
 {
-    public FurnitureController(IFurnitureService service) : base(service) { }
+    public PartsController(IPartService service) : base(service) { }
 
     [HttpGet]
     [Authorize(Roles = nameof(SystemRoleEnum.Administrator) + "," + nameof(SystemRoleEnum.Constructor) + "," + nameof(SystemRoleEnum.SalesManager) + "," + nameof(SystemRoleEnum.WorkshopMaster))]
-    public override Task<ActionResult<List<FurnitureDto>>> GetAll(CancellationToken ct = default) => base.GetAll(ct);
+    public override Task<ActionResult<List<PartDto>>> GetAll(CancellationToken ct = default) => base.GetAll(ct);
 
     [HttpGet("{id}")]
     [Authorize(Roles = nameof(SystemRoleEnum.Administrator) + "," + nameof(SystemRoleEnum.Constructor) + "," + nameof(SystemRoleEnum.SalesManager) + "," + nameof(SystemRoleEnum.WorkshopMaster))]
-    public override Task<ActionResult<FurnitureDto>> GetById(int id, CancellationToken ct = default) => base.GetById(id, ct);
+    public override Task<ActionResult<PartDto>> GetById(int id, CancellationToken ct = default) => base.GetById(id, ct);
 
     [HttpGet("sync")]
     [Authorize(Roles = nameof(SystemRoleEnum.Administrator) + "," + nameof(SystemRoleEnum.Constructor) + "," + nameof(SystemRoleEnum.SalesManager) + "," + nameof(SystemRoleEnum.WorkshopMaster))]
-    public override Task<ActionResult<List<FurnitureDto>>> Sync([FromQuery] DateTime since, CancellationToken ct = default) => base.Sync(since, ct);
+    public override Task<ActionResult<List<PartDto>>> Sync([FromQuery] DateTime since, CancellationToken ct = default) => base.Sync(since, ct);
 }

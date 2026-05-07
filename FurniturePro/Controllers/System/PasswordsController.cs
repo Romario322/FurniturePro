@@ -11,11 +11,11 @@ namespace FurniturePro.Controllers.System;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class PasswordController : ControllerBase
+public class PasswordsController : ControllerBase
 {
     private readonly IPasswordService _passwordService;
 
-    public PasswordController(IPasswordService passwordService)
+    public PasswordsController(IPasswordService passwordService)
     {
         _passwordService = passwordService;
     }

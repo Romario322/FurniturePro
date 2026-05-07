@@ -36,10 +36,4 @@
     <ProjectReference Include="..\FurniturePro.Infrastructure\FurniturePro.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\Constructor\" />
-    <Folder Include="Controllers\Orders\" />
-    <Folder Include="Controllers\Parts\" />
-  </ItemGroup>
-
 </Project>
