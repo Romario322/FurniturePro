@@ -2,10 +2,10 @@ using FurniturePro.Core;
 using FurniturePro.Extensions;
 using FurniturePro.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. ИЗОЛИРОВАННОЕ ЧТЕНИЕ ФАЙЛА НАСТРОЕК
 var sharedConfig = new ConfigurationBuilder()
     .AddJsonFile("/usr/share/FurniturePro/appsettings.json", optional: true)
     .AddJsonFile(Path.Combine(builder.Environment.ContentRootPath, "..", "FurniturePro", "appsettings.json"), optional: true)
@@ -14,13 +14,24 @@ var sharedConfig = new ConfigurationBuilder()
 var appSettings = sharedConfig.GetSection(AppSettings.AppSettingsName).Get<AppSettings>();
 var connectionString = appSettings?.DbOptions?.ConnectionString;
 
-// 2. РЕГИСТРАЦИЯ СЕРВИСОВ
 builder.Services.AddRazorPages();
-builder.Services.AddRepositories();
-builder.Services.AddServices();
+
+builder.Services.AddHttpClient("FurnitureApi", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5283/");
+});
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Auth/Login"; // Путь к странице входа
+        options.AccessDeniedPath = "/Auth/AccessDenied"; // Путь при нехватке прав (роли)
+        options.Cookie.Name = "FurniturePro.Auth";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+    });
+
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-// Регистрируем БД напрямую
 if (!string.IsNullOrEmpty(connectionString))
 {
     builder.Services.AddDbContext<AppDbContext>(options =>
@@ -29,7 +40,6 @@ if (!string.IsNullOrEmpty(connectionString))
 
 var app = builder.Build();
 
-// 3. НАСТРОЙКА PIPELINE
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -40,7 +50,11 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapRazorPages();
+app.MapControllers();
 
 app.Run();

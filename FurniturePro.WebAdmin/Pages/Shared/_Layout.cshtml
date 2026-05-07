@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FurniturePro - @ViewData["Title"]</title>
+    <title>МебельПро - @ViewData["Title"]</title>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/flatpickr/dist/flatpickr.min.css" />
@@ -33,6 +33,7 @@
             </div>
 
             <nav class="nav nav-pills flex-column mb-auto sidebar-nav pt-2">
+                <a class="nav-link @(currentPage == "Auth/Login" ? "active" : "")" asp-area="" asp-page="Auth/Login">Авторизация</a>
                 <a class="nav-link @(currentPage == "/Index" ? "active" : "")" asp-area="" asp-page="/Index">Главная страница</a>
                 <a class="nav-link @(currentPage == "/Main/Orders" ? "active" : "")" asp-area="" asp-page="/Main/Orders">Заказы</a>
                 <a class="nav-link @(currentPage == "/Main/Furniture" ? "active" : "")" asp-area="" asp-page="/Main/Furniture">Мебель</a>
@@ -46,7 +47,7 @@
             </nav>
 
             <div class="mt-auto sidebar-footer small px-3 py-2">
-                Админ панель · МебельПро
+                МебельПро
             </div>
         </div>
     </nav>
