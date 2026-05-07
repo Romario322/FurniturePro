@@ -1,15 +1,18 @@
 ﻿using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using FluentValidation.AspNetCore;
+using FurniturePro.Core;
 using FurniturePro.Extensions;
 using FurniturePro.Infrastructure.Data;
-using FurniturePro.Models.Settings;
 using Hellang.Middleware.ProblemDetails;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 using System.Threading.RateLimiting;
 
 namespace FurniturePro;
@@ -35,12 +38,30 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddProblemDetails(Extensions.ProblemDetailsExtensions.ConfigureProblemDetails);
-        
+
         services.AddCors(options => options.AddPolicy("AllowRazorPages", policy => policy.WithOrigins("http://localhost:5283")
                       .AllowAnyHeader()
-                      .AllowAnyMethod()));// В файле Program.cs
+                      .AllowAnyMethod()));
+
+        services.AddSingleton(_appSettings);
+
         services.AddRepositories();
         services.AddServices();
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = _appSettings.Jwt.Issuer,
+                    ValidAudience = _appSettings.Jwt.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.Jwt.Key))
+                };
+            });
 
         services.AddControllers()
             .AddNewtonsoftJson(opt =>
@@ -147,12 +168,12 @@ public class Startup
         app.UseRateLimiter();
         app.UseRouting();
 
-        //app.UseAuthentication();
-        //app.UseAuthorization();
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         if (_appSettings.Swagger is { UseSwagger: true })
             app.UseSwagger(env, provider, _appSettings.Swagger);
 
-        app.UseEndpoints(endpoints => endpoints.MapControllers().AllowAnonymous());
+        app.UseEndpoints(endpoints => endpoints.MapControllers());
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FurniturePro.Core.Entities.System;
+using FurniturePro.Core.Enums;
 using FurniturePro.Infrastructure.Configurations.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -34,5 +35,20 @@ internal class EmployeeConfiguration : BaseEntityConfiguration<Employee, int>
                .WithMany(r => r.Employees)
                .HasForeignKey(e => e.SystemRoleId)
                .OnDelete(DeleteBehavior.Restrict);
+
+        var seedDate = DateTime.SpecifyKind(new DateTime(2024, 1, 1), DateTimeKind.Utc);
+
+        builder.HasData(
+            new Employee
+            {
+                Id = 1,
+                FullName = "Системный Администратор",
+                Login = "Admin",
+                HashPassword = BCrypt.Net.BCrypt.HashPassword("admin"),
+                Activity = true,
+                SystemRoleId = SystemRoleEnum.Administrator,
+                UpdateDate = seedDate
+            }
+        );
     }
 }

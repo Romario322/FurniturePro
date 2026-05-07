@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FurniturePro.Models.Settings;
+namespace FurniturePro.Core;
 
 public class SwaggerConfiguration
 {

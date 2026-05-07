@@ -2,7 +2,7 @@
 
 namespace FurniturePro.Core.Models.Dto.Orders.Update;
 
-public class UpdateStatusChangeDto : UpdateBaseDto<int>
+public class UpdateStatusChangeDto
 {
     public required DateTime Date { get; set; }
 

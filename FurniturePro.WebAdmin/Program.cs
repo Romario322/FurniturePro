@@ -1,6 +1,6 @@
+using FurniturePro.Core;
 using FurniturePro.Extensions;
 using FurniturePro.Infrastructure.Data;
-using FurniturePro.Models.Settings;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

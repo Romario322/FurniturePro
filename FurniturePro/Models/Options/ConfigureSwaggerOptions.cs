@@ -1,5 +1,5 @@
 ﻿using Asp.Versioning.ApiExplorer;
-using FurniturePro.Models.Settings;
+using FurniturePro.Core;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;

@@ -22,7 +22,92 @@ namespace FurniturePro.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("FurniturePro.Core.Entities.Constructors.FurniturePart", b =>
+            modelBuilder.Entity("FurniturePro.Core.Entities.Catalog.Furniture", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Activity")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("BaseDepth")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BaseHeight")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BaseWidth")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("FurnitureCategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Markup")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Sku")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FurnitureCategoryId");
+
+                    b.HasIndex("Sku")
+                        .IsUnique();
+
+                    b.HasIndex("UpdateDate");
+
+                    b.ToTable("Furnitures", (string)null);
+                });
+
+            modelBuilder.Entity("FurniturePro.Core.Entities.Catalog.FurnitureCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("UpdateDate");
+
+                    b.ToTable("FurnitureCategories", (string)null);
+                });
+
+            modelBuilder.Entity("FurniturePro.Core.Entities.Constructor.FurniturePart", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -58,13 +143,10 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.ToTable("FurnitureParts", (string)null);
                 });
 
-            modelBuilder.Entity("FurniturePro.Core.Entities.Constructors.PartRole", b =>
+            modelBuilder.Entity("FurniturePro.Core.Entities.Constructor.PartRole", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -165,7 +247,7 @@ namespace FurniturePro.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("FurniturePro.Core.Entities.Constructors.ReplacementGroup", b =>
+            modelBuilder.Entity("FurniturePro.Core.Entities.Constructor.ReplacementGroup", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -195,7 +277,7 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.ToTable("ReplacementGroups", (string)null);
                 });
 
-            modelBuilder.Entity("FurniturePro.Core.Entities.Constructors.ReplacementGroupItem", b =>
+            modelBuilder.Entity("FurniturePro.Core.Entities.Constructor.ReplacementGroupItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -222,127 +304,6 @@ namespace FurniturePro.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("ReplacementGroupItems", (string)null);
-                });
-
-            modelBuilder.Entity("FurniturePro.Core.Entities.DeletedId", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<int>("EntityId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ResponsibleEmployeeId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("TableName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ResponsibleEmployeeId");
-
-                    b.HasIndex("UpdateDate");
-
-                    b.HasIndex("TableName", "EntityId");
-
-                    b.ToTable("DeletedIds", (string)null);
-                });
-
-            modelBuilder.Entity("FurniturePro.Core.Entities.FurnitureEntities.Furniture", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Activity")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("BaseDepth")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("BaseHeight")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("BaseWidth")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<int>("FurnitureCategoryId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Markup")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<string>("Sku")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FurnitureCategoryId");
-
-                    b.HasIndex("Sku")
-                        .IsUnique();
-
-                    b.HasIndex("UpdateDate");
-
-                    b.ToTable("Furnitures", (string)null);
-                });
-
-            modelBuilder.Entity("FurniturePro.Core.Entities.FurnitureEntities.FurnitureCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<DateTime>("UpdateDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.HasIndex("UpdateDate");
-
-                    b.ToTable("FurnitureCategories", (string)null);
                 });
 
             modelBuilder.Entity("FurniturePro.Core.Entities.Orders.Client", b =>
@@ -515,10 +476,7 @@ namespace FurniturePro.Infrastructure.Migrations
             modelBuilder.Entity("FurniturePro.Core.Entities.Orders.Status", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -770,10 +728,7 @@ namespace FurniturePro.Infrastructure.Migrations
             modelBuilder.Entity("FurniturePro.Core.Entities.Parts.PartType", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -847,7 +802,43 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.ToTable("Prices", (string)null);
                 });
 
-            modelBuilder.Entity("FurniturePro.Core.Entities.Users.Employee", b =>
+            modelBuilder.Entity("FurniturePro.Core.Entities.System.DeletedId", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ResponsibleEmployeeId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TableName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResponsibleEmployeeId");
+
+                    b.HasIndex("UpdateDate");
+
+                    b.HasIndex("TableName", "EntityId");
+
+                    b.ToTable("DeletedIds", (string)null);
+                });
+
+            modelBuilder.Entity("FurniturePro.Core.Entities.System.Employee", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -889,15 +880,24 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.HasIndex("UpdateDate");
 
                     b.ToTable("Employees", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Activity = true,
+                            FullName = "Системный Администратор",
+                            HashPassword = "$2a$11$tlbNL6SfhfJjADRztp03ZOGh3o352.y5AB0LEcQEWZVHsaBTxfFGS",
+                            Login = "Admin",
+                            SystemRoleId = 1,
+                            UpdateDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
                 });
 
-            modelBuilder.Entity("FurniturePro.Core.Entities.Users.SystemRole", b =>
+            modelBuilder.Entity("FurniturePro.Core.Entities.System.SystemRole", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
@@ -951,21 +951,32 @@ namespace FurniturePro.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("FurniturePro.Core.Entities.Constructors.FurniturePart", b =>
+            modelBuilder.Entity("FurniturePro.Core.Entities.Catalog.Furniture", b =>
                 {
-                    b.HasOne("FurniturePro.Core.Entities.FurnitureEntities.Furniture", "Furniture")
+                    b.HasOne("FurniturePro.Core.Entities.Catalog.FurnitureCategory", "FurnitureCategory")
+                        .WithMany("Furnitures")
+                        .HasForeignKey("FurnitureCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FurnitureCategory");
+                });
+
+            modelBuilder.Entity("FurniturePro.Core.Entities.Constructor.FurniturePart", b =>
+                {
+                    b.HasOne("FurniturePro.Core.Entities.Catalog.Furniture", "Furniture")
                         .WithMany("FurnitureParts")
                         .HasForeignKey("FurnitureId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("FurniturePro.Core.Entities.Constructors.PartRole", "PartRole")
+                    b.HasOne("FurniturePro.Core.Entities.Constructor.PartRole", "PartRole")
                         .WithMany("FurnitureParts")
                         .HasForeignKey("PartRoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("FurniturePro.Core.Entities.Constructors.ReplacementGroup", "ReplacementGroup")
+                    b.HasOne("FurniturePro.Core.Entities.Constructor.ReplacementGroup", "ReplacementGroup")
                         .WithMany("FurnitureParts")
                         .HasForeignKey("ReplacementGroupId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -978,7 +989,7 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.Navigation("ReplacementGroup");
                 });
 
-            modelBuilder.Entity("FurniturePro.Core.Entities.Constructors.ReplacementGroupItem", b =>
+            modelBuilder.Entity("FurniturePro.Core.Entities.Constructor.ReplacementGroupItem", b =>
                 {
                     b.HasOne("FurniturePro.Core.Entities.Parts.Part", "Part")
                         .WithMany("ReplacementGroupItems")
@@ -986,7 +997,7 @@ namespace FurniturePro.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("FurniturePro.Core.Entities.Constructors.ReplacementGroup", "ReplacementGroup")
+                    b.HasOne("FurniturePro.Core.Entities.Constructor.ReplacementGroup", "ReplacementGroup")
                         .WithMany("ReplacementGroupItems")
                         .HasForeignKey("ReplacementGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -997,28 +1008,6 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.Navigation("ReplacementGroup");
                 });
 
-            modelBuilder.Entity("FurniturePro.Core.Entities.DeletedId", b =>
-                {
-                    b.HasOne("FurniturePro.Core.Entities.Users.Employee", "ResponsibleEmployee")
-                        .WithMany()
-                        .HasForeignKey("ResponsibleEmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ResponsibleEmployee");
-                });
-
-            modelBuilder.Entity("FurniturePro.Core.Entities.FurnitureEntities.Furniture", b =>
-                {
-                    b.HasOne("FurniturePro.Core.Entities.FurnitureEntities.FurnitureCategory", "FurnitureCategory")
-                        .WithMany("Furnitures")
-                        .HasForeignKey("FurnitureCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("FurnitureCategory");
-                });
-
             modelBuilder.Entity("FurniturePro.Core.Entities.Orders.Order", b =>
                 {
                     b.HasOne("FurniturePro.Core.Entities.Orders.Client", "Client")
@@ -1027,7 +1016,7 @@ namespace FurniturePro.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("FurniturePro.Core.Entities.Users.Employee", "ResponsibleEmployee")
+                    b.HasOne("FurniturePro.Core.Entities.System.Employee", "ResponsibleEmployee")
                         .WithMany("ResponsibleForOrders")
                         .HasForeignKey("ResponsibleEmployeeId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1040,7 +1029,7 @@ namespace FurniturePro.Infrastructure.Migrations
 
             modelBuilder.Entity("FurniturePro.Core.Entities.Orders.OrderComposition", b =>
                 {
-                    b.HasOne("FurniturePro.Core.Entities.FurnitureEntities.Furniture", "Furniture")
+                    b.HasOne("FurniturePro.Core.Entities.Catalog.Furniture", "Furniture")
                         .WithMany("OrderCompositions")
                         .HasForeignKey("FurnitureId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1132,7 +1121,7 @@ namespace FurniturePro.Infrastructure.Migrations
 
             modelBuilder.Entity("FurniturePro.Core.Entities.Parts.Price", b =>
                 {
-                    b.HasOne("FurniturePro.Core.Entities.Users.Employee", "Employee")
+                    b.HasOne("FurniturePro.Core.Entities.System.Employee", "Employee")
                         .WithMany("SetPrices")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1149,9 +1138,20 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.Navigation("Part");
                 });
 
-            modelBuilder.Entity("FurniturePro.Core.Entities.Users.Employee", b =>
+            modelBuilder.Entity("FurniturePro.Core.Entities.System.DeletedId", b =>
                 {
-                    b.HasOne("FurniturePro.Core.Entities.Users.SystemRole", "SystemRole")
+                    b.HasOne("FurniturePro.Core.Entities.System.Employee", "ResponsibleEmployee")
+                        .WithMany()
+                        .HasForeignKey("ResponsibleEmployeeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ResponsibleEmployee");
+                });
+
+            modelBuilder.Entity("FurniturePro.Core.Entities.System.Employee", b =>
+                {
+                    b.HasOne("FurniturePro.Core.Entities.System.SystemRole", "SystemRole")
                         .WithMany("Employees")
                         .HasForeignKey("SystemRoleId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1160,28 +1160,28 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.Navigation("SystemRole");
                 });
 
-            modelBuilder.Entity("FurniturePro.Core.Entities.Constructors.PartRole", b =>
-                {
-                    b.Navigation("FurnitureParts");
-                });
-
-            modelBuilder.Entity("FurniturePro.Core.Entities.Constructors.ReplacementGroup", b =>
-                {
-                    b.Navigation("FurnitureParts");
-
-                    b.Navigation("ReplacementGroupItems");
-                });
-
-            modelBuilder.Entity("FurniturePro.Core.Entities.FurnitureEntities.Furniture", b =>
+            modelBuilder.Entity("FurniturePro.Core.Entities.Catalog.Furniture", b =>
                 {
                     b.Navigation("FurnitureParts");
 
                     b.Navigation("OrderCompositions");
                 });
 
-            modelBuilder.Entity("FurniturePro.Core.Entities.FurnitureEntities.FurnitureCategory", b =>
+            modelBuilder.Entity("FurniturePro.Core.Entities.Catalog.FurnitureCategory", b =>
                 {
                     b.Navigation("Furnitures");
+                });
+
+            modelBuilder.Entity("FurniturePro.Core.Entities.Constructor.PartRole", b =>
+                {
+                    b.Navigation("FurnitureParts");
+                });
+
+            modelBuilder.Entity("FurniturePro.Core.Entities.Constructor.ReplacementGroup", b =>
+                {
+                    b.Navigation("FurnitureParts");
+
+                    b.Navigation("ReplacementGroupItems");
                 });
 
             modelBuilder.Entity("FurniturePro.Core.Entities.Orders.Client", b =>
@@ -1235,14 +1235,14 @@ namespace FurniturePro.Infrastructure.Migrations
                     b.Navigation("Parts");
                 });
 
-            modelBuilder.Entity("FurniturePro.Core.Entities.Users.Employee", b =>
+            modelBuilder.Entity("FurniturePro.Core.Entities.System.Employee", b =>
                 {
                     b.Navigation("ResponsibleForOrders");
 
                     b.Navigation("SetPrices");
                 });
 
-            modelBuilder.Entity("FurniturePro.Core.Entities.Users.SystemRole", b =>
+            modelBuilder.Entity("FurniturePro.Core.Entities.System.SystemRole", b =>
                 {
                     b.Navigation("Employees");
                 });

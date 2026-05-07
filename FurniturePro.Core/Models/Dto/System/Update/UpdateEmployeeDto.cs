@@ -2,7 +2,7 @@
 
 namespace FurniturePro.Core.Models.Dto.System.Update;
 
-public class UpdateEmployeeDto : UpdateBaseDto<int>
+public class UpdateEmployeeDto
 {
     public required string FullName { get; set; }
     public required string Login { get; set; }

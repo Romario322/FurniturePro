@@ -2,6 +2,6 @@
 
 namespace FurniturePro.Core.Models.Dto.Parts.Update;
 
-public class UpdatePartCategoryDto : UpdateDictionaryDto<int>
+public class UpdatePartCategoryDto : UpdateDictionaryDto
 {
 }

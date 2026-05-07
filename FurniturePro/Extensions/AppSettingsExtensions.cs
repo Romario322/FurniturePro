@@ -1,4 +1,4 @@
-﻿using FurniturePro.Models.Settings;
+﻿using FurniturePro.Core;
 using FurniturePro.Validators;
 using System.ComponentModel.DataAnnotations;
 using System.Text;

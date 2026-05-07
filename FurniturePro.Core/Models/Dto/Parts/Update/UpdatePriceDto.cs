@@ -2,7 +2,7 @@
 
 namespace FurniturePro.Core.Models.Dto.Parts.Update;
 
-public class UpdatePriceDto : UpdateBaseDto<int>
+public class UpdatePriceDto
 {
     public required decimal Value { get; set; }
     public required DateTime Date { get; set; }

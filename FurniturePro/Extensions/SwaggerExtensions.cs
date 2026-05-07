@@ -1,7 +1,6 @@
 ﻿using Asp.Versioning.ApiExplorer;
-using FurniturePro.Extensions;
+using FurniturePro.Core;
 using FurniturePro.Models.Options;
-using FurniturePro.Models.Settings;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -19,6 +18,31 @@ public static class SwaggerExtensions
         {
             options.IgnoreObsoleteActions();
             options.IgnoreObsoleteProperties();
+
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Введите ваш JWT токен (без слова Bearer, просто сам токен)."
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
         });
 
         services.AddSwaggerGenNewtonsoftSupport();
@@ -39,6 +63,7 @@ public static class SwaggerExtensions
                 });
             }
         });
+
         app.UseSwaggerUI(options =>
         {
             foreach (var description in provider.ApiVersionDescriptions)

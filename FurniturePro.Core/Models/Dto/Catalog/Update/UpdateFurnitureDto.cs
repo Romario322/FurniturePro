@@ -2,7 +2,7 @@
 
 namespace FurniturePro.Core.Models.Dto.Catalog.Update;
 
-public class UpdateFurnitureDto : UpdateCatalogDto<int>
+public class UpdateFurnitureDto : UpdateCatalogDto
 {
     public required int BaseWidth { get; set; }
     public required int BaseHeight { get; set; }

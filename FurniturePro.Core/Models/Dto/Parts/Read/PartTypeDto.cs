@@ -1,5 +1,4 @@
-﻿using FurniturePro.Core.Entities.Parts;
-using FurniturePro.Core.Enums;
+﻿using FurniturePro.Core.Enums;
 using FurniturePro.Core.Models.Dto.Abstractions.Read;
 
 namespace FurniturePro.Core.Models.Dto.Parts.Read;

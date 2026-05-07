@@ -2,6 +2,6 @@
 
 namespace FurniturePro.Core.Models.Dto.Constructor.Update;
 
-public class UpdateReplacementGroupDto : UpdateDictionaryDto<int>
+public class UpdateReplacementGroupDto : UpdateDictionaryDto
 {
 }

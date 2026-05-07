@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FurniturePro.Models.Settings;
+namespace FurniturePro.Core;
 
 public class AppSettings
 {
@@ -11,4 +11,7 @@ public class AppSettings
 
     [Required(ErrorMessage = $"Блок с настройками {nameof(Swagger)} не найден")]
     public required SwaggerConfiguration Swagger { get; set; }
+
+    [Required(ErrorMessage = $"Блок с настройками Jwt не найден")]
+    public required JwtSettings Jwt { get; set; }
 }

@@ -3,11 +3,6 @@ using FurniturePro.Core.Entities.Constructor;
 using FurniturePro.Core.Models.Dto.Constructor.Create;
 using FurniturePro.Core.Models.Dto.Constructor.Read;
 using FurniturePro.Core.Models.Dto.Constructor.Update;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FurniturePro.Core.Mapper;
 

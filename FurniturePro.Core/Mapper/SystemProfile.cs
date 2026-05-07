@@ -1,9 +1,5 @@
 ﻿using AutoMapper;
-using FurniturePro.Core.Entities.Catalog;
 using FurniturePro.Core.Entities.System;
-using FurniturePro.Core.Models.Dto.Catalog.Create;
-using FurniturePro.Core.Models.Dto.Catalog.Read;
-using FurniturePro.Core.Models.Dto.Catalog.Update;
 using FurniturePro.Core.Models.Dto.System.Create;
 using FurniturePro.Core.Models.Dto.System.Read;
 using FurniturePro.Core.Models.Dto.System.Update;

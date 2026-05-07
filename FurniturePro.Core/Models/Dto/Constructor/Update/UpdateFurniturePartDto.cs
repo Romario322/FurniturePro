@@ -2,7 +2,7 @@
 
 namespace FurniturePro.Core.Models.Dto.Constructor.Update;
 
-public class UpdateFurniturePartDto : UpdateBaseDto<int>
+public class UpdateFurniturePartDto
 {
     public required int Quantity { get; set; }
 

@@ -2,7 +2,7 @@
 
 namespace FurniturePro.Core.Models.Dto.System.Update;
 
-public class UpdateDeletedIdDto : UpdateBaseDto<int>
+public class UpdateDeletedIdDto
 {
     public required string TableName { get; set; }
     public string? Description { get; set; }

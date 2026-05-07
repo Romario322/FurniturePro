@@ -2,7 +2,7 @@
 
 namespace FurniturePro.Core.Models.Dto.Orders.Update;
 
-public class UpdateOrderDto : UpdateBaseDto<int>
+public class UpdateOrderDto
 {
     public required string OrderNumber { get; set; }
     public required decimal TotalAmount { get; set; }

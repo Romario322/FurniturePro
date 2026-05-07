@@ -2,7 +2,7 @@
 
 namespace FurniturePro.Core.Models.Dto.Parts.Update;
 
-public class UpdatePartDto : UpdateCatalogDto<int>
+public class UpdatePartDto : UpdateCatalogDto
 {
     public int? Thickness { get; set; }
     public int? WasteCoefficient { get; set; }

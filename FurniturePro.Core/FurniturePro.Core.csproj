@@ -8,6 +8,8 @@
 	
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="14.0.0" />
+		<PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.26" />
 		<PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
 		<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
@@ -16,22 +18,6 @@
 		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="Quartz" Version="3.14.0" />
-	</ItemGroup>
-	
-	<ItemGroup>
-	  <Folder Include="Interfaces\Services\Abstractions\" />
-	  <Folder Include="Interfaces\Services\Catalog\" />
-	  <Folder Include="Interfaces\Services\Constructor\" />
-	  <Folder Include="Interfaces\Services\Orders\" />
-	  <Folder Include="Interfaces\Services\Parts\" />
-	  <Folder Include="Interfaces\Services\System\" />
-	  <Folder Include="Services\Catalog\" />
-	  <Folder Include="Services\Constructor\" />
-	  <Folder Include="Services\Orders\" />
-	  <Folder Include="Services\Parts\" />
-	  <Folder Include="Services\System\" />
-	  <Folder Include="Services\Abstractions\" />
-	  <Folder Include="Services\" />
 	</ItemGroup>
 	
 </Project>
