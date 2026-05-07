@@ -16,4 +16,13 @@ public class Order : BaseEntity<int>
 
     public List<OrderComposition>? OrderCompositions { get; set; }
     public List<StatusChange>? StatusChanges { get; set; }
+
+    public override string ToString()
+    {
+        // Если у вас есть навигационное свойство Client, можно сделать так:
+        // var clientName = Client?.Name ?? "Неизвестный клиент";
+        // return $"Заказ №{Id} от {CreateDate:dd.MM.yyyy} ({clientName})";
+
+        return $"Заказ №{OrderNumber}";
+    }
 }

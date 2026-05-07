@@ -1,5 +1,6 @@
 ﻿using FurniturePro.Core.Interfaces.Services.Abstractions;
 using FurniturePro.Core.Models.Dto.System.Create;
+using FurniturePro.Core.Models.Dto.System.Passwords;
 using FurniturePro.Core.Models.Dto.System.Read;
 using FurniturePro.Core.Models.Dto.System.Update;
 

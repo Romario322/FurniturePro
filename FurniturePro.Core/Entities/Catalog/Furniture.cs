@@ -17,4 +17,9 @@ public class Furniture : CatalogEntity<int>
 
     public List<FurniturePart>? FurnitureParts { get; set; }
     public List<OrderComposition>? OrderCompositions { get; set; }
+
+    public override string ToString()
+    {
+        return $"Мебель: {Name} (Артикул: {Sku})";
+    }
 }

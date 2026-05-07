@@ -12,8 +12,8 @@ namespace FurniturePro.Core.Services.System;
 
 public class SystemRoleService : BaseService<SystemRole, SystemRoleEnum, SystemRoleDto, CreateSystemRoleDto, UpdateSystemRoleDto>, ISystemRoleService
 {
-    public SystemRoleService(ISystemRoleRepository repository, IMapper mapper)
-        : base(repository, mapper)
+    public SystemRoleService(ISystemRoleRepository repository, ICurrentUserService currentUserService, IDeletedIdRepository deletedIdRepository, IMapper mapper)
+        : base(repository, currentUserService, deletedIdRepository, mapper)
     {
     }
 }

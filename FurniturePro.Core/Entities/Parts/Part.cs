@@ -24,4 +24,9 @@ public class Part : CatalogEntity<int>
     public List<ReplacementGroupItem>? ReplacementGroupItems { get; set; }
     public List<Price>? Prices { get; set; }
     public List<OrderPartDetail>? OrderPartDetails { get; set; }
+
+    public override string ToString()
+    {
+        return $"Деталь: {Name} (Артикул: {Sku})";
+    }
 }

@@ -6,4 +6,9 @@ namespace FurniturePro.Core.Entities.Orders;
 public class Status : DictionaryEntity<StatusEnum>
 {
     public List<StatusChange>? StatusChanges { get; set; }
+
+    public override string ToString()
+    {
+        return $"Статус: {Name}";
+    }
 }

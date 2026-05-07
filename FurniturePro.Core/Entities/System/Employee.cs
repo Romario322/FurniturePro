@@ -17,4 +17,9 @@ public class Employee : BaseEntity<int>
 
     public List<Order>? ResponsibleForOrders { get; set; }
     public List<Price>? SetPrices { get; set; }
+
+    public override string ToString()
+    {
+        return $"Сотрудник: {FullName} (Логин: {Login})";
+    }
 }

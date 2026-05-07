@@ -14,4 +14,9 @@ public class Price : BaseEntity<int>
 
     public required int EmployeeId { get; set; }
     public Employee? Employee { get; set; }
+
+    public override string ToString()
+    {
+        return $"Цена {Value} руб. от {Date:dd.MM.yyyy} (Деталь ID: {PartId}, Установил: ID {EmployeeId})";
+    }
 }

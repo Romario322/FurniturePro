@@ -21,7 +21,12 @@ internal class DeletedIdConfiguration : BaseEntityConfiguration<DeletedId, int>
                .HasColumnType("text");
 
         builder.Property(e => e.EntityId)
-               .IsRequired();
+               .IsRequired()
+               .HasMaxLength(10);
+
+        builder.Property(e => e.DeletedAt)
+               .IsRequired()
+               .HasColumnType("timestamp with time zone");
 
         builder.Property(e => e.ResponsibleEmployeeId)
                .IsRequired();

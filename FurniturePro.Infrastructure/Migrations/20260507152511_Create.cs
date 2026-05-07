@@ -333,7 +333,8 @@ namespace FurniturePro.Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     TableName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "text", nullable: true),
-                    EntityId = table.Column<int>(type: "integer", nullable: false),
+                    EntityId = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ResponsibleEmployeeId = table.Column<int>(type: "integer", nullable: false),
                     UpdateDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -550,7 +551,7 @@ namespace FurniturePro.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "Employees",
                 columns: new[] { "Id", "Activity", "FullName", "HashPassword", "Login", "SystemRoleId", "UpdateDate" },
-                values: new object[] { 1, true, "Системный Администратор", "$2a$11$tlbNL6SfhfJjADRztp03ZOGh3o352.y5AB0LEcQEWZVHsaBTxfFGS", "Admin", 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) });
+                values: new object[] { 1, true, "Системный Администратор", "$2a$11$4i0QGpkOYfoDT5z2HAvaP.CoZTdHxTTh/9XRjZvu5C3.zhbAtoJ62", "Admin", 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Clients_Phone",

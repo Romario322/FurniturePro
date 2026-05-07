@@ -1,7 +1,11 @@
 ﻿using AutoMapper;
 using FurniturePro.Core.Entities.Abstractions;
+using FurniturePro.Core.Entities.System;
 using FurniturePro.Core.Interfaces.Repositories.Abstractions;
+using FurniturePro.Core.Interfaces.Repositories.System;
 using FurniturePro.Core.Interfaces.Services.Abstractions;
+using FurniturePro.Core.Interfaces.Services.System;
+using FurniturePro.Core.Models.Dto.System.Create;
 
 namespace FurniturePro.Core.Services.Abstractions;
 
@@ -10,12 +14,16 @@ public abstract class BaseService<TEntity, TId, TReadDto, TCreateDto, TUpdateDto
     where TEntity : class, IEntity<TId>
     where TId : notnull
 {
-    protected readonly IBaseRepository<TEntity, TId> _repository;
+    protected readonly IBaseRepository<TEntity, TId> _repository; 
+    protected readonly ICurrentUserService _currentUserService;
+    protected readonly IDeletedIdRepository _deletedIdRepository;
     protected readonly IMapper _mapper;
 
-    protected BaseService(IBaseRepository<TEntity, TId> repository, IMapper mapper)
+    protected BaseService(IBaseRepository<TEntity, TId> repository, ICurrentUserService currentUserService, IDeletedIdRepository deletedIdRepository, IMapper mapper)
     {
         _repository = repository;
+        _currentUserService = currentUserService;
+        _deletedIdRepository = deletedIdRepository;
         _mapper = mapper;
     }
 
@@ -64,6 +72,24 @@ public abstract class BaseService<TEntity, TId, TReadDto, TCreateDto, TUpdateDto
 
     public virtual async Task DeleteAsync(TId id, CancellationToken ct = default)
     {
+        var entity = await _repository.GetByIdAsync(id, ct);
+        if (entity == null) return;
+
+        var currentUserId = _currentUserService.GetUserId();
+
+        var deletedIdDto = new CreateDeletedIdDto
+        {
+            EntityId = id.ToString(),
+            Description = $"Удалена запись: {entity.ToString()}",
+            ResponsibleEmployeeId = currentUserId ?? 0,
+            TableName = typeof(TEntity).Name,
+            DeletedAt = DateTime.UtcNow
+        };
+
+        var deletedId = _mapper.Map<DeletedId>(deletedIdDto);
+
+        await _deletedIdRepository.CreateAsync(deletedId, ct);
+
         await _repository.DeleteByIdAsync(id, ct);
     }
 }

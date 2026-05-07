@@ -6,4 +6,9 @@ namespace FurniturePro.Core.Entities.System;
 public class SystemRole : DictionaryEntity<SystemRoleEnum>
 {
     public List<Employee>? Employees { get; set; }
+
+    public override string ToString()
+    {
+        return $"Роль: {Name}";
+    }
 }

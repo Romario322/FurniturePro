@@ -81,5 +81,7 @@ public static class DependencyExtensions
         services.AddScoped<ISystemRoleService, SystemRoleService>();
 
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IPasswordService, PasswordService>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
     }
 }

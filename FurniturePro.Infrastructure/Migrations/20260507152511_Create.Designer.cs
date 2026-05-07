@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FurniturePro.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260506204806_Create")]
+    [Migration("20260507152511_Create")]
     partial class Create
     {
         /// <inheritdoc />
@@ -813,11 +813,16 @@ namespace FurniturePro.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<int>("EntityId")
-                        .HasColumnType("integer");
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<int>("ResponsibleEmployeeId")
                         .HasColumnType("integer");
@@ -890,7 +895,7 @@ namespace FurniturePro.Infrastructure.Migrations
                             Id = 1,
                             Activity = true,
                             FullName = "Системный Администратор",
-                            HashPassword = "$2a$11$tlbNL6SfhfJjADRztp03ZOGh3o352.y5AB0LEcQEWZVHsaBTxfFGS",
+                            HashPassword = "$2a$11$4i0QGpkOYfoDT5z2HAvaP.CoZTdHxTTh/9XRjZvu5C3.zhbAtoJ62",
                             Login = "Admin",
                             SystemRoleId = 1,
                             UpdateDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
